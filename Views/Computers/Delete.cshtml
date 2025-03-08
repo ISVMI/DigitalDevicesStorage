@@ -1,0 +1,117 @@
+﻿@model DigitalDevices.Models.Computer
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Computer</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.OS)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.OS)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CPModel)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CPModel)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CPFrequency)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CPFrequency)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CPcores)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CPcores)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RAMType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RAMType)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.RAMGB)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.RAMGB)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.GPU)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.GPU)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.GPUGB)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.GPUGB)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StorageDriveType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StorageDriveType)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.StorageGB)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.StorageGB)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Model)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Model)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Color)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Color)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Warranty)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Warranty)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Manufacturer)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Manufacturer.Id)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
