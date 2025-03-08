@@ -5,133 +5,119 @@
     <p>
         Список техники:
     </p>
-        @{
-            <h3><button class="accordion-button" id ="ComputersBtn">Компьютеры</button></h3>
-            <table id="Computers" class="table" hidden>
-                <thead>
-                    <tr>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].OS)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].CPModel)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].CPFrequency)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].CPcores)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].RAMType)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].RAMGB)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].GPU)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].GPUGB)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].StorageDriveType)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].StorageGB)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Price)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Name)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Model)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Color)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Warranty)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.ComputersData[0].Manufacturer)
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ComputersData)
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OS)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CPModel)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CPFrequency)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CPcores)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.RAMType)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.RAMGB)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.GPU)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.GPUGB)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.StorageDriveType)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.StorageGB)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Price)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Model)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Color)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Warranty)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Manufacturer.Name)
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    <a href="/Manufacturers/">Производители</a>
+    @{
+        <div class="container" style="float:left">
+            <div style="float:left">
+                <a href="/Computers/Index/">
+                    <picture>
+                        <img class="storage-image"
+                             src="https://sh-sadovyj-r56.gosweb.gosuslugi.ru/netcat_files/58/670/1614548430_2_p_kompyuter_na_belom_fone_3.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Компьютеры</span>
+            </div>
+            <div style="float:left">
+                <a href="/GraphicalTablets/Index/">
+                    <picture>
+                        <img class="storage-image"
+                             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Graphic_tablet.svg/2560px-Graphic_tablet.svg.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Графические планшеты</span>
+            </div>
+            <div style="float:left">
+                <a href="/Headphones/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://rayconglobal.com/cdn/shop/files/H90_BLA_IMG1.png?v=1713196566">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Наушники</span>
+            </div>
+            <div style="float:left">
+                <a href="/Keyboards/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://defender.ru/public/o/products/9710/1bb73bf8.webp">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Клавиатуры</span>
+            </div>
+            <div style="float:left">
+                <a href="/Laptops/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://static.tildacdn.com/tild3433-3665-4332-a135-663239333433/image.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Ноутбуки</span>
+            </div>
+            <div style="float:left">
+                <a href="/Mice/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-cd1q-p-kompyuternaya-mishka-png-7.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Компьютерные мыши</span>
+            </div>
+            <div style="float:left">
+                <a href="/Microphones/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://c.dns-shop.ru/thumb/st4/fit/500/500/1c3911b432d6b44b0bb4b828e4393cee/652295a5885b0983d9ec5850bf914a2415679921b6c1e607f38ea5122f19371b.jpg.webp">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Микрофоны</span>
+            </div>
+            <div style="float:left">
+                <a href="/Monitors/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://pngimg.com/uploads/monitor/laptop_PNG5874.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Мониторы</span>
+            </div>
+            <div style="float:left">
+                <a href="/Tablets/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://clipart-library.com/images_k/tablet-png-transparent/tablet-png-transparent-17.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Планшеты</span>
+            </div>
+            <div style="float:left">
+                <a href="/TVs/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://static.tildacdn.com/tild3533-6630-4465-b861-333437646230/1614572259_67-p-tele.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Телевизоры</span>
+            </div>
+            <div style="float:left">
+                <a href="/WebCams/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://c.dns-shop.ru/thumb/st1/fit/500/500/33d9fe6fecad8e6f390b0e7cad3bd602/3c94c538398b00e5faa6a8c794e45b2c82586b3046c456cc259ab57448dfd806.jpg.webp">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Веб-камеры</span>
+            </div>
+            <div style="float:left">
+                <a href="/Manufacturers/Index/">
+                    <picture>
+                        <img class="storage-image" src="https://www.maeswell.com/wp-content/uploads/2018/07/Buiding.png">
+                    </picture>
+                </a>
+                <br>
+                <span class="text-center">Производители</span>
+            </div>
+        </div>
+    }
 </div>
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-                const btn = document.getElementById('ComputersBtn');
-                const table = document.getElementById('Computers');
 
-                btn.addEventListener('click', function() {
-
-                    table.hidden = !table.hidden;
-                });
-            });
-</script>
-}
-@{
-}

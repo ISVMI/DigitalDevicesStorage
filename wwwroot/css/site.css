@@ -16,3 +16,8 @@ html {
 body {
   margin-bottom: 60px;
 }
+.storage-image
+{
+    max-width: 300px;
+    max-height: 200px;
+}
