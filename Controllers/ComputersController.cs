@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using DigitalDevices;
 using DigitalDevices.Models;
 using DigitalDevices.Enums;
+using Microsoft.IdentityModel.Tokens;
+using Humanizer;
 namespace DigitalDevices.Controllers
 {
     public class ComputersController : Controller
@@ -20,9 +22,65 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Computers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString = null, string criteria = null)
         {
             var digitalDevicesContext = _context.Computers.Include(c => c.Manufacturer);
+            if (!searchString.IsNullOrEmpty())
+            {
+                switch (criteria)
+                {
+                    case "Операционная система":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.OS.Humanize().Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Модель процессора":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.CPModel.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Видеокарта":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.GPU.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Наименование":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Модель":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Model.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Производитель":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Manufacturer.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    default:
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                }
+
+            }
             return View(await digitalDevicesContext.ToListAsync());
         }
 
@@ -65,10 +123,11 @@ namespace DigitalDevices.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch { 
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", computer.ManufacturerId);
-            return View(computer);
-        }
+            catch
+            {
+                ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name", computer.ManufacturerId);
+                return View(computer);
+            }
         }
 
         // GET: Computers/Edit/5
@@ -102,6 +161,7 @@ namespace DigitalDevices.Controllers
 
             if (ModelState.IsValid)
             {
+
                 try
                 {
                     _context.Update(computer);
@@ -157,14 +217,14 @@ namespace DigitalDevices.Controllers
             {
                 _context.Computers.Remove(computer);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ComputerExists(int id)
         {
-          return (_context.Computers?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Computers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

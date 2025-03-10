@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DigitalDevices;
 using DigitalDevices.Models;
+using Humanizer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DigitalDevices.Controllers
 {
@@ -20,9 +22,44 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: GraphicalTablets
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString=null, string criteria=null)
         {
-            var digitalDevicesContext = _context.GraphicalTablets.Include(g => g.Manufacturer);
+            var digitalDevicesContext = _context.GraphicalTablets.Include(c => c.Manufacturer);
+            if (!searchString.IsNullOrEmpty())
+            {
+                switch (criteria)
+                {
+                    case "Наименование":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Модель":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Model.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    case "Производитель":
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Manufacturer.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                    default:
+                        {
+                            digitalDevicesContext = digitalDevicesContext
+                        .Where(c => c.Name.Contains(searchString))
+                        .Include(c => c.Manufacturer);
+                            break;
+                        }
+                }
+
+            }
             return View(await digitalDevicesContext.ToListAsync());
         }
 

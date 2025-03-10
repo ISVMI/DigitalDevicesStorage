@@ -9,7 +9,7 @@ namespace DigitalDevices.Models
         [Display(Name = "Свичи")]
         public string Switches { get; set; }
         [Display(Name = "Кейкапы")]
-        public string Keycaps { get; set; }
+        public KeycapsType Keycaps { get; set; }
         [Display(Name = "Жизненный цикл")]
         public int LifeCycle { get; set; }
         [Display(Name = "Сила нажатия")]

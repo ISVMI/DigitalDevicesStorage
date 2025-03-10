@@ -7,7 +7,7 @@ namespace DigitalDevices
         public DigitalDevicesContext(DbContextOptions<DigitalDevicesContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
+            Database.Migrate();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

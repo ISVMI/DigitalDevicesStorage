@@ -22,23 +22,7 @@ namespace DigitalDevices.Controllers
         }
         public IActionResult Storage()
         {
-            var model = new DataViewModel
-            {
-                ComputersData = _context.Computers.ToList(),
-                GraphicalTabletsData = _context.GraphicalTablets.ToList(),
-                HeadphonesData = _context.Headphones.ToList(),
-                KeyboardsData = _context.Keyboards.ToList(),
-                LaptopsData = _context.Laptops.ToList(),
-                MiceData = _context.Mouse.ToList(),
-                MicrophonesData = _context.Microphones.ToList(),
-                MonitorsData = _context.Monitors.ToList(),
-                TabletsData = _context.Tablets.ToList(),
-                TVsData = _context.TVs.ToList(),
-                WebCamsData = _context.WebCams.ToList(),
-                Manufacturers = _context.Manufacturers.ToList()
-            };
-            
-            return View(model);
+            return View();
         }
     }
 }

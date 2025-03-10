@@ -27,24 +27,6 @@ namespace DigitalDevices.Controllers
                           Problem("Entity set 'DigitalDevicesContext.Manufacturers'  is null.");
         }
 
-        // GET: Manufacturers/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Manufacturers == null)
-            {
-                return NotFound();
-            }
-
-            var manufacturer = await _context.Manufacturers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (manufacturer == null)
-            {
-                return NotFound();
-            }
-
-            return View(manufacturer);
-        }
-
         // GET: Manufacturers/Create
         public IActionResult Create()
         {
