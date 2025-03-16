@@ -1,0 +1,145 @@
+﻿@model DigitalDevices.Models.CreateProductViewModel
+@using DigitalDevices.Enums;
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Добавить</h1>
+
+<h4>Новый продукт</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="creationForm" asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Model" class="control-label"></label>
+                <input asp-for="Model" class="form-control" />
+                <span asp-validation-for="Model" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Color" class="control-label"></label>
+                <input asp-for="Color" class="form-control" />
+                <span asp-validation-for="Color" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Warranty" class="control-label"></label>
+                <input asp-for="Warranty" class="form-control" />
+                <span asp-validation-for="Warranty" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ManufacturerId" class="control-label"></label>
+                <select asp-for="ManufacturerId" class="form-control" asp-items="ViewBag.ManufacturerId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductTypesId" class="control-label"></label>
+                <select asp-for="ProductTypesId" class="form-control" id="typeSelect" asp-items="ViewBag.ProductTypesId"></select>
+            </div>
+            <div id="characteristicsContainer" class="form-group">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Добавить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>
+
+@section Scripts {
+    <script>
+        $('#typeSelect').change(function() {
+        var productTypesId = $(this).val();
+        GetCharacteristics(productTypesId)
+        });
+
+        window.onload = function()
+        {
+        GetCharacteristics();
+        }
+
+                function GetCharacteristics(productTypesId = 1) {
+            $.getJSON('/Products/GetCharacteristics', { productTypeId: productTypesId }, function(data) {
+                var container = $('#characteristicsContainer');
+                container.empty();
+                var index = 0;
+                data.forEach(function(charType) {
+
+                    var fieldHtml = `
+                <div class="form-group">
+                    <input type="hidden" name="Characteristics.Index" value="${index}" />
+                    <label>${charType.name}</label>
+                    <input type="hidden"
+                           name="Characteristics[${index}].CharacteristicTypeId"
+                           value="${charType.id}" />`;
+
+                    if (charType.type === 'enum')
+                    {
+                        fieldHtml += `
+                            <select name="Characteristics[${index}].Value"
+                            class="form-control">
+                        ${Object.entries(charType.values).map(([key, val]) => `
+                            <option value="${key}">${val}</option>
+                        `).join('')}
+                    </select>`;
+                    }
+                    else
+                    {
+                        if (charType.type === 'float'
+                        || charType.type === 'double'
+                        || charType.type === 'decimal')
+                        {
+                            fieldHtml += `
+                    <input type="number" step="0.1"
+                           name="Characteristics[${index}].Value"
+                           class="form-control" />`;
+                    }
+                    else if (charType.type === 'bool')
+                    {
+                        fieldHtml += `
+                    <input type="checkbox"
+                           name="Characteristics[${index}].Value"
+                            />`;
+                    }
+                        else
+                        {
+                            fieldHtml += `
+                    <input type="${getInputType(charType.type)}"
+                           name="Characteristics[${index}].Value"
+                           class="form-control" />`;
+                    }
+                    }
+                    fieldHtml += `</div>`;
+            container.append(fieldHtml);
+            index++;
+                });
+            });
+        }
+        function getInputType(dataType) {
+            const typeMap = {
+                'int': 'number',
+                'datetime': 'datetime-local',
+                'date': 'date',
+                'time': 'time',
+                'string': 'text'
+            };
+
+            return typeMap[dataType.toLowerCase()] || 'text';
+        }
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

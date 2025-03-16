@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="CharacteristicTypes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="CharacteristicTypes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Bogus" Version="35.6.2" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="Microsoft.Data.SqlClient.SNI.runtime" Version="5.1.1" />

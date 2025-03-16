@@ -1,0 +1,182 @@
+[
+  {
+    "DataType": "enum",
+    "EnumType": "ConnectionType",
+    "Name": "Тип подключения"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "OperatingSystems",
+    "Name": "Операционная система"
+  },
+  {
+    "DataType": "string",
+    "Name": "Модель процессора"
+  },
+  {
+    "DataType": "float",
+    "Name": "Частота процессора"
+  },
+  {
+    "DataType": "int",
+    "Name": "Количество ядер"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "RAMTypes",
+    "Name": "Тип оперативной памяти"
+  },
+  {
+    "DataType": "string",
+    "Name": "Размер оперативной памяти"
+  },
+  {
+    "DataType": "string",
+    "Name": "Видеокарта"
+  },
+  {
+    "DataType": "int",
+    "Name": "Объём видеопамяти"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "StorageType",
+    "Name": "Тип накопителя"
+  },
+  {
+    "DataType": "string",
+    "Name": "Объём накопителя"
+  },
+  {
+    "DataType": "int",
+    "Name": "Диагональ"
+  },
+  {
+    "DataType": "string",
+    "Name": "Разрешение"
+  },
+  {
+    "DataType": "int",
+    "Name": "Кадров в секунду"
+  },
+  {
+    "DataType": "MatrixTypes",
+    "EnumType": "MatrixTypes",
+    "Name": "Тип матрицы"
+  },
+  {
+    "DataType": "float",
+    "Name": "Количество мегапикселей"
+  },
+  {
+    "DataType": "bool",
+    "Name": "Наличие микрофона"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "VideoConnector",
+    "Name": "Разъём мультимедиа интерфейса"
+  },
+  {
+    "DataType": "int",
+    "Name": "Количество клавиш"
+  },
+  {
+    "DataType": "int",
+    "Name": "DPI"
+  },
+  {
+    "DataType": "int",
+    "Name": "Частота"
+  },
+  {
+    "DataType": "int",
+    "Name": "Максимальное ускорение"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "OperatingPrinciple",
+    "Name": "Принцип действия"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "MicrophoneDirections",
+    "Name": "Направленность"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "MicrophoneExecutionTypes",
+    "Name": "Вид исполнения"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "AudioConnectionType",
+    "Name": "Разъём подключения"
+  },
+  {
+    "DataType": "int",
+    "Name": "Минимальная частота"
+  },
+  {
+    "DataType": "int",
+    "Name": "Макимальная частота"
+  },
+  {
+    "DataType": "int",
+    "Name": "Импенданс"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "KeyboardType",
+    "Name": "Тип клавиатуры"
+  },
+  {
+    "DataType": "string",
+    "Name": "Свичи"
+  },
+  {
+    "DataType": "KeycapsType",
+    "Name": "Кейкапы"
+  },
+  {
+    "DataType": "int",
+    "Name": "Жизненный цикл"
+  },
+  {
+    "DataType": "int",
+    "Name": "Сила нажатия"
+  },
+  {
+    "DataType": "string",
+    "Name": "Материал"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "HeadphonesType",
+    "Name": "Тип наушников"
+  },
+  {
+    "DataType": "int",
+    "Name": "Чувствительность"
+  },
+  {
+    "DataType": "string",
+    "Name": "Формат звуковой схемы"
+  },
+  {
+    "DataType": "int",
+    "Name": "Время отклика"
+  },
+  {
+    "DataType": "float",
+    "Name": "Рабочая ширина"
+  },
+  {
+    "DataType": "float",
+    "Name": "Рабочая высота"
+  },
+  {
+    "DataType": "int",
+    "Name": "Разрешение планшета"
+  }
+]

@@ -1,14 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using DigitalDevices.Enums;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+
 namespace DigitalDevices.Models
 {
-    public class Product
+    public class ProductViewModel
     {
         public int Id { get; set; }
         [Display(Name = "Цена")]
-        [Range(10, 1_000_000), DataType(DataType.Currency)]
-        [Column(TypeName = "float(18, 2)")]
         public float Price { get; set; }
         [Display(Name = "Наименование")]
         public string Name { get; set; }
@@ -20,16 +19,11 @@ namespace DigitalDevices.Models
         public int Warranty { get; set; }
         [Display(Name = "Производитель")]
         public int ManufacturerId { get; set; }
-        [Display(Name = "Производитель")]
-        public virtual Manufacturer Manufacturer { get; set; }
         [Display(Name = "Тип продукта")]
         public int ProductTypesId { get; set; }
-        [Display(Name = "Тип продукта")]
-        public virtual ProductTypes ProductTypes { get; set; }
-        public List<CharacteristicsProduct> CharacteristicsProduct { get; set; } = new();
-        public Product()
-        {
-            
-        }
+        public Manufacturer Manufacturer { get; set; }
+        public ProductTypes ProductTypes { get; set; }
+        public List<Characteristics> Characteristics { get; set; } = new();
+        public List<CharacteristicsType> CharacteristicsTypes { get; set; } = new();
     }
 }

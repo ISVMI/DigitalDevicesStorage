@@ -1,0 +1,127 @@
+[
+  {
+    "Name": "ASUS",
+    "Country": "Тайвань",
+    "Address": "Бэйтоу, Тайбэй"
+  },
+  {
+    "Name": "Logitech",
+    "Country": "Швейцария",
+    "Address": "Лозанна"
+  },
+  {
+    "Name": "ASRock",
+    "Country": "Тайвань",
+    "Address": "Тайбэй, Тайбэй"
+  },
+  {
+    "Name": "MSI",
+    "Country": "Тайвань",
+    "Address": "Бэйтоу, Тайбэй"
+  },
+  {
+    "Name": "Apple",
+    "Country": "США",
+    "Address": "Купертино (Калифорния)"
+  },
+  {
+    "Name": "HYPERPC",
+    "Country": "Россия",
+    "Address": "Москва"
+  },
+  {
+    "Name": "Lenovo",
+    "Country": "Китай",
+    "Address": "Пекин"
+  },
+  {
+    "Name": "XP-Pen",
+    "Country": "Китай",
+    "Address": "Шэньчжэнь"
+  },
+  {
+    "Name": "Wacom",
+    "Country": "Япония",
+    "Address": "Кадзо, Сайтама"
+  },
+  {
+    "Name": "Huion",
+    "Country": "Китай",
+    "Address": "Шэньчжэнь"
+  },
+  {
+    "Name": "LG",
+    "Country": "Южная Корея",
+    "Address": "Сеул"
+  },
+  {
+    "Name": "Xiaomi",
+    "Country": "Китай",
+    "Address": "Хайдянь, Пекин"
+  },
+  {
+    "Name": "Samsung",
+    "Country": "Южная Корея",
+    "Address": "Сеул"
+  },
+  {
+    "Name": "Razer",
+    "Country": "США",
+    "Address": "Ирвайн, Калифорния"
+  },
+  {
+    "Name": "SteelSeries",
+    "Country": "Дания",
+    "Address": "Фредериксборг"
+  },
+  {
+    "Name": "Corsair",
+    "Country": "США",
+    "Address": "Бейсайд-Паркуэй, Фремонт, Калифорния"
+  },
+  {
+    "Name": "Fifine",
+    "Country": "Китай",
+    "Address": "-"
+  },
+  {
+    "Name": "Shure",
+    "Country": "США",
+    "Address": "Найлс, Иллинойс"
+  },
+  {
+    "Name": "Sony",
+    "Country": "Япония",
+    "Address": "Минато, Токио"
+  },
+  {
+    "Name": "HyperX",
+    "Country": "США",
+    "Address": "Пало-Альто (Калифорния)"
+  },
+  {
+    "Name": "Hp",
+    "Country": "США",
+    "Address": "Пало-Альто (Калифорния)"
+  },
+  {
+    "Name": "Sennheiser",
+    "Country": "Германия",
+    "Address": "Ведемарк (Нижняя Саксония)"
+  },
+  {
+    "Name": "Huawei",
+    "Country": "Китай",
+    "Address": "Шэньчжэнь"
+  },
+  {
+    "Name": "Intel",
+    "Country": "США",
+    "Address": "Санта-Клара, Калифорния"
+  },
+  {
+    "Name": "AMD",
+    "Country": "США",
+    "Address": "Санта-Клара, Калифорния"
+  }
+]
