@@ -106,7 +106,8 @@
                            name="Characteristics[${index}].Value"
                            class="form-control" />`;
                     }
-                    else if (charType.type === 'bool')
+                    else if (charType.type === 'bool'
+                    || charType.type === 'boolean')
                     {
                         fieldHtml += `
                     <input type="checkbox"
