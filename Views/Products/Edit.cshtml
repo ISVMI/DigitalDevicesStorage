@@ -45,16 +45,16 @@
                         asp-items="@(new SelectList(ViewBag.ProductTypes, "Id", "Name"))">
                 </select>
             </div>
-                <div id="characteristicsContainer">
+            <div id="characteristicsContainer">
                 @foreach (var charItem in Model.Characteristics)
                 {
                     <input type="hidden"
                            name="Characteristics.Index"
                            value="@charItem.CharacteristicTypeId" />
                 }
-                </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
         </form>
     </div>
 </div>
@@ -84,16 +84,16 @@
             $.getJSON('/Products/GetCharacteristics', { productTypeId: productTypesId }, function(data) {
                 var container = $('#characteristicsContainer');
                 container.empty();
-                
+
                 data.forEach(function(charType, index) {
 
                     var currentValue = initialCharacteristics[charType.id] || '';
-                    
+
                     var fieldHtml = `
                         <div class="form-group">
                             <input type="hidden" name="Characteristics[${index}].CharacteristicTypeId"
                                    value="${charType.id}" />
-                            <label>${charType.name}</label> 
+                            <label>${charType.name}</label>
                     `;
 
                     if(charType.type === 'enum') {

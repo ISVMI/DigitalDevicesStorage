@@ -30,24 +30,57 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(string productType)
+
+        [HttpGet("Products/Index/")]
+        public async Task<IActionResult> Index(string productType, string sortOrder, string searchString)
         {
-            var products = _context.Products
-                .Include(p => p.Manufacturer)
-                .Include(p => p.ProductTypes);
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var matchingProducts = _context.Products
+                 .Include(p => p.Manufacturer)
+                 .Include(p => p.ProductTypes)
+                 .Where(p => p.ProductTypes.Name.Contains(searchString)
+                 || p.Manufacturer.Name.Contains(searchString)
+                 || p.Name.Contains(searchString)
+                 || p.Model.Contains(searchString));
+                if (matchingProducts != null)
+                {
+                    return View(await matchingProducts.ToListAsync());
+                }
+            }
             if (!String.IsNullOrEmpty(productType))
             {
                 var productsOfType = _context.Products
                  .Include(p => p.Manufacturer)
                  .Include(p => p.ProductTypes)
                  .Where(p => p.ProductTypes.Name == productType);
-                if (productsOfType == null)
+                if (productsOfType != null)
                 {
-                    return RedirectToAction(nameof(Index));
+                    return View(await productsOfType.ToListAsync());
                 }
-                return View(await productsOfType.ToListAsync());
             }
-            return View(await products.ToListAsync());
+
+            ViewData["PriceSortParam"] = String.IsNullOrEmpty(sortOrder) ? "Price"
+                : sortOrder == "Price" ?
+                "price_desc"
+                : "Price";
+            ViewData["WarrantySortParam"] = String.IsNullOrEmpty(sortOrder) ? "Warranty"
+                : sortOrder == "Warranty" ?
+                "warranty_desc"
+                : "Warranty";
+            var sortedProducts = _context.Products
+                .Include(p => p.Manufacturer)
+                .Include(p => p.ProductTypes)
+                .Select(p => p);
+            sortedProducts = sortOrder switch
+            {
+                "Price" => sortedProducts.OrderBy(p => p.Price),
+                "Warranty" => sortedProducts.OrderBy(p => p.Warranty),
+                "price_desc" => sortedProducts.OrderByDescending(p => p.Price),
+                "warranty_desc" => sortedProducts.OrderByDescending(p => p.Warranty),
+                _ => sortedProducts.OrderBy(p => p.Manufacturer),
+            };
+            return View(await sortedProducts.AsNoTracking().ToListAsync());
         }
 
         [HttpGet]
@@ -160,9 +193,9 @@ namespace DigitalDevices.Controllers
                 var characteristic = new Models.Characteristics()
                 {
                     CharacteristicsTypeId = charInput.CharacteristicTypeId,
-                    Value = charInput.Value??=""
+                    Value = charInput.Value ??= ""
                 };
-           
+
                 _context.Characteristics.Add(characteristic);
                 await _context.SaveChangesAsync();
                 _context.CharacteristicsProducts.Add(new CharacteristicsProduct()
@@ -277,7 +310,7 @@ namespace DigitalDevices.Controllers
                 var characteristic = new Models.Characteristics
                 {
                     CharacteristicsTypeId = charVm.CharacteristicTypeId,
-                    Value = charVm.Value??=""
+                    Value = charVm.Value ??= ""
                 };
 
                 product.CharacteristicsProduct.Add(new CharacteristicsProduct

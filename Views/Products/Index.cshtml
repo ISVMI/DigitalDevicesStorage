@@ -8,66 +8,84 @@
 <p>
     <a asp-action="Create">Добавить новый продукт</a>
 </p>
-<table class="table">
+
+<table class="table" style="text-align:center">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
+            <th style="border:double">
+                <i id="priceIcon" hidden="hidden">&#11167;</i> <a id="price" asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParam"]">@Html.DisplayNameFor(model => model.Price)</a>
             </th>
-            <th>
+            <th style="border:double">
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
+            <th style="border:double">
                 @Html.DisplayNameFor(model => model.Model)
             </th>
-            <th>
+            <th style="border:double">
                 @Html.DisplayNameFor(model => model.Color)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Warranty)
+            <th style="border:double">
+                <i id="warrantyIcon" hidden="hidden">&#11167;</i> <a id="warranty" asp-action="Index" asp-route-sortOrder="@ViewData["WarrantySortParam"]">@Html.DisplayNameFor(model => model.Warranty)</a>
             </th>
-            <th>
+            <th style="border:double">
                 @Html.DisplayNameFor(model => model.Manufacturer)
             </th>
-            <th>
+            <th style="border:double">
                 @Html.DisplayNameFor(model => model.ProductTypes)
             </th>
-            <th>
-                
+            <th style="border:double">
+                Действия
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Color)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Warranty)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Manufacturer.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductTypes.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Подробно</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Model)
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Color)
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Warranty) мес.
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.Manufacturer.Name)
+                </td>
+                <td style="border:double">
+                    @Html.DisplayFor(modelItem => item.ProductTypes.Name)
+                </td>
+                <td style="border:double">
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Подробно</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@section Scripts {
+    <script>
+        // $('#warranty').onclick(function() {
+        //     var warranty = $('#warrantyIcon');
+        //     ChangeIcon(warranty)
+        //     });
+        //     $('#price').onclick(function() {
+        //     var price = $('#priceIcon');
+        //     ChangeIcon(price)
+        //     });
+        //     function ChangeIcon(item)
+        //     {
+        //         item.hidden="";
+        //         item.InnerText='&#11165;'
+        //     }
+    </script>
+}
