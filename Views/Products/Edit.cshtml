@@ -35,7 +35,6 @@
                 <label asp-for="ManufacturerId" class="control-label"></label>
                 <select asp-for="ManufacturerId" class="form-control"
                         asp-items="@(new SelectList(ViewBag.Manufacturers, "Id", "Name"))">
-                    >
                 </select>
             </div>
             <div class="form-group">
@@ -47,32 +46,12 @@
                 </select>
             </div>
                 <div id="characteristicsContainer">
-                    @foreach (var (charItem, index) in Model.Characteristics.Select((c, i) => (c, i)))
-                    {
-                    <input type="hidden" name="Characteristics.Index" value="@index" />
-                        <div class="form-group">
-                            <input type="hidden"
-                                   name="Characteristics[@index].CharacteristicTypeId"
-                                   value="@charItem.CharacteristicTypeId" />
-
-                            @if (charItem.DataType == "enum")
-                            {
-                                <label>@charItem.Name</label>
-                                <select name="Characteristics[@index].Value"
-                                        class="form-control"
-                                        asp-items="@(new SelectList(charItem.EnumValues, "Key", "Value"))">
-                                </select>
-                            }
-                            else
-                            {
-                                <label>@charItem.Name</label>
-                                <input type="text"
-                                       name="Characteristics[@index].Value"
-                                       value="@charItem.Value"
-                                       class="form-control" />
-                            }
-                        </div>
-                    }
+                @foreach (var charItem in Model.Characteristics)
+                {
+                    <input type="hidden"
+                           name="Characteristics.Index"
+                           value="@charItem.CharacteristicTypeId" />
+                }
                 </div>
 
                 <button type="submit" class="btn btn-primary">Сохранить</button>
@@ -88,29 +67,33 @@
                 GetCharacteristics(initialTypeId, true);
             }
         });
+        var initialCharacteristics = {};
+        @if (Model.Characteristics != null)
+        {
+            foreach (var item in Model.Characteristics)
+            {
+                @:initialCharacteristics[@item.CharacteristicTypeId] = '@item.Value';
+            }
+        }
         $('#typeSelect').change(function() {
-        var productTypesId = $(this).val();
+        var productTypesId = $('#typeSelect').val();
         GetCharacteristics(productTypesId)
         });
-        function GetCharacteristics(productTypesId, isEdit = false) {
+
+        function GetCharacteristics(productTypesId) {
             $.getJSON('/Products/GetCharacteristics', { productTypeId: productTypesId }, function(data) {
-                var container = $('#namesContainer');
+                var container = $('#characteristicsContainer');
                 container.empty();
-
+                
                 data.forEach(function(charType, index) {
-                    var currentValue = '';
-                    if(isEdit) {
-                        var existingChar = $('input[name="Characteristics[' + index + '].CharacteristicTypeId"]').val();
-                        currentValue = $('input[name="Characteristics[' + index + '].Value"]').val();
-                    }
 
+                    var currentValue = initialCharacteristics[charType.id] || '';
+                    
                     var fieldHtml = `
                         <div class="form-group">
-                            <input type="hidden" name="Characteristics.Index" value="${index}" />
-                            <input type="hidden"
-                                   name="Characteristics[${index}].CharacteristicTypeId"
+                            <input type="hidden" name="Characteristics[${index}].CharacteristicTypeId"
                                    value="${charType.id}" />
-                            <label>${charType.name}</label>
+                            <label>${charType.name}</label> 
                     `;
 
                     if(charType.type === 'enum') {
@@ -135,19 +118,21 @@
                                    class="form-control" />
                         `;
                         }
+
                         else if (charType.type === 'bool'
                         || charType.type === 'boolean')
                         {
                             fieldHtml += `
                             <input type="checkbox"
                                    name="Characteristics[${index}].Value"
-                                   value="${currentValue}" />
+                                   ${currentValue.toLowerCase() === 'true' ? 'checked' : ''}
+                                    />
                         `;
                         }
                         else
                         {
-                        fieldHtml += `
-                            <input type="${getInputType(charType.Type)}"
+                            fieldHtml += `
+                            <input type="${getInputType(charType.type)}"
                                    name="Characteristics[${index}].Value"
                                    value="${currentValue}"
                                    class="form-control" />
@@ -161,7 +146,7 @@
                 });
             });
         }
-        function GetInputType(dataType) {
+        function getInputType(dataType) {
             const typeMap = {
                 'int': 'number',
                 'datetime': 'datetime-local',

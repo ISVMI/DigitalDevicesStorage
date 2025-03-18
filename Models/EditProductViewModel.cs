@@ -32,8 +32,8 @@ namespace DigitalDevices.Models
         {
             public int CharacteristicTypeId { get; set; }
             public string Value { get; set; }
-            public string Name { get; set; }
-            public string DataType { get; set; }
+            public string Name { get; set; } = "none";
+            public string DataType { get; set; } = "string";
             public Dictionary<string, string> EnumValues { get; set; }
         }
     }

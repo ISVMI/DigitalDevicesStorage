@@ -16,6 +16,7 @@ using Bogus.DataSets;
 using System.Drawing;
 using static DigitalDevices.Models.EditProductViewModel;
 using System.Reflection.PortableExecutable;
+using static DigitalDevices.Models.ProductTypeViewModel;
 
 namespace DigitalDevices.Controllers
 {
@@ -29,12 +30,24 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string productType)
         {
-            var digitalDevicesContext = _context.Products
+            var products = _context.Products
                 .Include(p => p.Manufacturer)
                 .Include(p => p.ProductTypes);
-            return View(await digitalDevicesContext.ToListAsync());
+            if (!String.IsNullOrEmpty(productType))
+            {
+                var productsOfType = _context.Products
+                 .Include(p => p.Manufacturer)
+                 .Include(p => p.ProductTypes)
+                 .Where(p => p.ProductTypes.Name == productType);
+                if (productsOfType == null)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(await productsOfType.ToListAsync());
+            }
+            return View(await products.ToListAsync());
         }
 
         [HttpGet]
@@ -42,7 +55,8 @@ namespace DigitalDevices.Controllers
         {
 
             var characteristics = _context.CharacteristicsType
-                .Where(ct => ct.CharacteristicsTypeProductTypes.Any(ptc => ptc.ProductTypesId == productTypeId))
+                .Where(ct => ct.CharacteristicsTypeProductTypes
+                .Any(ptc => ptc.ProductTypesId == productTypeId))
                 .Select(ct => new
                 {
                     ct.Id,
@@ -69,26 +83,6 @@ namespace DigitalDevices.Controllers
                 );
         }
 
-        public async Task<IActionResult> GetCharacteristicsToEdit(int productTypeId)
-        {
-            var characteristics = await _context.CharacteristicsTypeProductTypes
-                .Where(ctpt => ctpt.ProductTypesId == productTypeId)
-                .Select(ctpt => ctpt.CharacteristicsTypes)
-                .ToListAsync();
-
-            var viewModel = characteristics.Select(c => new ProductCharacteristicEditVM
-            {
-                CharacteristicTypeId = c.Id,
-                Name = c.Name,
-                DataType = c.DataType,
-                EnumValues = c.DataType == "enum"
-                    ? GetEnumValues(c.EnumType)
-                    : null
-            }).ToList();
-
-            return PartialView("_CharacteristicsEditor", viewModel);
-        }
-
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -96,17 +90,41 @@ namespace DigitalDevices.Controllers
             {
                 return NotFound();
             }
-
             var product = await _context.Products
                 .Include(p => p.Manufacturer)
-                .Include(p => p.ProductTypes)
-                .FirstOrDefaultAsync(m => m.Id == id);
+        .Include(p => p.ProductTypes)
+        .Include(p => p.CharacteristicsProduct)
+            .ThenInclude(cp => cp.Characteristics)
+                .ThenInclude(c => c.CharacteristicsType)
+        .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null)
             {
                 return NotFound();
             }
+            var model = new ProductTypeViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price,
+                Model = product.Model,
+                Color = product.Color,
+                Warranty = product.Warranty,
+                Manufacturer = product.Manufacturer,
+                ProductType = product.ProductTypes,
+                Characteristics = product.CharacteristicsProduct
+                    .Select(cp => new CharacteristicByType
+                    {
+                        CharacteristicType = cp.Characteristics.CharacteristicsType.Name,
+                        Value = cp.Characteristics.Value,
+                    })
+                    .ToList()
+            };
 
-            return View(product);
+            ViewBag.Manufacturers = await _context.Manufacturers.ToListAsync();
+            ViewBag.ProductTypes = await _context.ProductTypes.ToListAsync();
+
+            return View(model);
         }
 
         // GET: Products/Create
@@ -142,9 +160,9 @@ namespace DigitalDevices.Controllers
                 var characteristic = new Models.Characteristics()
                 {
                     CharacteristicsTypeId = charInput.CharacteristicTypeId,
-                    Value = charInput.Value
+                    Value = charInput.Value??=""
                 };
-
+           
                 _context.Characteristics.Add(characteristic);
                 await _context.SaveChangesAsync();
                 _context.CharacteristicsProducts.Add(new CharacteristicsProduct()
@@ -155,7 +173,7 @@ namespace DigitalDevices.Controllers
             }
             await _context.SaveChangesAsync();
 
-            return View(productModel);
+            return RedirectToAction(nameof(Index));
 
         }
 
@@ -193,7 +211,7 @@ namespace DigitalDevices.Controllers
                         DataType = cp.Characteristics.CharacteristicsType.DataType,
                         EnumValues = cp.Characteristics.CharacteristicsType.DataType == "enum"
                             ? GetEnumValues(cp.Characteristics.CharacteristicsType.EnumType)
-                            : null
+                            : new()
                     })
                     .ToList()
             };
@@ -205,29 +223,48 @@ namespace DigitalDevices.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditProductViewModel model)
+        public async Task<IActionResult> Edit(
+    [FromForm] int Id,
+    [FromForm] string Name,
+    [FromForm] float Price,
+    [FromForm] string Model,
+    [FromForm] string Color,
+    [FromForm] int Warranty,
+    [FromForm] int ManufacturerId,
+    [FromForm] int ProductTypeId,
+    [FromForm] List<ProductCharacteristicEditVM> Characteristics)
+
         {
-            if (ModelState.IsValid)
+            var model = new EditProductViewModel
             {
-                var product = await _context.Products
-    .Include(p => p.CharacteristicsProduct)
-        .ThenInclude(cp => cp.Characteristics)
-    .FirstOrDefaultAsync(p => p.Id == model.Id);
+                Id = Id,
+                Name = Name,
+                Price = Price,
+                Model = Model,
+                Color = Color,
+                Warranty = Warranty,
+                ManufacturerId = ManufacturerId,
+                ProductTypeId = ProductTypeId,
+                Characteristics = Characteristics
+            };
+            var product = await _context.Products
+.Include(p => p.CharacteristicsProduct)
+    .ThenInclude(cp => cp.Characteristics)
+.FirstOrDefaultAsync(p => p.Id == Id);
+            product.Id = model.Id;
+            product.Name = model.Name;
+            product.Price = model.Price;
+            product.Model = model.Model;
+            product.Color = model.Color;
+            product.Warranty = model.Warranty;
+            product.ManufacturerId = model.ManufacturerId;
+            product.ProductTypesId = model.ProductTypeId;
 
-                product.Name = model.Name;
-                product.Price = model.Price;
-                product.Model = model.Model;
-                product.Color = model.Color;
-                product.Warranty = model.Warranty;
-                product.ManufacturerId = model.ManufacturerId;
-                product.ProductTypesId = model.ProductTypeId;
+            await UpdateProductCharacteristicsAsync(product, model.Characteristics);
 
-                await UpdateProductCharacteristicsAsync(product, model.Characteristics);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
 
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(model);
         }
 
         private async Task UpdateProductCharacteristicsAsync(Product product, List<ProductCharacteristicEditVM> characteristics)
@@ -240,7 +277,7 @@ namespace DigitalDevices.Controllers
                 var characteristic = new Models.Characteristics
                 {
                     CharacteristicsTypeId = charVm.CharacteristicTypeId,
-                    Value = charVm.Value
+                    Value = charVm.Value??=""
                 };
 
                 product.CharacteristicsProduct.Add(new CharacteristicsProduct

@@ -1,4 +1,4 @@
-﻿@model DigitalDevices.Models.Product
+﻿@model DigitalDevices.Models.ProductTypeViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -7,7 +7,7 @@
 <h1>Подробно</h1>
 
 <div>
-    <h4>Продукт</h4>
+    <h4>@Model.Manufacturer.Name @Model.Name @Model.Model</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -47,11 +47,20 @@
             @Html.DisplayFor(model => model.Manufacturer.Name)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProductTypes)
+            @Html.DisplayNameFor(model => model.ProductType)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductTypes.Name)
+            @Html.DisplayFor(model => model.ProductType.Name)
         </dd>
+        @foreach (var item in Model.Characteristics)
+        {
+            <dt class = "col-sm-2">
+        @item.CharacteristicType
+        </dt>
+        <dd class = "col-sm-10">
+        @item.Value
+        </dd>
+        }
     </dl>
 </div>
 <div>

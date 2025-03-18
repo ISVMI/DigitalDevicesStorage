@@ -60,7 +60,7 @@
     "Name": "Кадров в секунду"
   },
   {
-    "DataType": "MatrixTypes",
+    "DataType": "enum",
     "EnumType": "MatrixTypes",
     "Name": "Тип матрицы"
   },
@@ -135,7 +135,8 @@
     "Name": "Свичи"
   },
   {
-    "DataType": "KeycapsType",
+    "DataType": "enum",
+    "EnumType": "KeycapsType",
     "Name": "Кейкапы"
   },
   {
