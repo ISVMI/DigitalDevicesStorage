@@ -16,7 +16,7 @@ namespace DigitalDevices.Models
         public string Model { get; set; }
         [Display(Name = "Цвет")]
         public string Color { get; set; }
-        [Display(Name = "Срок гарантии")]
+        [Display(Name = "Срок гарантии мес.")]
         public int Warranty { get; set; }
         [Display(Name = "Производитель")]
         public int ManufacturerId { get; set; }

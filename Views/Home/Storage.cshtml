@@ -1,8 +1,14 @@
-﻿<h1>Техника, хранимая на складе</h1>
+﻿@using DigitalDevices;
+@using Microsoft.EntityFrameworkCore
+<h1>Техника, хранимая на складе</h1>
 <div>
     <p>
         Список техники:
     </p>
+    @{
+        var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
+        DigitalDevicesContext context = new(optionsBuilder.Options);
+    }
     @{
         <div class="container" style="float:left">
             <div style="float:left">
@@ -13,7 +19,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Компьютеры</span>
+                <span class="text-center">Компьютеры (@context.Products.Where(p=>p.ProductTypes.Name == "Компьютер").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Графический планшет">
@@ -23,7 +29,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Графические планшеты</span>
+                <span class="text-center">Графические планшеты (@context.Products.Where(p => p.ProductTypes.Name == "Графический планшет").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Наушники">
@@ -32,7 +38,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Наушники</span>
+                <span class="text-center">Наушники (@context.Products.Where(p => p.ProductTypes.Name == "Наушники").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Клавиатура">
@@ -41,7 +47,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Клавиатуры</span>
+                <span class="text-center">Клавиатуры (@context.Products.Where(p => p.ProductTypes.Name == "Клавиатура").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Ноутбук">
@@ -50,7 +56,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Ноутбуки</span>
+                <span class="text-center">Ноутбуки (@context.Products.Where(p => p.ProductTypes.Name == "Ноутбук").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Компьютерная мышь">
@@ -59,7 +65,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Компьютерные мыши</span>
+                <span class="text-center">Компьютерные мыши (@context.Products.Where(p => p.ProductTypes.Name == "Компьютерная мышь").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Микрофон">
@@ -68,7 +74,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Микрофоны</span>
+                <span class="text-center">Микрофоны (@context.Products.Where(p => p.ProductTypes.Name == "Микрофон").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Монитор">
@@ -77,7 +83,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Мониторы</span>
+                <span class="text-center">Мониторы (@context.Products.Where(p => p.ProductTypes.Name == "Монитор").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Планшет">
@@ -86,7 +92,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Планшеты</span>
+                <span class="text-center">Планшеты (@context.Products.Where(p => p.ProductTypes.Name == "Планшет").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Телевизор">
@@ -95,7 +101,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Телевизоры</span>
+                <span class="text-center">Телевизоры (@context.Products.Where(p => p.ProductTypes.Name == "Телевизор").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Products/Index?productType=Веб-камера">
@@ -104,7 +110,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Веб-камеры</span>
+                <span class="text-center">Веб-камеры (@context.Products.Where(p => p.ProductTypes.Name == "Веб-камера").Count())</span>
             </div>
             <div style="float:left">
                 <a href="/Manufacturers/Index?productType=">
@@ -113,7 +119,7 @@
                     </picture>
                 </a>
                 <br>
-                <span class="text-center">Производители</span>
+                <span class="text-center">Производители (@context.Manufacturers.Count())</span>
             </div>
         </div>
     }

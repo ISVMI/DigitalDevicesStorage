@@ -23,7 +23,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Storage">Список техники</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Продукты</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Техника</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Manufacturers" asp-action="Index">Производители</a>
@@ -31,8 +31,12 @@
                         <li class="nav-item">
                             <form asp-controller="Products" asp-action="Index" method="get">
                                 <p>
+                                    <div class="input-group input-group-sm">
                                     <input name="searchString" type="text" placeholder="Поиск..." />
-                                    <input type="submit" value="Поиск" />
+                                    <div class="input-group-btn">
+                                            <button class="btn btn-outline-dark" type="submit">&#128269;</button>
+                                    </div>
+                                    </div>
                                 </p>
                             </form>
                         </li>

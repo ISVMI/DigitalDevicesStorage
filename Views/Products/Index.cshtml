@@ -1,91 +1,346 @@
-﻿@model IEnumerable<DigitalDevices.Models.Product>
+﻿@using DigitalDevices
+@using DigitalDevices.Enums;
+@using Microsoft.EntityFrameworkCore
+@model PaginatedList<DigitalDevices.Models.Product>
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Продукты</h1>
+<h1>Техника</h1>
 
 <p>
-    <a asp-action="Create">Добавить новый продукт</a>
+    <a asp-action="Create">Добавить новую</a>
 </p>
 
-<table class="table" style="text-align:center">
-    <thead>
-        <tr>
-            <th style="border:double">
-                <i id="priceIcon" hidden="hidden">&#11167;</i> <a id="price" asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParam"]">@Html.DisplayNameFor(model => model.Price)</a>
-            </th>
-            <th style="border:double">
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th style="border:double">
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th style="border:double">
-                @Html.DisplayNameFor(model => model.Color)
-            </th>
-            <th style="border:double">
-                <i id="warrantyIcon" hidden="hidden">&#11167;</i> <a id="warranty" asp-action="Index" asp-route-sortOrder="@ViewData["WarrantySortParam"]">@Html.DisplayNameFor(model => model.Warranty)</a>
-            </th>
-            <th style="border:double">
-                @Html.DisplayNameFor(model => model.Manufacturer)
-            </th>
-            <th style="border:double">
-                @Html.DisplayNameFor(model => model.ProductTypes)
-            </th>
-            <th style="border:double">
-                Действия
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@{
+    var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
+    DigitalDevicesContext context = new(optionsBuilder.Options);
+}
+<div class="accordion-body" style="float:left" ::before>
+    <div class="left-filters" ::before>
+        <div class="collapsible-parent">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon active"></use>
+                </svg>
+                Цена
+            </a>
+            <form class="collapsible-form">
+                <input class="form-control" type="number" min="10" max="999999" placeholder="от @context.Products.OrderBy(p=>p.Price).First().Price">
+                <input class="form-control" type="number" min="10" max="999999" placeholder="до @context.Products.OrderByDescending(p=>p.Price).First().Price">
+            </form>
+        </div>
+        <div>
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Операционная система
+            </a>
+            <form class="collapsible-form" style="display:@(ViewData["ProductType"].ToString() == "Компьютер" ? "block" : @ViewData["ProductType"].ToString() == "Ноутбук" ? "block" : "none")">
+                <ul class="scrollable-list" data-list-type="os">
+                    <li class="list-group-item">
+                        <input type="checkbox" class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                    @foreach (var os in Enum.GetValues(typeof(OperatingSystems)).Cast<OperatingSystems>())
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" class="os-checkbox" />
+                            <label>@os.ToString()</label>
+                        </li>
+                    }
+                </ul>
+            </form>
+        </div>
+        <div>
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Производитель
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="manufacturer">
+                    <li class="list-group-item">
+                        <input type="checkbox" class="select-all" />
+                        <label>Все производители</label>
+                    </li>
+                    @{
+                        var manufacturersByType = await context.Products.Where(p => p.ProductTypes.Name == @ViewData["ProductType"].ToString())
+                        .Select(p => p.Manufacturer).ToListAsync();
+
+                        if (manufacturersByType.Count == 0)
+                        {
+                            manufacturersByType.AddRange(context.Manufacturers);
+                        }
+                        else
+                        {
+                            manufacturersByType = manufacturersByType.Distinct().ToList();
+                        }
+                        foreach (var manufacturer in manufacturersByType)
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox" class="manufacturer-checkbox" />
+                                <label>@manufacturer.Name</label>
+                            </li>
+                        }
+                    }
+                </ul>
+            </form>
+
+        </div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
+
+<div class="left-filters">
+    <table class="table" style="text-align:center">
+        <thead>
             <tr>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Model)
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Color)
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Warranty) мес.
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.Manufacturer.Name)
-                </td>
-                <td style="border:double">
-                    @Html.DisplayFor(modelItem => item.ProductTypes.Name)
-                </td>
-                <td style="border:double">
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Подробно</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-                </td>
+                <svg style="display:none;">
+                    <symbol id="icon-arrow-up" viewBox="0 0 24 24">
+                        <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
+                    </symbol>
+                    <symbol id="icon-arrow-down" viewBox="0 0 24 24">
+                        <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+                    </symbol>
+                </svg>
+                <th style="border:double">
+                    <a class="sort-link" data-sort-field="Price"
+                       asp-action="Index"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-sortField="Price"
+                       asp-route-sortOrder="@ViewData["PriceSortOrder"]">
+                        @Html.DisplayNameFor(model => model.First().Price)
+                        <svg class="sort-icon @(ViewData["SortField"]?.ToString() == "Price" ? "active" : "")"
+                             width="24" height="24"
+                             data-direction="@ViewData["SortOrder"]">
+                            <use xlink:href="#icon-arrow-up" class="asc-icon"></use>
+                            <use xlink:href="#icon-arrow-down" class="desc-icon"></use>
+                        </svg>
+                    </a>
+                </th>
+                <th style="border:double">
+                    @Html.DisplayNameFor(model => model.First().Name)
+                </th>
+                <th style="border:double">
+                    @Html.DisplayNameFor(model => model.First().Model)
+                </th>
+                <th style="border:double">
+                    @Html.DisplayNameFor(model => model.First().Color)
+                </th>
+                <th style="border:double">
+                    <a class="sort-link" data-sort-field="Warranty"
+                       asp-action="Index"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-sortField="Warranty"
+                       asp-route-sortOrder="@ViewData["WarrantySortOrder"]">
+                        @Html.DisplayNameFor(model => model.First().Warranty)
+                        <svg class="sort-icon @(ViewData["SortField"]?.ToString() == "Warranty" ? "active" : "")"
+                             width="24" height="24"
+                             data-direction="@ViewData["SortOrder"]">
+                            <use xlink:href="#icon-arrow-up" class="asc-icon"></use>
+                            <use xlink:href="#icon-arrow-down" class="desc-icon"></use>
+                        </svg>
+                    </a>
+                </th>
+                <th style="border:double">
+                    @Html.DisplayNameFor(model => model.First().Manufacturer)
+                </th>
+                <th style="border:double">
+                    @Html.DisplayNameFor(model => model.First().ProductTypes)
+                </th>
+                <th style="border:double">
+                    Действия
+                </th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Model)
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Color)
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Warranty) мес.
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.Manufacturer.Name)
+                    </td>
+                    <td style="border:double">
+                        @Html.DisplayFor(modelItem => item.ProductTypes.Name)
+                    </td>
+                    <td style="border:double">
+                        <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Подробно</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+    <p>
+        Страница @(Model.PageIndex)
+    </p>
+
+    <a asp-action="Index" class="btn btn-default @prevDisabled"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]">
+        &#129186 Назад
+    </a>
+    <a class="btn btn-default @nextDisabled"
+       asp-action="Index"
+       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]">
+        Далее &#129187
+    </a>
+</div>
+<style>
+    .collapsible-filter {
+        text-align: left;
+        width: 250px;
+        color: black;
+    }
+
+    .collapsible-form {
+        display: none;
+    }
+
+    .left-filters {
+        float: left;
+    }
+
+    .scrollable-list {
+        height: 300px;
+        width: 250px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+    .filter-icon {
+        float: left;
+    }
+
+    .down-icon {
+        display: block;
+    }
+
+    .up-icon {
+        display: none;
+    }
+
+    .asc-icon {
+        display: none;
+    }
+
+    .desc-icon {
+        display: none;
+    }
+
+    [data-direction="asc"] .asc-icon {
+        display: block;
+    }
+
+    [data-direction="desc"] .desc-icon {
+        display: block;
+    }
+</style>
 @section Scripts {
     <script>
-        // $('#warranty').onclick(function() {
-        //     var warranty = $('#warrantyIcon');
-        //     ChangeIcon(warranty)
-        //     });
-        //     $('#price').onclick(function() {
-        //     var price = $('#priceIcon');
-        //     ChangeIcon(price)
-        //     });
-        //     function ChangeIcon(item)
-        //     {
-        //         item.hidden="";
-        //         item.InnerText='&#11165;'
-        //     }
+        document.addEventListener('DOMContentLoaded', function() {
+             document.querySelectorAll('.sort-link').forEach(link => {
+                 link.addEventListener('click', function(e) {
+                     e.preventDefault();
+
+                     const sortField = this.dataset.sortField;
+                     const currentOrder = this.querySelector('svg').dataset.direction === 'asc' ? 'desc' : 'asc';
+
+                     const url = new URL(window.location.href);
+                     url.searchParams.set('sortField', sortField);
+                     url.searchParams.set('sortOrder', currentOrder);
+                     window.location.href = url.toString();
+                 });
+             });
+         });
+
+             $(document).ready(function () {
+            $('.list-group-item').hover(
+                function () { $(this).css('background-color', '#f8f9fa'); },
+                function () { $(this).css('background-color', ''); }
+            );
+
+                    $('.scrollable-list').each(function() {
+                const list = $(this);
+
+                list.find('.list-group-item').click(function(e) {
+                    
+                    const checkbox = $(this).find('input[type="checkbox"]');
+                    if (!$(e.target).is(':checkbox')) {
+                        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+                    }
+                });
+
+                list.find('input[type="checkbox"]:first').change(function() {
+                    const isChecked = $(this).prop('checked');
+                    list.find('input[type="checkbox"]').not(this).prop('checked', isChecked);
+                });
+
+                list.find('input[type="checkbox"]:not(:first)').change(function() {
+                    const allChecked = list.find('input[type="checkbox"]:not(:first)').length ===
+                                     list.find('input[type="checkbox"]:not(:first):checked').length;
+                    list.find('input[type="checkbox"]:first').prop('checked', allChecked);
+                });
+            });
+
+                    $('.collapsible-filter').click(function(e) {
+                e.preventDefault();
+
+                var filterBlock = $(this).closest("div");
+                var form = filterBlock.find('.collapsible-form');
+                var upIcon = filterBlock.find('.up-icon');
+                var downIcon = filterBlock.find('.down-icon');
+                if (form.is(':hidden'))
+                {
+                    upIcon.show()
+                    downIcon.hide()
+                }
+                else
+                {
+                    downIcon.show()
+                    upIcon.hide()
+                }
+
+                form.toggle();
+            });
+            });
+
     </script>
 }
+

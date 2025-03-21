@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DigitalDevices;
 using DigitalDevices.Models;
-using System.ComponentModel.DataAnnotations;
-using DigitalDevices.Enums;
 using Humanizer;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Principal;
-using Bogus.DataSets;
-using System.Drawing;
 using static DigitalDevices.Models.EditProductViewModel;
-using System.Reflection.PortableExecutable;
 using static DigitalDevices.Models.ProductTypeViewModel;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DigitalDevices.Controllers
 {
@@ -31,56 +20,84 @@ namespace DigitalDevices.Controllers
 
         // GET: Products
 
-        [HttpGet("Products/Index/")]
-        public async Task<IActionResult> Index(string productType, string sortOrder, string searchString)
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            string productType,
+            string currentFilter,
+            string searchString,
+            string sortField,
+            string sortOrder,
+            int? pageNumber)
         {
+            int pageSize = 10;
             if (!String.IsNullOrEmpty(searchString))
             {
-                var matchingProducts = _context.Products
+                pageNumber = 1;
+
+                var searchQuery = _context.Products
                  .Include(p => p.Manufacturer)
                  .Include(p => p.ProductTypes)
+                 .Include(p => p.CharacteristicsProduct)
                  .Where(p => p.ProductTypes.Name.Contains(searchString)
                  || p.Manufacturer.Name.Contains(searchString)
                  || p.Name.Contains(searchString)
                  || p.Model.Contains(searchString));
-                if (matchingProducts != null)
+                if (searchQuery.IsNullOrEmpty())
                 {
-                    return View(await matchingProducts.ToListAsync());
+                    searchQuery = _context.Products
+                     .Include(p => p.Manufacturer)
+                     .Include(p => p.ProductTypes);
                 }
+                return View(await PaginatedList<Product>.CreateAsync(searchQuery.AsNoTracking(), pageNumber ?? 1, pageSize));
             }
+            else 
+            { 
+                searchString = currentFilter; 
+            }
+
+            ViewData["ProductType"] = "none";
+
             if (!String.IsNullOrEmpty(productType))
             {
+                ViewData["ProductType"] = productType;
                 var productsOfType = _context.Products
                  .Include(p => p.Manufacturer)
                  .Include(p => p.ProductTypes)
                  .Where(p => p.ProductTypes.Name == productType);
                 if (productsOfType != null)
                 {
-                    return View(await productsOfType.ToListAsync());
+                    return View(await PaginatedList<Product>.CreateAsync(productsOfType.AsNoTracking(), pageNumber ?? 1, pageSize));
                 }
             }
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SortField"] = sortField;
+            ViewData["SortOrder"] = sortOrder;
 
-            ViewData["PriceSortParam"] = String.IsNullOrEmpty(sortOrder) ? "Price"
-                : sortOrder == "Price" ?
-                "price_desc"
-                : "Price";
-            ViewData["WarrantySortParam"] = String.IsNullOrEmpty(sortOrder) ? "Warranty"
-                : sortOrder == "Warranty" ?
-                "warranty_desc"
-                : "Warranty";
-            var sortedProducts = _context.Products
+            ViewData["PriceSortOrder"] = sortField == "Price"
+                ? (sortOrder == "asc" ? "desc" : "asc")
+                : "asc";
+
+            ViewData["WarrantySortOrder"] = sortField == "Warranty"
+                ? (sortOrder == "asc" ? "desc" : "asc")
+                : "asc";
+
+            var query = _context.Products
                 .Include(p => p.Manufacturer)
                 .Include(p => p.ProductTypes)
-                .Select(p => p);
-            sortedProducts = sortOrder switch
+                .AsQueryable();
+
+            query = sortField switch
             {
-                "Price" => sortedProducts.OrderBy(p => p.Price),
-                "Warranty" => sortedProducts.OrderBy(p => p.Warranty),
-                "price_desc" => sortedProducts.OrderByDescending(p => p.Price),
-                "warranty_desc" => sortedProducts.OrderByDescending(p => p.Warranty),
-                _ => sortedProducts.OrderBy(p => p.Manufacturer),
+                "Warranty" => sortOrder == "asc"
+                    ? query.OrderBy(p => p.Warranty)
+                    : query.OrderByDescending(p => p.Warranty),
+                "Price" => sortOrder == "asc"
+                    ? query.OrderBy(p => p.Price)
+                    : query.OrderByDescending(p => p.Price),
+                _ => query.OrderBy(p => p.Manufacturer)
             };
-            return View(await sortedProducts.AsNoTracking().ToListAsync());
+            return View(await PaginatedList<Product>.CreateAsync(query.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         [HttpGet]
