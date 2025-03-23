@@ -64,6 +64,25 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Редактировать</a> |
-    <a asp-action="Index">Назад</a>
+    <a asp-action="Edit" 
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]"
+    asp-route-id="@Model?.Id">
+        Редактировать
+        </a> |
+    <a asp-action="Index"
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]">
+        Назад
+        </a>
 </div>

@@ -1,6 +1,7 @@
 ﻿@using DigitalDevices
 @using DigitalDevices.Enums;
 @using Microsoft.EntityFrameworkCore
+@using System.Globalization
 @model PaginatedList<DigitalDevices.Models.Product>
 @{
     ViewData["Title"] = "Index";
@@ -9,16 +10,40 @@
 <h1>Техника</h1>
 
 <p>
-    <a asp-action="Create">Добавить новую</a>
+    <a asp-action="Create"
+    asp-route-productType="@ViewData["ProductType"]"
+    asp-route-currentSort="@ViewData["CurrentSort"]"
+    asp-route-currentFilter="@ViewData["CurrentFilter"]"
+    asp-route-sortField="@ViewData["SortField"]"
+    asp-route-sortOrder="@ViewData["SortOrder"]"
+    asp-route-pageNumber="@ViewData["PageNumber"]">
+        Добавить новую
+    </a>
 </p>
 
 @{
     var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
     DigitalDevicesContext context = new(optionsBuilder.Options);
+    var minPrice = context.Products.Any() ? context.Products.Min(p => p.Price) : 0;
+    var maxPrice = context.Products.Any() ? context.Products.Max(p => p.Price) : 0;
+    var tabletsWidths = await context.Characteristics
+    .Where(c => c.CharacteristicsType.Name == "Рабочая ширина (мм)")
+    .ToListAsync();
+    List<float> widths = new();
+    NumberFormatInfo provider = new NumberFormatInfo();
+    provider.NumberDecimalSeparator = ".";
+    provider.NumberGroupSeparator = ".";
+    foreach (var width in tabletsWidths)
+    {
+        widths.Add(float.Parse(width.Value,provider));
+    }
+    widths.Sort();
+    var minTabletWidth = widths.First();
+    var maxTabletWidth = widths.Last();
 }
 <div class="accordion-body" style="float:left" ::before>
     <div class="left-filters" ::before>
-        <div class="collapsible-parent">
+        <div>
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
                      width="24" height="24">
@@ -28,34 +53,150 @@
                 Цена
             </a>
             <form class="collapsible-form">
-                <input class="form-control" type="number" min="10" max="999999" placeholder="от @context.Products.OrderBy(p=>p.Price).First().Price">
-                <input class="form-control" type="number" min="10" max="999999" placeholder="до @context.Products.OrderByDescending(p=>p.Price).First().Price">
+                <input class="form-control" type="number" min="10" max="999999" placeholder="от @minPrice">
+                <input class="form-control" type="number" min="10" max="999999" placeholder="до @maxPrice">
             </form>
         </div>
-        <div>
-            <a class="btn btn-outline-secondary collapsible-filter">
-                <svg class="filter-icon"
-                     width="24" height="24">
-                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
-                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
-                </svg>
-                Операционная система
-            </a>
-            <form class="collapsible-form" style="display:@(ViewData["ProductType"].ToString() == "Компьютер" ? "block" : @ViewData["ProductType"].ToString() == "Ноутбук" ? "block" : "none")">
-                <ul class="scrollable-list" data-list-type="os">
-                    <li class="list-group-item">
-                        <input type="checkbox" class="select-all" />
-                        <label>Выбрать всё</label>
-                    </li>
-                    @foreach (var os in Enum.GetValues(typeof(OperatingSystems)).Cast<OperatingSystems>())
-                    {
+        <div id="computerCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютер"
+|| ViewData["ProductType"]?.ToString() == "Ноутбук" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Объём оперативной памяти (ГБ)
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="os">
                         <li class="list-group-item">
-                            <input type="checkbox" class="os-checkbox" />
-                            <label>@os.ToString()</label>
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
                         </li>
-                    }
-                </ul>
-            </form>
+                        @{
+                            var test = await context.Characteristics
+                            .Select(c => c)
+                            .ToListAsync();
+                            var ramSizes = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Размер оперативной памяти (ГБ)")
+                            .ToListAsync();
+
+                            foreach (var ram in ramSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <label>@ram.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Общий объем накопителей (ГБ)
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="os">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            var driveSizes = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Объём накопителя (ГБ)")
+                            .ToListAsync();
+
+                            foreach (var drive in driveSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <label>@drive.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Операционная система
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="os">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @foreach (var os in Enum.GetValues(typeof(OperatingSystems)).Cast<OperatingSystems>())
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox" class="os-checkbox" />
+                                <label>@os.ToString()</label>
+                            </li>
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Количество ядер
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="os">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            var coresQuantity = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Количество ядер")
+                            .ToListAsync();
+
+                            foreach (var core in coresQuantity.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <label>@core.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div id="graphicalTabletsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Графический планшет" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Ширина рабочей области (мм)
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="100" max="550" placeholder="от @minTabletWidth">
+                    <input class="form-control" type="number" min="100" max="550" placeholder="до @maxTabletWidth">
+                </form>
+            </div>
+         
         </div>
         <div>
             <a class="btn btn-outline-secondary collapsible-filter">
@@ -73,16 +214,16 @@
                         <label>Все производители</label>
                     </li>
                     @{
-                        var manufacturersByType = await context.Products.Where(p => p.ProductTypes.Name == @ViewData["ProductType"].ToString())
-                        .Select(p => p.Manufacturer).ToListAsync();
+                        var productTypeName = ViewData["ProductType"]?.ToString() ?? "";
+                        var manufacturersByType = await context.Products
+                        .Where(p => p.ProductTypes.Name == productTypeName)
+                        .Select(p => p.Manufacturer)
+                        .Distinct()
+                        .ToListAsync();
 
-                        if (manufacturersByType.Count == 0)
+                        if (!manufacturersByType.Any())
                         {
-                            manufacturersByType.AddRange(context.Manufacturers);
-                        }
-                        else
-                        {
-                            manufacturersByType = manufacturersByType.Distinct().ToList();
+                            manufacturersByType = await context.Manufacturers.ToListAsync();
                         }
                         foreach (var manufacturer in manufacturersByType)
                         {
@@ -96,7 +237,6 @@
             </form>
 
         </div>
-        <div></div>
         <div></div>
     </div>
 </div>
@@ -117,6 +257,7 @@
                     <a class="sort-link" data-sort-field="Price"
                        asp-action="Index"
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-productType="@ViewData["ProductType"]"
                        asp-route-sortField="Price"
                        asp-route-sortOrder="@ViewData["PriceSortOrder"]">
                         @Html.DisplayNameFor(model => model.First().Price)
@@ -140,6 +281,7 @@
                 <th style="border:double">
                     <a class="sort-link" data-sort-field="Warranty"
                        asp-action="Index"
+                       asp-route-productType="@ViewData["ProductType"]"
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        asp-route-sortField="Warranty"
                        asp-route-sortOrder="@ViewData["WarrantySortOrder"]">
@@ -189,9 +331,39 @@
                         @Html.DisplayFor(modelItem => item.ProductTypes.Name)
                     </td>
                     <td style="border:double">
-                        <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Подробно</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                        <a asp-action="Edit"
+                           asp-route-productType="@ViewData["ProductType"]"
+                           asp-route-currentSort="@ViewData["CurrentSort"]"
+                           asp-route-searchString="@ViewData["SearchString"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-sortField="@ViewData["SortField"]"
+                           asp-route-sortOrder="@ViewData["SortOrder"]"
+                           asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-id="@item.Id">
+                            Редактировать
+                        </a> |
+                        <a asp-action="Details"
+                           asp-route-productType="@ViewData["ProductType"]"
+                           asp-route-currentSort="@ViewData["CurrentSort"]"
+                           asp-route-searchString="@ViewData["SearchString"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-sortField="@ViewData["SortField"]"
+                           asp-route-sortOrder="@ViewData["SortOrder"]"
+                           asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-id="@item.Id">
+                            Подробно
+                        </a> |
+                        <a asp-action="Delete"
+                           asp-route-productType="@ViewData["ProductType"]"
+                           asp-route-currentSort="@ViewData["CurrentSort"]"
+                           asp-route-searchString="@ViewData["SearchString"]"
+                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                           asp-route-sortField="@ViewData["SortField"]"
+                           asp-route-sortOrder="@ViewData["SortOrder"]"
+                           asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-id="@item.Id">
+                            Удалить
+                        </a>
                     </td>
                 </tr>
             }
@@ -205,19 +377,26 @@
         Страница @(Model.PageIndex)
     </p>
 
-    <a asp-action="Index" class="btn btn-default @prevDisabled"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
+    <a class="btn btn-default @prevDisabled"
+       asp-action="Index"
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
-       asp-route-pageNumber="@(Model.PageIndex - 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]">
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@(Model.PageIndex - 1)">
         &#129186 Назад
     </a>
     <a class="btn btn-default @nextDisabled"
        asp-action="Index"
-       asp-route-sortOrder="@ViewData["CurrentSort"]"
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
-       asp-route-pageNumber="@(Model.PageIndex + 1)"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]">
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@(Model.PageIndex + 1)">
         Далее &#129187
     </a>
 </div>
@@ -248,6 +427,17 @@
         float: left;
     }
 
+    .sort-icon {
+        vertical-align: middle;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+        .sort-icon.active {
+            opacity: 1;
+        }
+
     .down-icon {
         display: block;
     }
@@ -274,21 +464,40 @@
 </style>
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-             document.querySelectorAll('.sort-link').forEach(link => {
-                 link.addEventListener('click', function(e) {
-                     e.preventDefault();
+                document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.sort-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
 
-                     const sortField = this.dataset.sortField;
-                     const currentOrder = this.querySelector('svg').dataset.direction === 'asc' ? 'desc' : 'asc';
+                    const sortField = this.dataset.sortField;
+                    const icon = this.querySelector('svg');
+                    const currentOrder = icon.dataset.direction === 'asc' ? 'desc' : 'asc';
 
-                     const url = new URL(window.location.href);
-                     url.searchParams.set('sortField', sortField);
-                     url.searchParams.set('sortOrder', currentOrder);
-                     window.location.href = url.toString();
-                 });
-             });
-         });
+                    document.querySelectorAll('.sort-icon').forEach(otherIcon => {
+                        otherIcon.classList.remove('active');
+                        otherIcon.dataset.direction = '';
+                        otherIcon.querySelector('.asc-icon').style.display = 'none';
+                        otherIcon.querySelector('.desc-icon').style.display = 'none';
+                    });
+
+                    icon.classList.add('active');
+                    icon.dataset.direction = currentOrder;
+
+                    if (currentOrder === 'asc') {
+                        icon.querySelector('.asc-icon').style.display = 'block';
+                        icon.querySelector('.desc-icon').style.display = 'none';
+                    } else {
+                        icon.querySelector('.desc-icon').style.display = 'block';
+                        icon.querySelector('.asc-icon').style.display = 'none';
+                    }
+
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sortField', sortField);
+                    url.searchParams.set('sortOrder', currentOrder);
+                    window.location.href = url.toString();
+                });
+            });
+        });
 
              $(document).ready(function () {
             $('.list-group-item').hover(
@@ -300,7 +509,7 @@
                 const list = $(this);
 
                 list.find('.list-group-item').click(function(e) {
-                    
+
                     const checkbox = $(this).find('input[type="checkbox"]');
                     if (!$(e.target).is(':checkbox')) {
                         checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');

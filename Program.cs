@@ -1,13 +1,15 @@
 using DigitalDevices;
 using DigitalDevices.Models;
 using Microsoft.EntityFrameworkCore;
-
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
+    var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DigitalDevicesContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -15,7 +17,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<DigitalDevicesContext>();
-        DbInitializer.Initialize(context, 10);
+        DbInitializer.Initialize(context);
     }
     catch (Exception ex)
     {
@@ -33,7 +35,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseResponseCaching();
 app.UseRouting();
 
 app.UseAuthorization();

@@ -6,7 +6,7 @@ namespace DigitalDevices
 {
     public class DbInitializer
     {
-        public static void Initialize(DigitalDevicesContext context, int count = 10)
+        public static void Initialize(DigitalDevicesContext context)
         {
             if (!context.Manufacturers.Any())
             {

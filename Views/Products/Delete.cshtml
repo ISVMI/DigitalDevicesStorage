@@ -45,19 +45,37 @@
             @Html.DisplayNameFor(model => model.Manufacturer)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Manufacturer.Id)
+            @Html.DisplayFor(model => model.Manufacturer.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ProductTypes)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProductTypes.Id)
+            @Html.DisplayFor(model => model.ProductTypes.Name)
         </dd>
     </dl>
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Удалить" class="btn btn-danger" /> |
-        <a asp-action="Index">Назад</a>
+        <input type="submit"
+               asp-route-productType="@ViewData["ProductType"]"
+               asp-route-currentSort="@ViewData["CurrentSort"]"
+               asp-route-searchString="@ViewData["SearchString"]"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               asp-route-sortField="@ViewData["SortField"]"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-pageNumber="@ViewData["PageNumber"]"
+               value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index" 
+        asp-route-productType="@ViewData["ProductType"]"
+           asp-route-productType="@ViewData["ProductType"]"
+           asp-route-currentSort="@ViewData["CurrentSort"]"
+           asp-route-searchString="@ViewData["SearchString"]"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           asp-route-sortField="@ViewData["SortField"]"
+           asp-route-sortOrder="@ViewData["SortOrder"]"
+           asp-route-pageNumber="@ViewData["PageNumber"]">
+        Назад
+    </a>
     </form>
 </div>

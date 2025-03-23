@@ -11,6 +11,7 @@
 <div class="row">
     <div class="col-md-4">
         <form id="creationForm" asp-action="Create">
+            <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
@@ -48,14 +49,30 @@
             <div id="characteristicsContainer" class="form-group">
             </div>
             <div class="form-group">
-                <input type="submit" value="Добавить" class="btn btn-primary" />
+                <input type="submit" value="Добавить" class="btn btn-primary"
+                       asp-route-productType="@ViewData["ProductType"]"
+                       asp-route-currentSort="@ViewData["CurrentSort"]"
+                       asp-route-searchString="@ViewData["SearchString"]"
+                       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                       asp-route-sortField="@ViewData["SortField"]"
+                       asp-route-sortOrder="@ViewData["SortOrder"]"
+                       asp-route-pageNumber ="@ViewData["PageNumber"]" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Назад</a>
+    <a asp-action="Index" 
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]">
+    Назад
+</a>
 </div>
 
 @section Scripts {

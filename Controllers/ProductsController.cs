@@ -12,7 +12,6 @@ namespace DigitalDevices.Controllers
     public class ProductsController : Controller
     {
         private readonly DigitalDevicesContext _context;
-
         public ProductsController(DigitalDevicesContext context)
         {
             _context = context;
@@ -30,6 +29,9 @@ namespace DigitalDevices.Controllers
             int? pageNumber)
         {
             int pageSize = 10;
+            ViewData["SearchString"] = searchString ?? currentFilter;
+            ViewData["PageNumber"] = pageNumber ??= 1;
+            ViewData["ProductType"] = productType ?? "";
             if (!String.IsNullOrEmpty(searchString))
             {
                 pageNumber = 1;
@@ -42,7 +44,7 @@ namespace DigitalDevices.Controllers
                  || p.Manufacturer.Name.Contains(searchString)
                  || p.Name.Contains(searchString)
                  || p.Model.Contains(searchString));
-                if (searchQuery.IsNullOrEmpty())
+                if (!searchQuery.Any())
                 {
                     searchQuery = _context.Products
                      .Include(p => p.Manufacturer)
@@ -50,23 +52,25 @@ namespace DigitalDevices.Controllers
                 }
                 return View(await PaginatedList<Product>.CreateAsync(searchQuery.AsNoTracking(), pageNumber ?? 1, pageSize));
             }
-            else 
-            { 
-                searchString = currentFilter; 
+            else
+            {
+                searchString = currentFilter;
             }
-
-            ViewData["ProductType"] = "none";
 
             if (!String.IsNullOrEmpty(productType))
             {
                 ViewData["ProductType"] = productType;
-                var productsOfType = _context.Products
-                 .Include(p => p.Manufacturer)
-                 .Include(p => p.ProductTypes)
-                 .Where(p => p.ProductTypes.Name == productType);
-                if (productsOfType != null)
+                if (sortField.IsNullOrEmpty()
+                    && sortOrder.IsNullOrEmpty())
                 {
-                    return View(await PaginatedList<Product>.CreateAsync(productsOfType.AsNoTracking(), pageNumber ?? 1, pageSize));
+                    var productsOfType = _context.Products
+                     .Include(p => p.Manufacturer)
+                     .Include(p => p.ProductTypes)
+                     .Where(p => p.ProductTypes.Name == productType);
+                    if (productsOfType != null)
+                    {
+                        return View(await PaginatedList<Product>.CreateAsync(productsOfType.AsNoTracking(), pageNumber ?? 1, pageSize));
+                    }
                 }
             }
             ViewData["CurrentSort"] = sortOrder;
@@ -83,9 +87,18 @@ namespace DigitalDevices.Controllers
                 : "asc";
 
             var query = _context.Products
-                .Include(p => p.Manufacturer)
-                .Include(p => p.ProductTypes)
-                .AsQueryable();
+                            .Include(p => p.Manufacturer)
+                            .Include(p => p.ProductTypes)
+                            .AsQueryable();
+
+            if (!String.IsNullOrEmpty(productType))
+            {
+                query = _context.Products
+                    .Where(p => p.ProductTypes.Name == productType)
+                                .Include(p => p.Manufacturer)
+                                .Include(p => p.ProductTypes)
+                                .AsQueryable();
+            }
 
             query = sortField switch
             {
@@ -134,7 +147,13 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id,
+            string productType,
+            string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
         {
             if (id == null || _context.Products == null)
             {
@@ -170,7 +189,13 @@ namespace DigitalDevices.Controllers
                     })
                     .ToList()
             };
-
+            ViewData["ProductType"] = productType;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["SearchString"] = searchString ?? currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SortField"] = sortField;
+            ViewData["SortOrder"] = sortOrder;
+            ViewData["PageNumber"] = pageNumber;
             ViewBag.Manufacturers = await _context.Manufacturers.ToListAsync();
             ViewBag.ProductTypes = await _context.ProductTypes.ToListAsync();
 
@@ -178,8 +203,20 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public IActionResult Create(string productType,
+            string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
         {
+            ViewData["ProductType"] = productType;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["SearchString"] = searchString ?? currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SortField"] = sortField;
+            ViewData["SortOrder"] = sortOrder;
+            ViewData["PageNumber"] = pageNumber;
             ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Name");
             ViewData["ProductTypesId"] = new SelectList(_context.ProductTypes, "Id", "Name");
             return View();
@@ -190,7 +227,13 @@ namespace DigitalDevices.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateProductViewModel productModel)
+        public async Task<IActionResult> Create(CreateProductViewModel productModel,
+            string productType,
+            string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
         {
             var product = new Product()
             {
@@ -207,28 +250,54 @@ namespace DigitalDevices.Controllers
             await _context.SaveChangesAsync();
             foreach (var charInput in productModel.Characteristics)
             {
-                var characteristic = new Models.Characteristics()
+                var existingChars = await _context.Characteristics.Where(c => c.CharacteristicsTypeId == charInput.CharacteristicTypeId
+                && c.Value == charInput.Value).ToListAsync();
+                Characteristics existingChar = null;
+                if (existingChars.Count == 0)
                 {
-                    CharacteristicsTypeId = charInput.CharacteristicTypeId,
-                    Value = charInput.Value ??= ""
-                };
+                    existingChar = new Characteristics()
+                    {
+                        CharacteristicsTypeId = charInput.CharacteristicTypeId,
+                        Value = charInput.Value ??= ""
+                    };
+                    _context.Characteristics.Add(existingChar);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    existingChar = existingChars.First();
+                }
 
-                _context.Characteristics.Add(characteristic);
-                await _context.SaveChangesAsync();
+
                 _context.CharacteristicsProducts.Add(new CharacteristicsProduct()
                 {
                     ProductId = product.Id,
-                    CharacteristicsId = characteristic.Id
+                    CharacteristicsId = existingChar.Id
                 });
             }
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index),
+                new
+                {
+                    productType,
+                    currentFilter,
+                    searchString,
+                    sortField,
+                    sortOrder,
+                    pageNumber
+                });
 
         }
 
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id,
+            string productType,
+            string currentFilter,
+            string searchString,
+            string sortField,
+            string sortOrder,
+            int? pageNumber)
         {
             if (id == null) return NotFound();
 
@@ -265,7 +334,13 @@ namespace DigitalDevices.Controllers
                     })
                     .ToList()
             };
-
+            ViewData["ProductType"] = productType;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["SearchString"] = searchString ??=currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SortField"] = sortField;
+            ViewData["SortOrder"] = sortOrder;
+            ViewData["PageNumber"] = pageNumber;
             ViewBag.Manufacturers = await _context.Manufacturers.ToListAsync();
             ViewBag.ProductTypes = await _context.ProductTypes.ToListAsync();
 
@@ -282,7 +357,13 @@ namespace DigitalDevices.Controllers
     [FromForm] int Warranty,
     [FromForm] int ManufacturerId,
     [FromForm] int ProductTypeId,
-    [FromForm] List<ProductCharacteristicEditVM> Characteristics)
+    [FromForm] List<ProductCharacteristicEditVM> Characteristics,
+    string productType,
+string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
 
         {
             var model = new EditProductViewModel
@@ -313,7 +394,16 @@ namespace DigitalDevices.Controllers
             await UpdateProductCharacteristicsAsync(product, model.Characteristics);
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index),
+                new
+                {
+                    productType,
+                    currentFilter,
+                    searchString,
+                    sortField,
+                    sortOrder,
+                    pageNumber
+                });
 
         }
 
@@ -339,7 +429,13 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id,
+            string productType,
+            string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
         {
             if (id == null || _context.Products == null)
             {
@@ -354,14 +450,26 @@ namespace DigitalDevices.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["ProductType"] = productType;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["SearchString"] = searchString ?? currentFilter;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["SortField"] = sortField;
+            ViewData["SortOrder"] = sortOrder;
+            ViewData["PageNumber"] = pageNumber;
             return View(product);
         }
 
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id,
+            string productType,
+                        string currentFilter,
+string searchString,
+string sortField,
+string sortOrder,
+int? pageNumber)
         {
             if (_context.Products == null)
             {
@@ -374,7 +482,15 @@ namespace DigitalDevices.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new
+            {
+                productType,
+                currentFilter,
+                searchString,
+                sortField,
+                sortOrder,
+                pageNumber
+            });
         }
 
         private bool ProductExists(int id)
