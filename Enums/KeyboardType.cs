@@ -9,6 +9,14 @@ namespace DigitalDevices.Enums
         [Display(Name = "Мембранная")]
         Membrane,
         [Display(Name = "Оптическая")]
-        Optical
+        Optical,
+        [Display(Name = "Аналоговая оптическая")]
+        OpticAnalog,
+        [Display(Name = "Оптомеханическая")]
+        OpticMechanic,
+        [Display(Name = "Ножничная")]
+        Scissors,
+        [Display(Name = "Плунжерная")]
+        Plunger
     }
 }

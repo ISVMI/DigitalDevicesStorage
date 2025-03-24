@@ -1,9 +1,19 @@
 ﻿@model DigitalDevices.Models.CreateProductViewModel
+@using DigitalDevices
 @using DigitalDevices.Enums;
+@using Microsoft.EntityFrameworkCore
 @{
     ViewData["Title"] = "Create";
 }
-
+@{
+    var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
+    DigitalDevicesContext context = new(optionsBuilder.Options);
+    int productTypeId = 1;
+    if (!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
+    {
+        productTypeId = context.ProductTypes.Where(pt => pt.Name == ViewData["ProductType"].ToString()).First().Id;
+    }
+}
 <h1>Добавить</h1>
 
 <h4>Новый продукт</h4>
@@ -84,7 +94,8 @@
 
         window.onload = function()
         {
-        GetCharacteristics();
+        $('#typeSelect').val(@productTypeId);
+        GetCharacteristics(@productTypeId);
         }
 
                 function GetCharacteristics(productTypesId = 1) {

@@ -1,5 +1,6 @@
 ﻿@using DigitalDevices
 @using DigitalDevices.Enums;
+@using Humanizer
 @using Microsoft.EntityFrameworkCore
 @using System.Globalization
 @model PaginatedList<DigitalDevices.Models.Product>
@@ -11,12 +12,12 @@
 
 <p>
     <a asp-action="Create"
-    asp-route-productType="@ViewData["ProductType"]"
-    asp-route-currentSort="@ViewData["CurrentSort"]"
-    asp-route-currentFilter="@ViewData["CurrentFilter"]"
-    asp-route-sortField="@ViewData["SortField"]"
-    asp-route-sortOrder="@ViewData["SortOrder"]"
-    asp-route-pageNumber="@ViewData["PageNumber"]">
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]">
         Добавить новую
     </a>
 </p>
@@ -26,6 +27,12 @@
     DigitalDevicesContext context = new(optionsBuilder.Options);
     var minPrice = context.Products.Any() ? context.Products.Min(p => p.Price) : 0;
     var maxPrice = context.Products.Any() ? context.Products.Max(p => p.Price) : 0;
+    if (!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
+    {
+        minPrice = context.Products.Any() ? context.Products.Where(p => p.ProductTypes.Name == ViewData["ProductType"].ToString()).Min(p => p.Price) : 0;
+        maxPrice = context.Products.Any() ? context.Products.Where(p => p.ProductTypes.Name == ViewData["ProductType"].ToString()).Max(p => p.Price) : 0;
+    }
+
     var tabletsWidths = await context.Characteristics
     .Where(c => c.CharacteristicsType.Name == "Рабочая ширина (мм)")
     .ToListAsync();
@@ -35,11 +42,88 @@
     provider.NumberGroupSeparator = ".";
     foreach (var width in tabletsWidths)
     {
-        widths.Add(float.Parse(width.Value,provider));
+        widths.Add(float.Parse(width.Value, provider));
     }
     widths.Sort();
-    var minTabletWidth = widths.First();
-    var maxTabletWidth = widths.Last();
+    float minTabletWidth = widths.First();
+    float maxTabletWidth = widths.Last();
+
+    var stringKeysCount = await context.Characteristics
+    .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
+    .Select(c => c.Value).ToListAsync();
+    List<int> keysCount = new();
+    foreach (var count in stringKeysCount)
+    {
+        keysCount.Add(int.Parse(count));
+    }
+    keysCount.Sort();
+    int minKeysCount = keysCount.First();
+    int maxKeysCount = keysCount.Last();
+
+    float minDiagonal = 0;
+    float maxDiagonal = 0;
+
+    switch (ViewData["ProductType"].ToString())
+    {
+        case "Монитор":
+            {
+                minDiagonal = 14;
+                maxDiagonal = 57;
+                break;
+            }
+        case "Планшет":
+            {
+                minDiagonal = 7;
+                maxDiagonal = 14.6F;
+                break;
+            }
+        case "Телевизор":
+            {
+                minDiagonal = 23.6F;
+                maxDiagonal = 110;
+                break;
+            }
+    }
+
+    int minFPS = 0;
+    int maxFPS = 0;
+    List<int> fpsList = new();
+    switch (ViewData["ProductType"].ToString())
+    {
+        case "Монитор":
+            {
+                minFPS = 60;
+                maxFPS = 540;
+                break;
+            }
+        case "Планшет":
+            {
+                fpsList = new() { 50, 60, 90, 120, 144 };
+                break;
+            }
+        case "Телевизор":
+            {
+                fpsList = new() { 60, 120, 144 };
+                break;
+            }
+        case "Веб-камера":
+            {
+                fpsList = new() { 15, 30, 40, 60, 90 };
+                break;
+            }
+    }
+
+    var megapixels = await context.Characteristics
+    .Where(c => c.CharacteristicsType.Name == "Количество мегапикселей")
+    .ToListAsync();
+    List<float> megapixelsValues = new();
+    foreach (var mpx in megapixels)
+    {
+        megapixelsValues.Add(float.Parse(mpx.Value, provider));
+    }
+    megapixelsValues.Sort();
+    float minMegapixels = megapixelsValues.First();
+    float maxMegapixels = megapixelsValues.Last();
 }
 <div class="accordion-body" style="float:left" ::before>
     <div class="left-filters" ::before>
@@ -53,8 +137,8 @@
                 Цена
             </a>
             <form class="collapsible-form">
-                <input class="form-control" type="number" min="10" max="999999" placeholder="от @minPrice">
-                <input class="form-control" type="number" min="10" max="999999" placeholder="до @maxPrice">
+                <input class="form-control" type="number" min="@minPrice" max="@maxPrice" placeholder="от @minPrice">
+                <input class="form-control" type="number" min="@minPrice" max="@maxPrice" placeholder="до @maxPrice">
             </form>
         </div>
         <div id="computerCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютер"
@@ -69,15 +153,12 @@
                     Объём оперативной памяти (ГБ)
                 </a>
                 <form class="collapsible-form">
-                    <ul class="scrollable-list" data-list-type="os">
+                    <ul class="scrollable-list" data-list-type="ram">
                         <li class="list-group-item">
                             <input type="checkbox" class="select-all" />
                             <label>Выбрать всё</label>
                         </li>
                         @{
-                            var test = await context.Characteristics
-                            .Select(c => c)
-                            .ToListAsync();
                             var ramSizes = await context.Characteristics
                             .Where(c => c.CharacteristicsType.Name == "Размер оперативной памяти (ГБ)")
                             .ToListAsync();
@@ -85,7 +166,7 @@
                             foreach (var ram in ramSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
                             {
                                 <li class="list-group-item">
-                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <input type="checkbox" />
                                     <label>@ram.Value</label>
                                 </li>
                             }
@@ -103,7 +184,7 @@
                     Общий объем накопителей (ГБ)
                 </a>
                 <form class="collapsible-form">
-                    <ul class="scrollable-list" data-list-type="os">
+                    <ul class="scrollable-list" data-list-type="discVolume">
                         <li class="list-group-item">
                             <input type="checkbox" class="select-all" />
                             <label>Выбрать всё</label>
@@ -116,7 +197,7 @@
                             foreach (var drive in driveSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
                             {
                                 <li class="list-group-item">
-                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <input type="checkbox" />
                                     <label>@drive.Value</label>
                                 </li>
                             }
@@ -159,7 +240,7 @@
                     Количество ядер
                 </a>
                 <form class="collapsible-form">
-                    <ul class="scrollable-list" data-list-type="os">
+                    <ul class="scrollable-list" data-list-type="coresCount">
                         <li class="list-group-item">
                             <input type="checkbox" class="select-all" />
                             <label>Выбрать всё</label>
@@ -172,7 +253,7 @@
                             foreach (var core in coresQuantity.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
                             {
                                 <li class="list-group-item">
-                                    <input type="checkbox" class="manufacturer-checkbox" />
+                                    <input type="checkbox" />
                                     <label>@core.Value</label>
                                 </li>
                             }
@@ -192,11 +273,480 @@
                     Ширина рабочей области (мм)
                 </a>
                 <form class="collapsible-form">
-                    <input class="form-control" type="number" min="100" max="550" placeholder="от @minTabletWidth">
-                    <input class="form-control" type="number" min="100" max="550" placeholder="до @maxTabletWidth">
+                    <input class="form-control" type="number" min="@minTabletWidth" max="@maxTabletWidth" placeholder="от @minTabletWidth">
+                    <input class="form-control" type="number" min="@minTabletWidth" max="@maxTabletWidth" placeholder="до @maxTabletWidth">
                 </form>
             </div>
-         
+        </div>
+        <div id="headphonesCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Наушники" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Тип конструкции
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="constructionType">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            foreach (var constructionType in Enum.GetValues(typeof(HeadphonesType))
+                            .Cast<HeadphonesType>())
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" />
+                                    <label>@constructionType.Humanize()</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Формат звуковой схемы
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="audioSchemeFormat">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" />
+                            <label>1.0</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" />
+                            <label>2.0</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" />
+                            <label>7.1</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" />
+                            <label>7.1 Real</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" />
+                            <label>7.1 Virtual</label>
+                        </li>
+                    </ul>
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div id="keyboardsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Клавиатура" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Тип клавиатуры
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="keyboardType">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            foreach (var keyboardType in Enum.GetValues(typeof(KeyboardType))
+                            .Cast<KeyboardType>())
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" />
+                                    <label>@keyboardType.Humanize()</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Общее количество клавиш
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="@minKeysCount" max="@maxKeysCount" placeholder="от @minKeysCount">
+                    <input class="form-control" type="number" min="@minKeysCount" max="@maxKeysCount" placeholder="до @maxKeysCount">
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Модель переключателей
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="switchesTypes">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            var switchesTypes = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Свичи")
+                            .ToListAsync();
+
+                            foreach (var switchType in switchesTypes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" />
+                                    <label>@switchType.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div id="mouseCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютерная мышь" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Общее количество кнопок
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="0" max="25" placeholder="от 0">
+                    <input class="form-control" type="number" min="0" max="25" placeholder="до 25">
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Максимальное разрешение датчика (dpi)
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="800" max="42000" placeholder="от 800">
+                    <input class="form-control" type="number" min="800" max="42000" placeholder="до 42000">
+                </form>
+            </div>
+        </div>
+        <div id="microphonesCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Микрофон" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Вид исполнения
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="executionTypes">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @foreach (var exType in Enum.GetValues(typeof(MicrophoneExecutionTypes)).Cast<MicrophoneExecutionTypes>())
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox" class="os-checkbox" />
+                                <label>@exType.Humanize()</label>
+                            </li>
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Направленность
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="directions">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @foreach (var dirType in Enum.GetValues(typeof(MicrophoneDirections)).Cast<MicrophoneDirections>())
+                        {
+                            <li class="list-group-item">
+                                <input type="checkbox" class="os-checkbox" />
+                                <label>@dirType.Humanize()</label>
+                            </li>
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Минимальная частота (Гц)
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="minFrequency">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            var minFrequency = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Минимальная частота (Гц)")
+                            .ToListAsync();
+
+                            foreach (var freq in minFrequency.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" />
+                                    <label>@freq.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Максимальная частота (Гц)
+                </a>
+                <form class="collapsible-form">
+                    <ul class="scrollable-list" data-list-type="maxFrequency">
+                        <li class="list-group-item">
+                            <input type="checkbox" class="select-all" />
+                            <label>Выбрать всё</label>
+                        </li>
+                        @{
+                            var maxFrequency = await context.Characteristics
+                            .Where(c => c.CharacteristicsType.Name == "Максимальная частота (Гц)")
+                            .ToListAsync();
+
+                            foreach (var freq in maxFrequency.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
+                            {
+                                <li class="list-group-item">
+                                    <input type="checkbox" />
+                                    <label>@freq.Value</label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div id="monitorsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Монитор" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Частота при максимальном разрешении (Гц)
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="@minFPS" max="@maxFPS" placeholder="от @minFPS">
+                    <input class="form-control" type="number" min="@minFPS" max="@maxFPS" placeholder="до @maxFPS">
+                </form>
+            </div>
+        </div>
+        <div id="webcamCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Веб-камера" ? "block" : "none")">
+            <div>
+                <a class="btn btn-outline-secondary collapsible-filter">
+                    <svg class="filter-icon"
+                         width="24" height="24">
+                        <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                        <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                    </svg>
+                    Число мегапикселей (мп)
+                </a>
+                <form class="collapsible-form">
+                    <input class="form-control" type="number" min="@minMegapixels" max="@maxMegapixels" placeholder="от @minMegapixels">
+                    <input class="form-control" type="number" min="@minMegapixels" max="@maxMegapixels" placeholder="до @maxMegapixels">
+                </form>
+            </div>
+        </div>
+        <div style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
+            || ViewData["ProductType"]?.ToString() == "Веб-камера" ? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Наличие микрофона
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="hasMicrophone">
+                    <li class="list-group-item" style="display:none">
+                        <input type="checkbox" class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input type="checkbox" />
+                        <label>Есть</label>
+                    </li>
+                    <li class="list-group-item">
+                        <input type="checkbox" />
+                        <label>Нет</label>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <div style="display:@((ViewData["ProductType"]?.ToString() == "Планшет"
+            || ViewData["ProductType"]?.ToString() == "Телевизор"
+|| ViewData["ProductType"]?.ToString() == "Веб-камера") ? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Частота обновления экрана
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="fpsList">
+                    <li class="list-group-item" style="display:none">
+                        <input type="checkbox"  class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                @foreach (var fps in fpsList)
+                {
+                    <li class="list-group-item">
+                        <input type="checkbox" class="os-checkbox" />
+                        <label>@fps</label>
+                    </li>
+                }
+                </ul>
+            </form>
+        </div>
+        <div style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
+|| ViewData["ProductType"]?.ToString() == "Планшет"
+|| ViewData["ProductType"]?.ToString() == "Телевизор") ? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Диагональ
+            </a>
+            <form class="collapsible-form">
+                <input class="form-control" type="number" min="@minDiagonal" max="@maxDiagonal" placeholder="от @minDiagonal">
+                <input class="form-control" type="number" min="@minDiagonal" max="@maxDiagonal" placeholder="до @maxDiagonal">
+            </form>
+        </div>
+        <div style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
+|| ViewData["ProductType"]?.ToString() == "Планшет"
+|| ViewData["ProductType"]?.ToString() == "Телевизор") ? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Технология изготовления матрицы
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="matrixType">
+                    <li class="list-group-item">
+                        <input type="checkbox" class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                    @foreach (var matrixType in Enum.GetValues(typeof(MatrixTypes)).Cast<MatrixTypes>())
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" class="os-checkbox" />
+                            <label>@matrixType.Humanize()</label>
+                        </li>
+                    }
+                </ul>
+            </form>
+        </div>
+        <div style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
+|| ViewData["ProductType"]?.ToString() == "Микрофон"? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Разъём подключения
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="audioConnectionType">
+                    <li class="list-group-item">
+                        <input type="checkbox" class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                    @foreach (var connectionType in Enum.GetValues(typeof(AudioConnectionType)).Cast<AudioConnectionType>())
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" class="os-checkbox" />
+                            <label>@connectionType.Humanize()</label>
+                        </li>
+                    }
+                </ul>
+            </form>
+        </div>
+        <div style="display:@((ViewData["ProductType"]?.ToString() == "Наушники"
+|| ViewData["ProductType"]?.ToString() == "Клавиатура"
+|| ViewData["ProductType"]?.ToString() == "Компьютерная мышь") ? "block" : "none")">
+            <a class="btn btn-outline-secondary collapsible-filter">
+                <svg class="filter-icon"
+                     width="24" height="24">
+                    <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                    <use xlink:href="#icon-arrow-down" class="down-icon"></use>
+                </svg>
+                Тип подключения
+            </a>
+            <form class="collapsible-form">
+                <ul class="scrollable-list" data-list-type="connectionType">
+                    <li class="list-group-item" style="display:none">
+                        <input type="checkbox" class="select-all" />
+                        <label>Выбрать всё</label>
+                    </li>
+                    @foreach (var connectionType in Enum.GetValues(typeof(ConnectionType)).Cast<ConnectionType>())
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" class="os-checkbox" />
+                            <label>@connectionType.Humanize()</label>
+                        </li>
+                    }
+                </ul>
+            </form>
         </div>
         <div>
             <a class="btn btn-outline-secondary collapsible-filter">
@@ -228,7 +778,7 @@
                         foreach (var manufacturer in manufacturersByType)
                         {
                             <li class="list-group-item">
-                                <input type="checkbox" class="manufacturer-checkbox" />
+                                <input type="checkbox" />
                                 <label>@manufacturer.Name</label>
                             </li>
                         }
@@ -413,6 +963,10 @@
 
     .left-filters {
         float: left;
+    }
+
+    .list-group-item {
+        user-select: none;
     }
 
     .scrollable-list {

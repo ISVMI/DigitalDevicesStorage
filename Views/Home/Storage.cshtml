@@ -10,108 +10,235 @@
         DigitalDevicesContext context = new(optionsBuilder.Options);
     }
     @{
-        <div class="container" style="float:left">
-            <div style="float:left">
-                <a href="/Products/Index?productType=Компьютер">
-                    <picture>
+        <div class="digital-devices-container">
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Компьютер" class="category-link">
+                    <div class="image-container">
                         <img class="storage-image"
-                             src="https://sh-sadovyj-r56.gosweb.gosuslugi.ru/netcat_files/58/670/1614548430_2_p_kompyuter_na_belom_fone_3.png">
-                    </picture>
+                             src="https://sh-sadovyj-r56.gosweb.gosuslugi.ru/netcat_files/58/670/1614548430_2_p_kompyuter_na_belom_fone_3.png"
+                             alt="Компьютеры"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Компьютеры</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Компьютер").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Компьютеры (@context.Products.Where(p=>p.ProductTypes.Name == "Компьютер").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Графический планшет">
-                    <picture>
+            <div class="digital-devices-menu">
+                <a href=" /Products/Index?productType=Графический планшет" class="category-link">
+                    <div class="image-container">
                         <img class="storage-image"
-                             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Graphic_tablet.svg/2560px-Graphic_tablet.svg.png">
-                    </picture>
+                             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Graphic_tablet.svg/2560px-Graphic_tablet.svg.png"
+                             alt="Графические планшеты"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Графические планшеты</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Графический планшет").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Графические планшеты (@context.Products.Where(p => p.ProductTypes.Name == "Графический планшет").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Наушники">
-                    <picture>
-                        <img class="storage-image" src="https://rayconglobal.com/cdn/shop/files/H90_BLA_IMG1.png?v=1713196566">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Наушники" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://rayconglobal.com/cdn/shop/files/H90_BLA_IMG1.png?v=1713196566"
+                             alt="Наушники"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Наушники</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Наушники").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Наушники (@context.Products.Where(p => p.ProductTypes.Name == "Наушники").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Клавиатура">
-                    <picture>
-                        <img class="storage-image" src="https://defender.ru/public/o/products/9710/1bb73bf8.webp">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Клавиатура" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://defender.ru/public/o/products/9710/1bb73bf8.webp"
+                             alt="Клавиатуры"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Клавиатуры</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Клавиатура").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Клавиатуры (@context.Products.Where(p => p.ProductTypes.Name == "Клавиатура").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Ноутбук">
-                    <picture>
-                        <img class="storage-image" src="https://static.tildacdn.com/tild3433-3665-4332-a135-663239333433/image.png">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Ноутбук" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://static.tildacdn.com/tild3433-3665-4332-a135-663239333433/image.png"
+                             alt="Ноутбуки"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Ноутбуки</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Ноутбук").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Ноутбуки (@context.Products.Where(p => p.ProductTypes.Name == "Ноутбук").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Компьютерная мышь">
-                    <picture>
-                        <img class="storage-image" src="https://png.klev.club/uploads/posts/2024-04/png-klev-club-cd1q-p-kompyuternaya-mishka-png-7.png">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Компьютерная мышь" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://pngimg.com/d/computer_mouse_PNG7688.png"
+                             alt="Компьютерные мыши"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Компьютерные мыши</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Компьютерная мышь").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Компьютерные мыши (@context.Products.Where(p => p.ProductTypes.Name == "Компьютерная мышь").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Микрофон">
-                    <picture>
-                        <img class="storage-image" src="https://c.dns-shop.ru/thumb/st4/fit/500/500/1c3911b432d6b44b0bb4b828e4393cee/652295a5885b0983d9ec5850bf914a2415679921b6c1e607f38ea5122f19371b.jpg.webp">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Микрофон" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://c.dns-shop.ru/thumb/st4/fit/500/500/1c3911b432d6b44b0bb4b828e4393cee/652295a5885b0983d9ec5850bf914a2415679921b6c1e607f38ea5122f19371b.jpg.webp"
+                             alt="Микрофоны"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Микрофоны</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Микрофон").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Микрофоны (@context.Products.Where(p => p.ProductTypes.Name == "Микрофон").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Монитор">
-                    <picture>
-                        <img class="storage-image" src="https://pngimg.com/uploads/monitor/laptop_PNG5874.png">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Монитор" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://pngimg.com/uploads/monitor/laptop_PNG5874.png"
+                             alt="Мониторы"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Мониторы</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Монитор").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Мониторы (@context.Products.Where(p => p.ProductTypes.Name == "Монитор").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Планшет">
-                    <picture>
-                        <img class="storage-image" src="https://clipart-library.com/images_k/tablet-png-transparent/tablet-png-transparent-17.png">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Планшет" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://clipart-library.com/images_k/tablet-png-transparent/tablet-png-transparent-17.png"
+                             alt="Планшеты"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Планшеты</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Планшет").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Планшеты (@context.Products.Where(p => p.ProductTypes.Name == "Планшет").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Телевизор">
-                    <picture>
-                        <img class="storage-image" src="https://static.tildacdn.com/tild3533-6630-4465-b861-333437646230/1614572259_67-p-tele.png">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Телевизор" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://static.tildacdn.com/tild3533-6630-4465-b861-333437646230/1614572259_67-p-tele.png"
+                             alt="Телевизоры"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Телевизоры</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Телевизор").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Телевизоры (@context.Products.Where(p => p.ProductTypes.Name == "Телевизор").Count())</span>
             </div>
-            <div style="float:left">
-                <a href="/Products/Index?productType=Веб-камера">
-                    <picture>
-                        <img class="storage-image" src="https://c.dns-shop.ru/thumb/st1/fit/500/500/33d9fe6fecad8e6f390b0e7cad3bd602/3c94c538398b00e5faa6a8c794e45b2c82586b3046c456cc259ab57448dfd806.jpg.webp">
-                    </picture>
+            <div class="digital-devices-menu">
+                <a href="/Products/Index?productType=Веб-камера" class="category-link">
+                    <div class="image-container">
+                        <img class="storage-image"
+                             src="https://c.dns-shop.ru/thumb/st1/fit/500/500/33d9fe6fecad8e6f390b0e7cad3bd602/3c94c538398b00e5faa6a8c794e45b2c82586b3046c456cc259ab57448dfd806.jpg.webp"
+                             alt="Веб-камеры"
+                             loading="lazy">
+                    </div>
+                    <div class="content-wrapper">
+                        <h3 class="product-type-title">Веб-камеры</h3>
+                        <div class="count-badge">(@context.Products.Where(p => p.ProductTypes.Name == "Веб-камера").Count())</div>
+                    </div>
                 </a>
-                <br>
-                <span class="text-center">Веб-камеры (@context.Products.Where(p => p.ProductTypes.Name == "Веб-камера").Count())</span>
             </div>
         </div>
     }
 </div>
+<style>
+    .digital-devices-container {
+        grid-gap: 25px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        padding: 20px;
+        max-width: 90%;
+        margin: 0 auto;
+    }
+
+    .digital-devices-menu {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        text-align: center;
+        min-height: 300px;
+    }
+
+        .digital-devices-menu:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+    a {
+        background-color: transparent;
+        text-decoration: none;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .image-container {
+        width: 100%;
+        height: 180px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .storage-image {
+        max-width: 100%;
+        max-height: 160px;
+        object-fit: contain;
+        transition: transform 0.2s;
+    }
+
+    .digital-devices-menu:hover .storage-image {
+        transform: scale(1.05);
+    }
+
+    .product-type-title {
+        color: #2c3e50;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: auto;
+        padding: 10px 0;
+        line-height: 1.4;
+    }
+
+    .count-badge {
+        color: #2c3e50;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 14px;
+        margin-top: 10px;
+        display: inline-block;
+    }
+</style>
