@@ -61,7 +61,8 @@
                     asp-route-currentFilter="@ViewData["CurrentFilter"]"
                     asp-route-sortField="@ViewData["SortField"]"
                     asp-route-sortOrder="@ViewData["SortOrder"]"
-                    asp-route-pageNumber="@ViewData["PageNumber"]">
+                    asp-route-pageNumber="@ViewData["PageNumber"]"
+                    asp-route-filters="@ViewData["FilterList"]">
                 Сохранить
             </button>
 
@@ -72,7 +73,8 @@
                asp-route-currentFilter="@ViewData["CurrentFilter"]"
                asp-route-sortField="@ViewData["SortField"]"
                asp-route-sortOrder="@ViewData["SortOrder"]"
-               asp-route-pageNumber="@ViewData["PageNumber"]">
+               asp-route-pageNumber="@ViewData["PageNumber"]"
+               asp-route-filters="@ViewData["FilterList"]">
                 Назад к списку
             </a>
         </form>

@@ -67,6 +67,11 @@ namespace DigitalDevices
                     ind++;
                 } 
             }
+            if (!context.Products.Any())
+            {
+                var generator = new ProductGenerator(context);
+                generator.GenerateProducts(5500);
+            }
 
             context.SaveChanges();
         }

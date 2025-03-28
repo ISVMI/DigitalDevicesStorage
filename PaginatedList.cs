@@ -10,7 +10,7 @@ namespace DigitalDevices
         public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
         {
             PageIndex = pageIndex;
-            TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+            TotalPages = (int)Math.Ceiling(count / (double)pageSize) == 0? 1 : (int)Math.Ceiling(count / (double)pageSize);
 
             this.AddRange(items);
         }

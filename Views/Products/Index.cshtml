@@ -17,7 +17,8 @@
        asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
        asp-route-sortOrder="@ViewData["SortOrder"]"
-       asp-route-pageNumber="@ViewData["PageNumber"]">
+       asp-route-pageNumber="@ViewData["PageNumber"]"
+       asp-route-filters="@ViewData["FilterList"]">
         Добавить новую
     </a>
 </p>
@@ -27,12 +28,15 @@
     DigitalDevicesContext context = new(optionsBuilder.Options);
     var minPrice = context.Products.Any() ? context.Products.Min(p => p.Price) : 0;
     var maxPrice = context.Products.Any() ? context.Products.Max(p => p.Price) : 0;
-    if (!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
+    if (ViewData["ProductType"] != null
+    && !string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
     {
-        minPrice = context.Products.Any() ? context.Products.Where(p => p.ProductTypes.Name == ViewData["ProductType"].ToString()).Min(p => p.Price) : 0;
-        maxPrice = context.Products.Any() ? context.Products.Where(p => p.ProductTypes.Name == ViewData["ProductType"].ToString()).Max(p => p.Price) : 0;
+        var prices = await context.Products.Where(p => p.ProductTypes.Name == ViewData["ProductType"].ToString()).ToListAsync();
+        minPrice = context.Products.Any() ? prices.Any() ? prices.Min(p => p.Price) : 0 : 0;
+        maxPrice = context.Products.Any() ? prices.Any() ? prices.Max(p => p.Price) : 0 : 0;
     }
-
+    float minTabletWidth = 0;
+    float maxTabletWidth = 0;
     var tabletsWidths = await context.Characteristics
     .Where(c => c.CharacteristicsType.Name == "Рабочая ширина (мм)")
     .ToListAsync();
@@ -42,12 +46,24 @@
     provider.NumberGroupSeparator = ".";
     foreach (var width in tabletsWidths)
     {
-        widths.Add(float.Parse(width.Value, provider));
+        float widthConverted = 0f;
+        if (float.TryParse(width.Value, out widthConverted))
+        {
+            widths.Add(widthConverted);
+        }
+        else
+        {
+            widths.Add(float.Parse(width.Value, provider));
+        }
     }
     widths.Sort();
-    float minTabletWidth = widths.First();
-    float maxTabletWidth = widths.Last();
-
+    if (widths.Any())
+    {
+        minTabletWidth = widths.First();
+        maxTabletWidth = widths.Last();
+    }
+    int minKeysCount = 0;
+    int maxKeysCount = 0;
     var stringKeysCount = await context.Characteristics
     .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
     .Select(c => c.Value).ToListAsync();
@@ -57,8 +73,11 @@
         keysCount.Add(int.Parse(count));
     }
     keysCount.Sort();
-    int minKeysCount = keysCount.First();
-    int maxKeysCount = keysCount.Last();
+    if (keysCount.Any())
+    {
+        minKeysCount = keysCount.First();
+        maxKeysCount = keysCount.Last();
+    }
 
     float minDiagonal = 0;
     float maxDiagonal = 0;
@@ -81,6 +100,12 @@
             {
                 minDiagonal = 23.6F;
                 maxDiagonal = 110;
+                break;
+            }
+        case "Ноутбук":
+            {
+                minDiagonal = 10.5F;
+                maxDiagonal = 18;
                 break;
             }
     }
@@ -113,21 +138,13 @@
             }
     }
 
-    var megapixels = await context.Characteristics
-    .Where(c => c.CharacteristicsType.Name == "Количество мегапикселей")
-    .ToListAsync();
-    List<float> megapixelsValues = new();
-    foreach (var mpx in megapixels)
-    {
-        megapixelsValues.Add(float.Parse(mpx.Value, provider));
-    }
-    megapixelsValues.Sort();
-    float minMegapixels = megapixelsValues.First();
-    float maxMegapixels = megapixelsValues.Last();
+    float minMegapixels = 0.3F;
+    float maxMegapixels = 48;
+
 }
 <div class="accordion-body" style="float:left" ::before>
     <div class="left-filters" ::before>
-        <div>
+        <div id="priceFilter">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
                      width="24" height="24">
@@ -137,13 +154,13 @@
                 Цена
             </a>
             <form class="collapsible-form">
-                <input class="form-control" type="number" min="@minPrice" max="@maxPrice" placeholder="от @minPrice">
-                <input class="form-control" type="number" min="@minPrice" max="@maxPrice" placeholder="до @maxPrice">
+                <input class="form-control" type="number" step="0.1" min="@minPrice" max="@maxPrice" placeholder="от @minPrice">
+                <input class="form-control" type="number" step="0.1" min="@minPrice" max="@maxPrice" placeholder="до @maxPrice">
             </form>
         </div>
         <div id="computerCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютер"
 || ViewData["ProductType"]?.ToString() == "Ноутбук" ? "block" : "none")">
-            <div>
+            <div id="ramFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -163,7 +180,7 @@
                             .Where(c => c.CharacteristicsType.Name == "Размер оперативной памяти (ГБ)")
                             .ToListAsync();
 
-                            foreach (var ram in ramSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
+                            foreach (var ram in ramSizes.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
                             {
                                 <li class="list-group-item">
                                     <input type="checkbox" />
@@ -174,7 +191,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="driveFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -194,7 +211,7 @@
                             .Where(c => c.CharacteristicsType.Name == "Объём накопителя (ГБ)")
                             .ToListAsync();
 
-                            foreach (var drive in driveSizes.DistinctBy(c => c.Value).OrderBy(c => c.Value))
+                            foreach (var drive in driveSizes.DistinctBy(c => c.Value).OrderBy(c => int.Parse(c.Value)))
                             {
                                 <li class="list-group-item">
                                     <input type="checkbox" />
@@ -205,7 +222,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="osFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -224,13 +241,13 @@
                         {
                             <li class="list-group-item">
                                 <input type="checkbox" class="os-checkbox" />
-                                <label>@os.ToString()</label>
+                                <label>@os.Humanize()</label>
                             </li>
                         }
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="coresFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -263,7 +280,7 @@
             </div>
         </div>
         <div id="graphicalTabletsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Графический планшет" ? "block" : "none")">
-            <div>
+            <div id="tabletWidthFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -273,13 +290,13 @@
                     Ширина рабочей области (мм)
                 </a>
                 <form class="collapsible-form">
-                    <input class="form-control" type="number" min="@minTabletWidth" max="@maxTabletWidth" placeholder="от @minTabletWidth">
-                    <input class="form-control" type="number" min="@minTabletWidth" max="@maxTabletWidth" placeholder="до @maxTabletWidth">
+                    <input class="form-control" type="number" step="0.1" min="@minTabletWidth" max="@maxTabletWidth" placeholder="от @minTabletWidth">
+                    <input class="form-control" type="number" step="0.1" min="@minTabletWidth" max="@maxTabletWidth" placeholder="до @maxTabletWidth">
                 </form>
             </div>
         </div>
         <div id="headphonesCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Наушники" ? "block" : "none")">
-            <div>
+            <div id="headphonesTypeFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -307,7 +324,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="audioSchemeFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -343,12 +360,11 @@
                             <label>7.1 Virtual</label>
                         </li>
                     </ul>
-                    </ul>
                 </form>
             </div>
         </div>
         <div id="keyboardsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Клавиатура" ? "block" : "none")">
-            <div>
+            <div id="keyboardTypeFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -376,7 +392,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="keysCountFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -390,7 +406,7 @@
                     <input class="form-control" type="number" min="@minKeysCount" max="@maxKeysCount" placeholder="до @maxKeysCount">
                 </form>
             </div>
-            <div>
+            <div id="switchesFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -423,7 +439,7 @@
             </div>
         </div>
         <div id="mouseCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютерная мышь" ? "block" : "none")">
-            <div>
+            <div id="mouseKeysFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -437,7 +453,7 @@
                     <input class="form-control" type="number" min="0" max="25" placeholder="до 25">
                 </form>
             </div>
-            <div>
+            <div id="dpiFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -453,7 +469,7 @@
             </div>
         </div>
         <div id="microphonesCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Микрофон" ? "block" : "none")">
-            <div>
+            <div id="executionTypeFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -478,7 +494,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="directionFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -503,7 +519,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="minFrequencyFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -534,7 +550,7 @@
                     </ul>
                 </form>
             </div>
-            <div>
+            <div id="maxFrequencyFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -567,7 +583,7 @@
             </div>
         </div>
         <div id="monitorsCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Монитор" ? "block" : "none")">
-            <div>
+            <div id="monitorFpsFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -583,7 +599,7 @@
             </div>
         </div>
         <div id="webcamCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Веб-камера" ? "block" : "none")">
-            <div>
+            <div id="megapixelsFilter">
                 <a class="btn btn-outline-secondary collapsible-filter">
                     <svg class="filter-icon"
                          width="24" height="24">
@@ -593,12 +609,12 @@
                     Число мегапикселей (мп)
                 </a>
                 <form class="collapsible-form">
-                    <input class="form-control" type="number" min="@minMegapixels" max="@maxMegapixels" placeholder="от @minMegapixels">
-                    <input class="form-control" type="number" min="@minMegapixels" max="@maxMegapixels" placeholder="до @maxMegapixels">
+                    <input class="form-control" type="number" step="0.1" min="@minMegapixels" max="@maxMegapixels" placeholder="от @minMegapixels">
+                    <input class="form-control" type="number" step="0.1" min="@minMegapixels" max="@maxMegapixels" placeholder="до @maxMegapixels">
                 </form>
             </div>
         </div>
-        <div style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
+        <div id="microphoneFilter" style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
             || ViewData["ProductType"]?.ToString() == "Веб-камера" ? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
@@ -625,7 +641,7 @@
                 </ul>
             </form>
         </div>
-        <div style="display:@((ViewData["ProductType"]?.ToString() == "Планшет"
+        <div id="fpsFilter" style="display:@((ViewData["ProductType"]?.ToString() == "Планшет"
             || ViewData["ProductType"]?.ToString() == "Телевизор"
 || ViewData["ProductType"]?.ToString() == "Веб-камера") ? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
@@ -639,22 +655,23 @@
             <form class="collapsible-form">
                 <ul class="scrollable-list" data-list-type="fpsList">
                     <li class="list-group-item" style="display:none">
-                        <input type="checkbox"  class="select-all" />
+                        <input type="checkbox" class="select-all" />
                         <label>Выбрать всё</label>
                     </li>
-                @foreach (var fps in fpsList)
-                {
-                    <li class="list-group-item">
-                        <input type="checkbox" class="os-checkbox" />
-                        <label>@fps</label>
-                    </li>
-                }
+                    @foreach (var fps in fpsList)
+                    {
+                        <li class="list-group-item">
+                            <input type="checkbox" class="os-checkbox" />
+                            <label>@fps</label>
+                        </li>
+                    }
                 </ul>
             </form>
         </div>
-        <div style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
+        <div id="diagonalFilter" style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
 || ViewData["ProductType"]?.ToString() == "Планшет"
-|| ViewData["ProductType"]?.ToString() == "Телевизор") ? "block" : "none")">
+|| ViewData["ProductType"]?.ToString() == "Телевизор"
+|| ViewData["ProductType"]?.ToString() == "Ноутбук") ? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
                      width="24" height="24">
@@ -664,13 +681,14 @@
                 Диагональ
             </a>
             <form class="collapsible-form">
-                <input class="form-control" type="number" min="@minDiagonal" max="@maxDiagonal" placeholder="от @minDiagonal">
-                <input class="form-control" type="number" min="@minDiagonal" max="@maxDiagonal" placeholder="до @maxDiagonal">
+                <input class="form-control" type="number" step="0.1" min="@minDiagonal" max="@maxDiagonal" placeholder="от @minDiagonal">
+                <input class="form-control" type="number" step="0.1" min="@minDiagonal" max="@maxDiagonal" placeholder="до @maxDiagonal">
             </form>
         </div>
-        <div style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
+        <div id="matrixFilter" style="display:@((ViewData["ProductType"]?.ToString() == "Монитор"
 || ViewData["ProductType"]?.ToString() == "Планшет"
-|| ViewData["ProductType"]?.ToString() == "Телевизор") ? "block" : "none")">
+|| ViewData["ProductType"]?.ToString() == "Телевизор"
+|| ViewData["ProductType"]?.ToString() == "Ноутбук") ? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
                      width="24" height="24">
@@ -687,6 +705,10 @@
                     </li>
                     @foreach (var matrixType in Enum.GetValues(typeof(MatrixTypes)).Cast<MatrixTypes>())
                     {
+                        if (matrixType.ToString() == "No")
+                        {
+                            continue;
+                        }
                         <li class="list-group-item">
                             <input type="checkbox" class="os-checkbox" />
                             <label>@matrixType.Humanize()</label>
@@ -695,7 +717,7 @@
                 </ul>
             </form>
         </div>
-        <div style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
+        <div id="audioConnectionFilter" style="display:@(ViewData["ProductType"]?.ToString() == "Наушники"
 || ViewData["ProductType"]?.ToString() == "Микрофон"? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
@@ -721,7 +743,7 @@
                 </ul>
             </form>
         </div>
-        <div style="display:@((ViewData["ProductType"]?.ToString() == "Наушники"
+        <div id="connectionFilter" style="display:@((ViewData["ProductType"]?.ToString() == "Наушники"
 || ViewData["ProductType"]?.ToString() == "Клавиатура"
 || ViewData["ProductType"]?.ToString() == "Компьютерная мышь") ? "block" : "none")">
             <a class="btn btn-outline-secondary collapsible-filter">
@@ -748,7 +770,7 @@
                 </ul>
             </form>
         </div>
-        <div>
+        <div id="manufacturerFilter">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
                      width="24" height="24">
@@ -787,7 +809,25 @@
             </form>
 
         </div>
-        <div></div>
+        <div>
+            <a id="filterButton" class="btn filter-button"
+               asp-action="Index"
+               asp-route-productType="@ViewData["ProductType"]">
+                Применить
+            </a>
+        </div>
+        <div>
+            <a id="resetButton" class="btn reset-button"
+               asp-action="Index"
+               asp-route-productType="@ViewData["ProductType"]"
+               asp-route-currentSort="@ViewData["CurrentSort"]"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               asp-route-sortField="@ViewData["SortField"]"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-pageNumber="@ViewData["PageNumber"]">
+                Сбросить
+            </a>
+        </div>
     </div>
 </div>
 
@@ -889,6 +929,7 @@
                            asp-route-sortField="@ViewData["SortField"]"
                            asp-route-sortOrder="@ViewData["SortOrder"]"
                            asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-filters="@ViewData["FilterList"]"
                            asp-route-id="@item.Id">
                             Редактировать
                         </a> |
@@ -900,6 +941,7 @@
                            asp-route-sortField="@ViewData["SortField"]"
                            asp-route-sortOrder="@ViewData["SortOrder"]"
                            asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-filters="@ViewData["FilterList"]"
                            asp-route-id="@item.Id">
                             Подробно
                         </a> |
@@ -911,6 +953,7 @@
                            asp-route-sortField="@ViewData["SortField"]"
                            asp-route-sortOrder="@ViewData["SortOrder"]"
                            asp-route-pageNumber="@ViewData["PageNumber"]"
+                           asp-route-filters="@ViewData["FilterList"]"
                            asp-route-id="@item.Id">
                             Удалить
                         </a>
@@ -924,10 +967,9 @@
         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
     }
     <p>
-        Страница @(Model.PageIndex)
+        Страница @Model.PageIndex из @Model.TotalPages
     </p>
-
-    <a class="btn btn-default @prevDisabled"
+    <a style="float:left" class="btn btn-default @prevDisabled"
        asp-action="Index"
        asp-route-productType="@ViewData["ProductType"]"
        asp-route-currentSort="@ViewData["CurrentSort"]"
@@ -935,10 +977,28 @@
        asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
        asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-filters="@ViewData["FilterList"]"
        asp-route-pageNumber="@(Model.PageIndex - 1)">
         &#129186 Назад
     </a>
-    <a class="btn btn-default @nextDisabled"
+    <form id="pageForm" method="get" style="float:left; margin-left:10px; margin-right:10px">
+        <input type="number"
+               id="pageInput"
+               name="pageNumber"
+               min="1"
+               max="@Model.TotalPages"
+               placeholder="Страница..."
+               style="width: 100px; display: inline-block" />
+        <input type="submit" value="Перейти" />
+        <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
+        <input type="hidden" name="currentSort" value="@ViewData["CurrentSort"]" />
+        <input type="hidden" name="searchString" value="@ViewData["SearchString"]" />
+        <input type="hidden" name="currentFilter" value="@ViewData["CurrentFilter"]" />
+        <input type="hidden" name="sortField" value="@ViewData["SortField"]" />
+        <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+        <input type="hidden" name="filterList" value="@ViewData["FilterList"]" />
+    </form>
+    <a style="float:left" class="btn btn-default @nextDisabled"
        asp-action="Index"
        asp-route-productType="@ViewData["ProductType"]"
        asp-route-currentSort="@ViewData["CurrentSort"]"
@@ -946,6 +1006,7 @@
        asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
        asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-filters="@ViewData["FilterList"]"
        asp-route-pageNumber="@(Model.PageIndex + 1)">
         Далее &#129187
     </a>
@@ -963,6 +1024,7 @@
 
     .left-filters {
         float: left;
+        position: relative;
     }
 
     .list-group-item {
@@ -976,6 +1038,36 @@
         border: 1px solid #ccc;
         padding: 5px;
     }
+
+    .filter-button {
+        overflow-y: auto;
+        border: 1px solid #6c757d;
+        display: block;
+        margin: 8px 8px 8px 12px;
+        text-align: center;
+        width: 90%;
+        padding: 5px 10px;
+    }
+
+        .filter-button:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+
+    .reset-button {
+        overflow-y: auto;
+        border: 1px solid #6c757d;
+        display: block;
+        margin: 8px 8px 8px 12px;
+        text-align: center;
+        width: 90%;
+        padding: 5px 10px;
+    }
+
+        .reset-button:hover {
+            background-color: #6c757d;
+            color: white;
+        }
 
     .filter-icon {
         float: left;
@@ -1018,91 +1110,223 @@
 </style>
 @section Scripts {
     <script>
-                document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.sort-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
+                    document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.sort-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
 
-                    const sortField = this.dataset.sortField;
-                    const icon = this.querySelector('svg');
-                    const currentOrder = icon.dataset.direction === 'asc' ? 'desc' : 'asc';
+                        const sortField = this.dataset.sortField;
+                        const icon = this.querySelector('svg');
+                        const currentOrder = icon.dataset.direction === 'asc' ? 'desc' : 'asc';
 
-                    document.querySelectorAll('.sort-icon').forEach(otherIcon => {
-                        otherIcon.classList.remove('active');
-                        otherIcon.dataset.direction = '';
-                        otherIcon.querySelector('.asc-icon').style.display = 'none';
-                        otherIcon.querySelector('.desc-icon').style.display = 'none';
+                        document.querySelectorAll('.sort-icon').forEach(otherIcon => {
+                            otherIcon.classList.remove('active');
+                            otherIcon.dataset.direction = '';
+                            otherIcon.querySelector('.asc-icon').style.display = 'none';
+                            otherIcon.querySelector('.desc-icon').style.display = 'none';
+                        });
+
+                        icon.classList.add('active');
+                        icon.dataset.direction = currentOrder;
+                        if (currentOrder === 'asc') {
+                            icon.querySelector('.asc-icon').style.display = 'block';
+                            icon.querySelector('.desc-icon').style.display = 'none';
+                        } else {
+                            icon.querySelector('.desc-icon').style.display = 'block';
+                            icon.querySelector('.asc-icon').style.display = 'none';
+                        }
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('sortField', sortField);
+                        url.searchParams.set('sortOrder', currentOrder);
+                        window.location.href = url.toString();
+                    });
+                });
+            });
+
+                 $(document).ready(function () {
+                $('.list-group-item').hover(
+                    function () { $(this).css('background-color', '#f8f9fa'); },
+                    function () { $(this).css('background-color', ''); }
+                );
+
+                        $('.scrollable-list').each(function() {
+                    const list = $(this);
+
+                    list.find('.list-group-item').click(function(e) {
+
+                        const checkbox = $(this).find('input[type="checkbox"]');
+                        if (!$(e.target).is(':checkbox')) {
+                            checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+                        }
                     });
 
-                    icon.classList.add('active');
-                    icon.dataset.direction = currentOrder;
+                    list.find('input[type="checkbox"]:first').change(function() {
+                        const isChecked = $(this).prop('checked');
+                        list.find('input[type="checkbox"]').not(this).prop('checked', isChecked);
+                    });
 
-                    if (currentOrder === 'asc') {
-                        icon.querySelector('.asc-icon').style.display = 'block';
-                        icon.querySelector('.desc-icon').style.display = 'none';
-                    } else {
-                        icon.querySelector('.desc-icon').style.display = 'block';
-                        icon.querySelector('.asc-icon').style.display = 'none';
+                    list.find('input[type="checkbox"]:not(:first)').change(function() {
+                        const allChecked = list.find('input[type="checkbox"]:not(:first)').length ===
+                                         list.find('input[type="checkbox"]:not(:first):checked').length;
+                        list.find('input[type="checkbox"]:first').prop('checked', allChecked);
+                    });
+                });
+
+                        $('.collapsible-filter').click(function(e) {
+                    e.preventDefault();
+
+                    var filterBlock = $(this).closest("div");
+                    var form = filterBlock.find('.collapsible-form');
+                    var upIcon = filterBlock.find('.up-icon');
+                    var downIcon = filterBlock.find('.down-icon');
+                    if (form.is(':hidden'))
+                    {
+                        upIcon.show()
+                        downIcon.hide()
+                    }
+                    else
+                    {
+                        downIcon.show()
+                        upIcon.hide()
                     }
 
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('sortField', sortField);
-                    url.searchParams.set('sortOrder', currentOrder);
-                    window.location.href = url.toString();
+                    form.toggle();
                 });
-            });
-        });
-
-             $(document).ready(function () {
-            $('.list-group-item').hover(
-                function () { $(this).css('background-color', '#f8f9fa'); },
-                function () { $(this).css('background-color', ''); }
-            );
-
-                    $('.scrollable-list').each(function() {
-                const list = $(this);
-
-                list.find('.list-group-item').click(function(e) {
-
-                    const checkbox = $(this).find('input[type="checkbox"]');
-                    if (!$(e.target).is(':checkbox')) {
-                        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
-                    }
                 });
-
-                list.find('input[type="checkbox"]:first').change(function() {
-                    const isChecked = $(this).prop('checked');
-                    list.find('input[type="checkbox"]').not(this).prop('checked', isChecked);
-                });
-
-                list.find('input[type="checkbox"]:not(:first)').change(function() {
-                    const allChecked = list.find('input[type="checkbox"]:not(:first)').length ===
-                                     list.find('input[type="checkbox"]:not(:first):checked').length;
-                    list.find('input[type="checkbox"]:first').prop('checked', allChecked);
-                });
-            });
-
-                    $('.collapsible-filter').click(function(e) {
+                        document.getElementById('filterButton').addEventListener('click', function(e) {
                 e.preventDefault();
 
-                var filterBlock = $(this).closest("div");
-                var form = filterBlock.find('.collapsible-form');
-                var upIcon = filterBlock.find('.up-icon');
-                var downIcon = filterBlock.find('.down-icon');
-                if (form.is(':hidden'))
-                {
-                    upIcon.show()
-                    downIcon.hide()
-                }
-                else
-                {
-                    downIcon.show()
-                    upIcon.hide()
-                }
+                const filters = {
+                    Price: {
+                        min: parseFilterValue(document.querySelector('#priceFilter input:first-child').value),
+                        max: parseFilterValue(document.querySelector('#priceFilter input:last-child').value)
+                    },
 
-                form.toggle();
+                    Manufacturers: Array.from(document.querySelectorAll('#manufacturerFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Все производители"),
+
+                    RAM: Array.from(document.querySelectorAll('#ramFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    DriveVolume: Array.from(document.querySelectorAll('#driveFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    OperatingSystem: Array.from(document.querySelectorAll('#osFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    CoresQuantity: Array.from(document.querySelectorAll('#coresFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                        TabletWidths: {
+                        min: parseFilterValue(document.querySelector('#tabletWidthFilter input:first-child').value),
+                        max: parseFilterValue(document.querySelector('#tabletWidthFilter input:last-child').value)
+                    },
+
+                    HeadphonesType: Array.from(document.querySelectorAll('#headphonesTypeFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    AudioScheme: Array.from(document.querySelectorAll('#audioSchemeFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    KeyboardType: Array.from(document.querySelectorAll('#keyboardTypeFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                        KeysCount: {
+                        min: parseFilterValue(document.querySelector('#keysCountFilter input:first-child').value),
+                        max: parseFilterValue(document.querySelector('#keysCountFilter input:last-child').value)
+                    },
+
+                    Switches: Array.from(document.querySelectorAll('#switchesFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+                                            MouseKeysCount: {
+                        min: parseFilterValue(document.querySelector('#mouseKeysFilter input:first-child').value),
+                        max: parseFilterValue(document.querySelector('#mouseKeysFilter input:last-child').value)
+                    },
+
+                    DPI: Array.from(document.querySelectorAll('#dpiFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                    ExecutionType: Array.from(document.querySelectorAll('#executionTypeFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                Direction: Array.from(document.querySelectorAll('#directionFilter input[type="checkbox"]:checked'))
+                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .filter(t => t !== "Выбрать всё"),
+
+                            MinFrequency: Array.from(document.querySelectorAll('#minFrequencyFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+            MaxFrequency: Array.from(document.querySelectorAll('#maxFrequencyFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+            MonitorFps: {
+                        min: parseFilterValue(document.querySelector('#monitorFpsFilter input:first-child').value),
+                        max: parseFilterValue(document.querySelector('#monitorFpsFilter input:last-child').value)
+                    },
+                                                    Megapixels: {
+                min: parseFilterValue(document.querySelector('#megapixelsFilter input:first-child').value),
+                max: parseFilterValue(document.querySelector('#megapixelsFilter input:last-child').value)
+            },
+
+            MicrophonePresence: Array.from(document.querySelectorAll('#microphoneFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+                    FPS: Array.from(document.querySelectorAll('#fpsFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+            Diagonal: {
+                min: parseFilterValue(document.querySelector('#diagonalFilter input:first-child').value),
+                max: parseFilterValue(document.querySelector('#diagonalFilter input:last-child').value)
+            },
+
+            MatrixType: Array.from(document.querySelectorAll('#matrixFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+                            AudioConnection: Array.from(document.querySelectorAll('#audioConnectionFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё"),
+
+            Connection: Array.from(document.querySelectorAll('#connectionFilter input[type="checkbox"]:checked'))
+            .map(cb => cb.nextElementSibling.textContent.trim())
+            .filter(t => t !== "Выбрать всё")
+        };
+                const url = new URL(this.href);
+
+                url.searchParams.set('filters', JSON.stringify(filters));
+
+                window.location.href = url.toString();
             });
-            });
+                const parseFilterValue = (value) => {
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? null : parsed;
+        };
+                document.getElementById('pageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const pageNumber = document.getElementById('pageInput').value;
+            const url = new URL(window.location.href);
+
+            url.searchParams.set('pageNumber', pageNumber);
+
+            window.location.href = url.toString();
+        });
 
     </script>
 }

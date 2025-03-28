@@ -1,4 +1,6 @@
-﻿namespace DigitalDevices.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DigitalDevices.Enums
 {
     public enum OperatingSystems
     {
@@ -10,6 +12,7 @@
         Windows11,
         Linux,
         MacOs,
+        [Display(Name = "Без ос")]
         NoOs
     }
 }

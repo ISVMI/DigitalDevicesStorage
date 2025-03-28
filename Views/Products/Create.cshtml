@@ -9,7 +9,8 @@
     var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
     DigitalDevicesContext context = new(optionsBuilder.Options);
     int productTypeId = 1;
-    if (!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
+    if (ViewData["ProductType"] != null 
+    &&!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
     {
         productTypeId = context.ProductTypes.Where(pt => pt.Name == ViewData["ProductType"].ToString()).First().Id;
     }
@@ -66,7 +67,8 @@
                        asp-route-currentFilter="@ViewData["CurrentFilter"]"
                        asp-route-sortField="@ViewData["SortField"]"
                        asp-route-sortOrder="@ViewData["SortOrder"]"
-                       asp-route-pageNumber ="@ViewData["PageNumber"]" />
+                       asp-route-pageNumber ="@ViewData["PageNumber"]"
+                       asp-route-filters="@ViewData["FilterList"]" />
             </div>
         </form>
     </div>
@@ -80,7 +82,8 @@
        asp-route-currentFilter="@ViewData["CurrentFilter"]"
        asp-route-sortField="@ViewData["SortField"]"
        asp-route-sortOrder="@ViewData["SortOrder"]"
-       asp-route-pageNumber="@ViewData["PageNumber"]">
+       asp-route-pageNumber="@ViewData["PageNumber"]"
+       asp-route-filters="@ViewData["FilterList"]">
     Назад
 </a>
 </div>

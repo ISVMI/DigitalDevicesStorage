@@ -65,6 +65,7 @@
                asp-route-sortField="@ViewData["SortField"]"
                asp-route-sortOrder="@ViewData["SortOrder"]"
                asp-route-pageNumber="@ViewData["PageNumber"]"
+               asp-route-filters="@ViewData["FilterList"]"
                value="Удалить" class="btn btn-danger" /> |
         <a asp-action="Index" 
         asp-route-productType="@ViewData["ProductType"]"
@@ -74,7 +75,8 @@
            asp-route-currentFilter="@ViewData["CurrentFilter"]"
            asp-route-sortField="@ViewData["SortField"]"
            asp-route-sortOrder="@ViewData["SortOrder"]"
-           asp-route-pageNumber="@ViewData["PageNumber"]">
+           asp-route-pageNumber="@ViewData["PageNumber"]"
+           asp-route-filters="@ViewData["FilterList"]">
         Назад
     </a>
     </form>
