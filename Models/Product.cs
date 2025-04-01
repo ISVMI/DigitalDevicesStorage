@@ -27,10 +27,7 @@ namespace DigitalDevices.Models
         [Display(Name = "Тип продукта")]
         public virtual ProductTypes ProductTypes { get; set; }
         public List<CharacteristicsProduct> CharacteristicsProduct { get; set; } = new();
-        public Product()
-        {
-            
-        }
+
         
     }
 }

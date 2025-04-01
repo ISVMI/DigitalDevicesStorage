@@ -125,7 +125,7 @@ namespace DigitalDevices.Controllers
         {
             if (_context.Manufacturers == null)
             {
-                return Problem("Entity set 'DigitalDevicesContext.Manufacturers'  is null.");
+                return Problem("Таблица Производители пуста!");
             }
             var manufacturer = await _context.Manufacturers.FindAsync(id);
             if (manufacturer != null)
