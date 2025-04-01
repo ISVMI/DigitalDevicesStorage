@@ -1,4 +1,5 @@
-﻿using DigitalDevices.Models;
+﻿using DigitalDevices.DataContext;
+using DigitalDevices.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

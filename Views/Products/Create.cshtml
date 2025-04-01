@@ -1,9 +1,6 @@
 ﻿@model DigitalDevices.Models.CreateProductViewModel
-@using DigitalDevices
-@using DigitalDevices.Enums;
-@using Microsoft.EntityFrameworkCore
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Добавление";
 }
 @{
     var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
@@ -133,7 +130,7 @@
                         || charType.type === 'decimal')
                         {
                             fieldHtml += `
-                    <input type="number" step="0.1"
+                    <input type="number" step="0.01"
                            name="Characteristics[${index}].Value"
                            class="form-control" />`;
                     }

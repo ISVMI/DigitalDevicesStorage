@@ -1,10 +1,8 @@
-﻿@using DigitalDevices;
-@using Microsoft.EntityFrameworkCore
-<h1>Техника, хранимая на складе</h1>
+﻿@{
+    ViewData["Title"] = "Категории продуктов";
+}
+<h1>Категории продуктов, хранимых на складе</h1>
 <div>
-    <p>
-        Список техники:
-    </p>
     @{
         var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
         DigitalDevicesContext context = new(optionsBuilder.Options);

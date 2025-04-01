@@ -32,8 +32,8 @@
 
     public class PriceFilter
     {
-        public float? Min { get; set; }
-        public float? Max { get; set; }
+        public decimal? Min { get; set; }
+        public decimal? Max { get; set; }
     }
     public class TabletWidthsFilter
     {

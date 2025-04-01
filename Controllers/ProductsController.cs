@@ -6,13 +6,10 @@ using Humanizer;
 using static DigitalDevices.Models.EditProductViewModel;
 using static DigitalDevices.Models.ProductTypeViewModel;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Newtonsoft.Json;
 using System.Globalization;
-using System.Linq;
-using NuGet.Versioning;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using DigitalDevices.DataContext;
 
 namespace DigitalDevices.Controllers
 {
@@ -199,7 +196,8 @@ namespace DigitalDevices.Controllers
                             _context, query,
                             null, null,
                             filterObj.TabletWidths.Min,
-                            filterObj.TabletWidths.Max);
+                            filterObj.TabletWidths.Max,
+                            null,null);
                     }
 
                     if (filterObj.HeadphonesType != null && filterObj.HeadphonesType.Any())
@@ -238,7 +236,8 @@ namespace DigitalDevices.Controllers
                             _context, query,
                             filterObj.KeysCount.Min,
                             filterObj.KeysCount.Max,
-                            null, null);
+                            null, null,
+                            null,null);
                     }
 
                     if (filterObj.Switches != null && filterObj.Switches.Any())
@@ -263,7 +262,8 @@ namespace DigitalDevices.Controllers
                             _context, query,
                             filterObj.MouseKeysCount.Min,
                             filterObj.MouseKeysCount.Max,
-                            null, null);
+                            null, null,
+                            null,null);
                     }
 
                     if (filterObj.DPI != null && filterObj.DPI.Any())
@@ -316,7 +316,8 @@ namespace DigitalDevices.Controllers
                                 _context, query,
                                 filterObj.MonitorFps.Min,
                                 filterObj.MonitorFps.Max,
-                                null, null);
+                                null, null,
+                                null,null);
                         }
 
                     if (filterObj.Megapixels.Min != null
@@ -335,7 +336,8 @@ namespace DigitalDevices.Controllers
                             _context, query,
                             null, null,
                             filterObj.Megapixels.Min,
-                            filterObj.Megapixels.Max);
+                            filterObj.Megapixels.Max,
+                            null,null);
                     }
 
                     if (filterObj.MicrophonePresence != null && filterObj.MicrophonePresence.Any())
@@ -379,7 +381,8 @@ namespace DigitalDevices.Controllers
                             _context, query,
                             null, null,
                             filterObj.Diagonal.Min,
-                            filterObj.Diagonal.Max);
+                            filterObj.Diagonal.Max,
+                            null,null);
                     }
 
                     if (filterObj.MatrixType != null && filterObj.MatrixType.Any())
@@ -422,7 +425,8 @@ namespace DigitalDevices.Controllers
             DigitalDevicesContext _context,
             IQueryable<Product> query,
             int? min, int? max,
-            float? minf, float? maxf)
+            float? minf, float? maxf,
+            decimal?mind,decimal?maxd)
         {
             NumberFormatInfo provider = new()
             {
@@ -474,7 +478,52 @@ namespace DigitalDevices.Controllers
                     stringValues.Contains(cp.Characteristics.Value)));
                 }
             }
-            else
+            else if (type == "decimal")
+            {
+                if (mind.HasValue)
+                {
+                    List<string> stringValues = new();
+                    List<decimal> decimalValues = new();
+                    foreach (var characteristic in characteristicsList)
+                    {
+                        bool v = decimal.TryParse(characteristic.Value, out decimal value);
+                        if (!v)
+                        {
+                            value = decimal.Parse(characteristic.Value, provider);
+                        }
+                        if (value >= mind)
+                        {
+                            decimalValues.Add(value);
+                        }
+                    }
+                    decimalValues.ForEach(v => stringValues.Add(v.ToString()));
+                    query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                    stringValues.Contains(cp.Characteristics.Value)));
+                }
+                if (maxd.HasValue)
+                {
+                    List<string> stringValues = new();
+                    List<decimal> decimalValues = new();
+                    foreach (var characteristic in characteristicsList)
+                    {
+                        bool v = decimal.TryParse(characteristic.Value, out decimal value);
+                        if (!v)
+                        {
+                            value = decimal.Parse(characteristic.Value, provider);
+                        }
+                        if (value <= maxd)
+                        {
+                            decimalValues.Add(value);
+                        }
+                    }
+                    decimalValues.ForEach(v => stringValues.Add(v.ToString()));
+                    query = query
+                        .Select(p => p)
+                        .Where(p => p.CharacteristicsProduct.Any(cp =>
+                    stringValues.Contains(cp.Characteristics.Value)));
+                }
+            }
+            else if (type =="int")
             {
                 if (min.HasValue)
                 {
@@ -612,6 +661,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Create
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public IActionResult Create(string productType,
             string currentFilter,
         string searchString,
@@ -638,6 +688,7 @@ namespace DigitalDevices.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Create(CreateProductViewModel productModel,
             string productType,
             string currentFilter,
@@ -704,6 +755,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Edit/5
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Edit(int? id,
             string productType,
             string currentFilter,
@@ -763,10 +815,11 @@ namespace DigitalDevices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Edit(
         [FromForm] int Id,
         [FromForm] string Name,
-        [FromForm] float Price,
+        [FromForm] decimal Price,
         [FromForm] string Model,
         [FromForm] string Color,
         [FromForm] int Warranty,
@@ -846,6 +899,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Delete/5
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Delete(int? id,
             string productType,
             string currentFilter,
@@ -882,6 +936,7 @@ namespace DigitalDevices.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> DeleteConfirmed(int id,
             string productType,
                         string currentFilter,

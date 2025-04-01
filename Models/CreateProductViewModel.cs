@@ -8,7 +8,7 @@ namespace DigitalDevices.Models
     public class CreateProductViewModel
     {
         [Display(Name = "Цена")]
-        public float Price { get; set; }
+        public decimal Price { get; set; }
         [Display(Name = "Наименование")]
         public string Name { get; set; }
         [Display(Name = "Модель")]

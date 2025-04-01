@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace DigitalDevices
+namespace DigitalDevices.Models
 {
     public class PaginatedList<T> : List<T>
     {
@@ -12,7 +12,7 @@ namespace DigitalDevices
             PageIndex = pageIndex;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize) == 0? 1 : (int)Math.Ceiling(count / (double)pageSize);
 
-            this.AddRange(items);
+            AddRange(items);
         }
 
         public bool HasPreviousPage => PageIndex > 1;

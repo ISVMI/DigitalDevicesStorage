@@ -1,17 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DigitalDevices.Models;
-namespace DigitalDevices
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+namespace DigitalDevices.DataContext
 {
-    public class DigitalDevicesContext : DbContext
+    public class DigitalDevicesContext : IdentityDbContext<AuthApp.User>
     {
         public DigitalDevicesContext(DbContextOptions<DigitalDevicesContext> options)
             : base(options)
         {
-            Database.Migrate();
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server=(local);Database=DigitalDevices;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True");
         }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<Product> Products { get; set; }

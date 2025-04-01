@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using DigitalDevices.DataContext;
 using DigitalDevices.Enums;
 using DigitalDevices.Models;
 using Humanizer;
@@ -7,12 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DigitalDevices
+namespace DigitalDevices.DataSeeding
 {
     public class ProductGenerator
     {
         private readonly DigitalDevicesContext _context;
-        private readonly Faker _faker = new Faker("ru");
+        private readonly Faker _faker = new ("ru");
 
         public ProductGenerator(DigitalDevicesContext context)
         {
@@ -38,7 +39,7 @@ namespace DigitalDevices
                 {
                     Name = GenerateProductName(productType.Name),
                     Model = _faker.Random.AlphaNumeric(8).ToUpper(),
-                    Price = (float)_faker.Finance.Amount(100, 10000),
+                    Price = (decimal)_faker.Finance.Amount(100, 1000000),
                     Color = _faker.Commerce.Color(),
                     Warranty = _faker.Random.Int(12, 60),
                     Manufacturer = manufacturer,

@@ -1,31 +1,30 @@
-﻿@using DigitalDevices
-@using DigitalDevices.Enums;
-@using Humanizer
-@using Microsoft.EntityFrameworkCore
-@using System.Globalization
-@model PaginatedList<DigitalDevices.Models.Product>
+﻿@model DigitalDevices.Models.PaginatedList<DigitalDevices.Models.Product>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Список продуктов";
 }
 
 <h1>Техника</h1>
-
-<p>
-    <a asp-action="Create"
-       asp-route-productType="@ViewData["ProductType"]"
-       asp-route-currentSort="@ViewData["CurrentSort"]"
-       asp-route-currentFilter="@ViewData["CurrentFilter"]"
-       asp-route-sortField="@ViewData["SortField"]"
-       asp-route-sortOrder="@ViewData["SortOrder"]"
-       asp-route-pageNumber="@ViewData["PageNumber"]"
-       asp-route-filters="@ViewData["FilterList"]">
-        Добавить новую
-    </a>
-</p>
-
 @{
-    var optionsBuilder = new DbContextOptionsBuilder<DigitalDevicesContext>();
-    DigitalDevicesContext context = new(optionsBuilder.Options);
+    if (User.IsInRole("Manager")
+    || User.IsInRole("Admin"))
+    {
+        <p>
+            <a asp-action="Create"
+            asp-route-productType="@ViewData["ProductType"]"
+            asp-route-currentSort="@ViewData["CurrentSort"]"
+            asp-route-currentFilter="@ViewData["CurrentFilter"]"
+            asp-route-sortField="@ViewData["SortField"]"
+            asp-route-sortOrder="@ViewData["SortOrder"]"
+            asp-route-pageNumber="@ViewData["PageNumber"]"
+            asp-route-filters="@ViewData["FilterList"]">
+                Добавить новую
+            </a>
+        </p>
+    }
+}
+@{
+    var optionsBuilder = new DbContextOptionsBuilder<DigitalDevices.DataContext.DigitalDevicesContext>();
+    DigitalDevices.DataContext.DigitalDevicesContext context = new(optionsBuilder.Options);
     var minPrice = context.Products.Any() ? context.Products.Min(p => p.Price) : 0;
     var maxPrice = context.Products.Any() ? context.Products.Max(p => p.Price) : 0;
     if (ViewData["ProductType"] != null
@@ -142,8 +141,8 @@
     float maxMegapixels = 48;
 
 }
-<div class="accordion-body" style="float:left" ::before>
-    <div class="left-filters" ::before>
+<div class="accordion-body" style="float:left">
+    <div class="left-filters">
         <div id="priceFilter">
             <a class="btn btn-outline-secondary collapsible-filter">
                 <svg class="filter-icon"
@@ -154,8 +153,8 @@
                 Цена
             </a>
             <form class="collapsible-form">
-                <input class="form-control" type="number" step="0.1" min="@minPrice" max="@maxPrice" placeholder="от @minPrice">
-                <input class="form-control" type="number" step="0.1" min="@minPrice" max="@maxPrice" placeholder="до @maxPrice">
+                <input class="form-control" type="number" step="0.01" min="@minPrice" max="@maxPrice" placeholder="от @minPrice">
+                <input class="form-control" type="number" step="0.01" min="@minPrice" max="@maxPrice" placeholder="до @maxPrice">
             </form>
         </div>
         <div id="computerCharacteristics" style="display:@(ViewData["ProductType"]?.ToString() == "Компьютер"
@@ -921,18 +920,24 @@
                         @Html.DisplayFor(modelItem => item.ProductTypes.Name)
                     </td>
                     <td style="border:double">
-                        <a asp-action="Edit"
-                           asp-route-productType="@ViewData["ProductType"]"
-                           asp-route-currentSort="@ViewData["CurrentSort"]"
-                           asp-route-searchString="@ViewData["SearchString"]"
-                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                           asp-route-sortField="@ViewData["SortField"]"
-                           asp-route-sortOrder="@ViewData["SortOrder"]"
-                           asp-route-pageNumber="@ViewData["PageNumber"]"
-                           asp-route-filters="@ViewData["FilterList"]"
-                           asp-route-id="@item.Id">
-                            Редактировать
-                        </a> |
+                        @{
+                            if (User.IsInRole("Manager")
+                        || User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit"
+                                   asp-route-productType="@ViewData["ProductType"]"
+                                   asp-route-currentSort="@ViewData["CurrentSort"]"
+                                   asp-route-searchString="@ViewData["SearchString"]"
+                                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                   asp-route-sortField="@ViewData["SortField"]"
+                                   asp-route-sortOrder="@ViewData["SortOrder"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   asp-route-filters="@ViewData["FilterList"]"
+                                   asp-route-id="@item.Id">
+                                    Редактировать
+                                </a>
+                            }
+                        }|
                         <a asp-action="Details"
                            asp-route-productType="@ViewData["ProductType"]"
                            asp-route-currentSort="@ViewData["CurrentSort"]"
@@ -945,18 +950,24 @@
                            asp-route-id="@item.Id">
                             Подробно
                         </a> |
-                        <a asp-action="Delete"
-                           asp-route-productType="@ViewData["ProductType"]"
-                           asp-route-currentSort="@ViewData["CurrentSort"]"
-                           asp-route-searchString="@ViewData["SearchString"]"
-                           asp-route-currentFilter="@ViewData["CurrentFilter"]"
-                           asp-route-sortField="@ViewData["SortField"]"
-                           asp-route-sortOrder="@ViewData["SortOrder"]"
-                           asp-route-pageNumber="@ViewData["PageNumber"]"
-                           asp-route-filters="@ViewData["FilterList"]"
-                           asp-route-id="@item.Id">
-                            Удалить
-                        </a>
+                        @{
+                            if (User.IsInRole("Manager")
+                            || User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Delete"
+                                   asp-route-productType="@ViewData["ProductType"]"
+                                   asp-route-currentSort="@ViewData["CurrentSort"]"
+                                   asp-route-searchString="@ViewData["SearchString"]"
+                                   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+                                   asp-route-sortField="@ViewData["SortField"]"
+                                   asp-route-sortOrder="@ViewData["SortOrder"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   asp-route-filters="@ViewData["FilterList"]"
+                                   asp-route-id="@item.Id">
+                                    Удалить
+                                </a>
+                            }
+                        }
                     </td>
                 </tr>
             }
