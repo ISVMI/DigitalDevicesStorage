@@ -603,6 +603,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(int? id,
             string productType,
             string currentFilter,
@@ -661,6 +662,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Create
+        [HttpGet]
         [Authorize(Policy = "ProductsManagementPolicy")]
         public IActionResult Create(string productType,
             string currentFilter,
@@ -755,6 +757,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Edit/5
+        [HttpGet]
         [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Edit(int? id,
             string productType,
@@ -899,6 +902,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products/Delete/5
+        [HttpGet]
         [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Delete(int? id,
             string productType,

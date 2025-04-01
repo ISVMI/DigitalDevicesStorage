@@ -8,30 +8,22 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContextFactory<DigitalDevicesContext, DigitalDevicesContextFactory>(options=>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DigitalDevicesContext>();
 
-builder.Services.AddScoped<RolesSeeder>();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 
-builder.Services.AddIdentity<User, IdentityRole>(options =>
-{
-    options.Password.RequiredLength = 6;
-    options.Stores.ProtectPersonalData = false;
-    options.Lockout.AllowedForNewUsers = false;
-})
+builder.Services.AddIdentity<User, IdentityRole>()
 .AddEntityFrameworkStores<DigitalDevicesContext>()
 .AddDefaultTokenProviders();
-
 builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredLength = 6);
-
+builder.Services.AddScoped<RolesSeeder>();
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromHours(4);
-    options.LoginPath = "/Account/Login";
-    options.LogoutPath = "/Account/Logout";
+    options.LoginPath = "/Accounts/Login";
+    options.LogoutPath = "/Accounts/Logout";
     options.SlidingExpiration = true;
 });
 
@@ -70,13 +62,13 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        var contextFactory = services.GetRequiredService<DigitalDevicesContextFactory>();
-        await contextFactory.CreateDbContext().Database.MigrateAsync();
-
+        var context = services.GetRequiredService<DigitalDevicesContext>();
+        await context.Database.MigrateAsync();
 
         var rolesSeeder = services.GetRequiredService<RolesSeeder>();
+        await rolesSeeder.SeedRolesAsync();
 
-        await DbInitializer.InitializeAsync(contextFactory.CreateDbContext(), rolesSeeder);
+        await DbInitializer.InitializeAsync(context);
     }
     catch (Exception ex)
     {

@@ -1,14 +1,9 @@
 ﻿using DigitalDevices.AuthApp;
 using DigitalDevices.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
-using NuGet.Packaging;
+
 
 namespace DigitalDevices.Controllers
 {
@@ -18,7 +13,6 @@ namespace DigitalDevices.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
         public AccountsController(
-            RoleManager<IdentityRole> roleManager,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration)
@@ -27,7 +21,7 @@ namespace DigitalDevices.Controllers
             _signInManager = signInManager;
             _configuration = configuration;
         }
-
+        [HttpGet]
         public IActionResult Login(string returnUrl)
         {
             return View(new UserLogin()
@@ -39,6 +33,7 @@ namespace DigitalDevices.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(UserLogin model)
         {
+            if (ModelState.IsValid){
             var loginResult = await _signInManager.PasswordSignInAsync(
                 model.Username,
                 model.Password,
@@ -51,10 +46,13 @@ namespace DigitalDevices.Controllers
                     return Redirect(model.ReturnUrl);
                 }
             }
-            return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Home");
+            }
+                ModelState.AddModelError("", "Пользователь не найден!");
+                return View(model);
         }
-
-        public IActionResult Register(string returnUrl)
+        [HttpGet]
+        public IActionResult Register()
         {
             return View(new UserRegistration());
         }
@@ -106,7 +104,8 @@ namespace DigitalDevices.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        //[Authorize(Policy = "AdminPolicy")]
+        [HttpGet]
+        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Manage()
         {
             var currentUser = await _userManager.GetUserAsync(User);

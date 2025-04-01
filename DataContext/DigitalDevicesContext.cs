@@ -9,6 +9,10 @@ namespace DigitalDevices.DataContext
             : base(options)
         {
         }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Server=(local);Database=DigitalDevices;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True");
+        }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Characteristics> Characteristics { get; set; }

@@ -21,8 +21,7 @@ namespace DigitalDevices.DataSeeding
             {
                 foreach (var role in roles)
                 {
-                    var newRole = new IdentityRole(role);
-                     await _roleManager.CreateAsync(newRole);
+                     await _roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
         }

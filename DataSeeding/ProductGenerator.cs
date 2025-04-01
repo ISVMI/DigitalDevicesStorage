@@ -20,13 +20,13 @@ namespace DigitalDevices.DataSeeding
             _context = context;
         }
 
-        public void GenerateProducts(int count)
+        public async Task GenerateProductsAsync(int count)
         {
-            var manufacturers = _context.Manufacturers.ToList();
-            var productTypes = _context.ProductTypes
+            var manufacturers = await _context.Manufacturers.ToListAsync();
+            var productTypes = await _context.ProductTypes
                 .Include(pt => pt.CharacteristicsTypeProductTypes)
                 .ThenInclude(ctpt => ctpt.CharacteristicsTypes)
-                .ToList();
+                .ToListAsync();
 
             var products = new List<Product>();
 
@@ -53,7 +53,7 @@ namespace DigitalDevices.DataSeeding
                         CharacteristicsType = ct.CharacteristicsTypes,
                         Value = GenerateCharacteristicValue(ct.CharacteristicsTypes)
                     };
-                    _context.Characteristics.Add(characteristic);
+                    await _context.Characteristics.AddAsync(characteristic);
 
                     var characteristicProduct = new CharacteristicsProduct
                     {
@@ -61,13 +61,13 @@ namespace DigitalDevices.DataSeeding
                         Products = product
                     };
                     product.CharacteristicsProduct.Add(characteristicProduct);
-                    _context.CharacteristicsProducts.Add(characteristicProduct);
+                    await _context.CharacteristicsProducts.AddAsync(characteristicProduct);
 
                 }
 
-                _context.Products.Add(product);
+                await _context.Products.AddAsync(product);
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         private string GenerateProductName(string productType)
