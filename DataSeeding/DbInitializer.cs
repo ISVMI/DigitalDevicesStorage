@@ -1,48 +1,46 @@
 ﻿using DigitalDevices.Models;
 using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
-using Bogus;
-namespace DigitalDevices
+using DigitalDevices.DataContext;
+using Microsoft.EntityFrameworkCore;
+namespace DigitalDevices.DataSeeding
 {
     public class DbInitializer
     {
-        public static void Initialize(DigitalDevicesContext context)
+        public static async Task InitializeAsync(DigitalDevicesContext context)
         {
             if (!context.Manufacturers.Any())
             {
-                using (FileStream fs = new FileStream("Manufacturers.json", FileMode.OpenOrCreate))
+                using (FileStream fs = new("DataSeeding\\Manufacturers.json", FileMode.Open))
                 {
                     Manufacturer[] manufacturers = JsonSerializer.Deserialize<Manufacturer[]>(fs);
-                    context.Manufacturers.AddRange(manufacturers);
+                    await context.Manufacturers.AddRangeAsync(manufacturers);
                 }
-
-                context.SaveChanges();
             }
+
             if (!context.CharacteristicsType.Any())
             {
-                using (FileStream fs = new FileStream("CharacteristicTypes.json", FileMode.OpenOrCreate))
+                using (FileStream fs = new("DataSeeding\\CharacteristicTypes.json", FileMode.Open))
                 {
                     CharacteristicsType[] characteristicsTypes = JsonSerializer.Deserialize<CharacteristicsType[]>(fs);
-                    context.CharacteristicsType.AddRange(characteristicsTypes);
+                    await context.CharacteristicsType.AddRangeAsync(characteristicsTypes);
                 }
 
-                context.SaveChanges();
             }
+
             if (!context.ProductTypes.Any())
             {
                 List<string> productNames = new();
-                using (FileStream fs = new FileStream("ProductTypes.json", FileMode.OpenOrCreate))
+                using (FileStream fs = new("DataSeeding\\ProductTypes.json", FileMode.Open))
                 {
                     ProductTypes[] characteristicsSets = JsonSerializer.Deserialize<ProductTypes[]>(fs);
                     foreach (var item in characteristicsSets)
                     {
                         productNames.Add(item.Name);
                     }
-                    context.ProductTypes.AddRange(characteristicsSets);
+                    await context.ProductTypes.AddRangeAsync(characteristicsSets);
                 }
-                context.SaveChanges();
                 List<string>[] typesList = null;
-                using (FileStream fs = new FileStream("TypesList.json", FileMode.OpenOrCreate))
+                using (FileStream fs = new("DataSeeding\\TypesList.json", FileMode.Open))
                 {
                     typesList = JsonSerializer.Deserialize<List<string>[]>(fs);
                 }
@@ -51,9 +49,9 @@ namespace DigitalDevices
                 {
                     foreach (var characteristicItem in typesList[ind])
                     {
-                        var singleType = context.CharacteristicsType.FirstOrDefault(t => t.Name == characteristicItem);
-                        var singleProduct = context.ProductTypes.FirstOrDefault(t => t.Name == productItem);
-                        if (singleType != null && singleProduct!=null)
+                        var singleType = await context.CharacteristicsType.FirstOrDefaultAsync(t => t.Name == characteristicItem);
+                        var singleProduct = await context.ProductTypes.FirstOrDefaultAsync(t => t.Name == productItem);
+                        if (singleType != null && singleProduct != null)
                         {
                             singleProduct.CharacteristicsTypeProductTypes.Add(new()
                             {
@@ -65,15 +63,15 @@ namespace DigitalDevices
                         }
                     }
                     ind++;
-                } 
+                }
             }
+            await context.SaveChangesAsync();
+
             if (!context.Products.Any())
             {
                 var generator = new ProductGenerator(context);
-                generator.GenerateProducts(5500);
+                await generator.GenerateProductsAsync(5500);
             }
-
-            context.SaveChanges();
         }
     }
 }

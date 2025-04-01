@@ -19,34 +19,74 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Storage">Список техники</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Техника</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Manufacturers" asp-action="Index">Производители</a>
-                        </li>
-                        <li class="nav-item">
-                            <form asp-controller="Products" asp-action="Index" method="get" class="form-inline my-2 my-lg-0">
-                                <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
-                                <div class="input-group">
-                                    <input class="form-control"
-                                           type="search"
-                                           name="searchString"
-                                           placeholder="Поиск..."
-                                           aria-label="Search"
-                                           value="@Context.Request.Query["searchString"]">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-dark" type="submit">
-                                            &#128269;
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </li>
+                        @{
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <ul class="navbar-nav ms-auto">
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Register">Регистрация</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Login">Вход</a>
+                                    </li>
+                                </ul>
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Storage">Категории продуктов</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Список всей техники</a>
+                                </li>
+                                @if (User.IsInRole("Manager")
+                        || User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Manufacturers" asp-action="Index">Производители</a>
+                                    </li>
+                                }
+
+                                <li class="nav-item">
+                                    <form asp-controller="Products" asp-action="Index" method="get" class="form-inline my-2 my-lg-0">
+                                        <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
+                                        <div class="input-group">
+                                            <input class="form-control"
+                                                   type="search"
+                                                   name="searchString"
+                                                   placeholder="Поиск..."
+                                                   aria-label="Search"
+                                                   value="@Context.Request.Query["searchString"]">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-dark" type="submit">
+                                                    &#128269;
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </li>
+
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Manage">
+                                            Управление пользователями
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
                     </ul>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <span>Здравствуйте @User.Identity.Name!</span>
+
+                        <div>
+                            <form asp-controller="Accounts" asp-action="Logout" method="post">
+                                <button type="submit" class="btn nav-link text-dark">Выйти</button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>
@@ -69,10 +109,22 @@
 </body>
 </html>
 <style>
+    html {
+        max-width: 98%;
+    }
     .footer {
         padding: 16px 0;
         font-size: 14px;
         display: ruby-base;
         min-height: 100vh;
+    }
+
+    .nav-item.acc {
+        float:right;
+    }
+
+    .nav-link:hover {
+        font-size: 110%;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
     }
 </style>

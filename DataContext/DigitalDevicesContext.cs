@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using DigitalDevices.Models;
-namespace DigitalDevices
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+namespace DigitalDevices.DataContext
 {
-    public class DigitalDevicesContext : DbContext
+    public class DigitalDevicesContext : IdentityDbContext<AuthApp.User>
     {
         public DigitalDevicesContext(DbContextOptions<DigitalDevicesContext> options)
             : base(options)
         {
-            Database.Migrate();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

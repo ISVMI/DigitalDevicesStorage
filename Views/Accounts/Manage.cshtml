@@ -1,0 +1,57 @@
+﻿@using DigitalDevices.Models
+@model PaginatedList<UserRolesViewModel>
+
+<h1>Управление пользователями</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Логин</th>
+            <th>Роли</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>
+                    @{
+                    if (user.Roles.Contains("Admin"))
+                    {
+                        <span class="badge bg-secondary">Администратор</span>
+                    }
+                    else if (user.Roles.Contains("Manager"))
+                    {
+                        <span class="badge bg-secondary">Менеджер</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Пользователь</span>
+                    }  
+                    }
+                </td>
+                <td>
+                    @if (!user.IsAdmin)
+                    {
+                        <form asp-action="UpdateRoles" method="post">
+                            <input type="hidden" name="userId" value="@user.UserId" />
+                            <div class="btn-group">
+                                <select name="roles">
+                                    <option value="Manager" selected="@(user.Roles.Contains("Manager"))">Менеджер</option>
+                                    <option value="User" selected="@(user.Roles.Contains("User"))">Пользователь</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary">Обновить</button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Изменение запрещено</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

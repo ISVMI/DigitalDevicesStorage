@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DigitalDevices;
 using DigitalDevices.Models;
+using DigitalDevices.DataContext;
 
 namespace DigitalDevices.Controllers
 {

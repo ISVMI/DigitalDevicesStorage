@@ -11,7 +11,7 @@ namespace DigitalDevices.Models
         [Display(Name = "Цена")]
         [Range(10, 1_000_000), DataType(DataType.Currency)]
         [Column(TypeName = "float(18, 2)")]
-        public float Price { get; set; }
+        public decimal Price { get; set; }
         [Display(Name = "Наименование")]
         public string Name { get; set; }
         [Display(Name = "Модель")]

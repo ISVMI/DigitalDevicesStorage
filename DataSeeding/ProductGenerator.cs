@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using DigitalDevices.DataContext;
 using DigitalDevices.Enums;
 using DigitalDevices.Models;
 using Humanizer;
@@ -7,25 +8,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DigitalDevices
+namespace DigitalDevices.DataSeeding
 {
     public class ProductGenerator
     {
         private readonly DigitalDevicesContext _context;
-        private readonly Faker _faker = new Faker("ru");
+        private readonly Faker _faker = new ("ru");
 
         public ProductGenerator(DigitalDevicesContext context)
         {
             _context = context;
         }
 
-        public void GenerateProducts(int count)
+        public async Task GenerateProductsAsync(int count)
         {
-            var manufacturers = _context.Manufacturers.ToList();
-            var productTypes = _context.ProductTypes
+            var manufacturers = await _context.Manufacturers.ToListAsync();
+            var productTypes = await _context.ProductTypes
                 .Include(pt => pt.CharacteristicsTypeProductTypes)
                 .ThenInclude(ctpt => ctpt.CharacteristicsTypes)
-                .ToList();
+                .ToListAsync();
 
             var products = new List<Product>();
 
@@ -38,7 +39,7 @@ namespace DigitalDevices
                 {
                     Name = GenerateProductName(productType.Name),
                     Model = _faker.Random.AlphaNumeric(8).ToUpper(),
-                    Price = (float)_faker.Finance.Amount(100, 10000),
+                    Price = (decimal)_faker.Finance.Amount(100, 1000000),
                     Color = _faker.Commerce.Color(),
                     Warranty = _faker.Random.Int(12, 60),
                     Manufacturer = manufacturer,
@@ -52,7 +53,7 @@ namespace DigitalDevices
                         CharacteristicsType = ct.CharacteristicsTypes,
                         Value = GenerateCharacteristicValue(ct.CharacteristicsTypes)
                     };
-                    _context.Characteristics.Add(characteristic);
+                    await _context.Characteristics.AddAsync(characteristic);
 
                     var characteristicProduct = new CharacteristicsProduct
                     {
@@ -60,13 +61,13 @@ namespace DigitalDevices
                         Products = product
                     };
                     product.CharacteristicsProduct.Add(characteristicProduct);
-                    _context.CharacteristicsProducts.Add(characteristicProduct);
+                    await _context.CharacteristicsProducts.AddAsync(characteristicProduct);
 
                 }
 
-                _context.Products.Add(product);
+                await _context.Products.AddAsync(product);
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         private string GenerateProductName(string productType)
