@@ -39,6 +39,7 @@ namespace DigitalDevices.DataSeeding
                     }
                     await context.ProductTypes.AddRangeAsync(characteristicsSets);
                 }
+                context.SaveChangesAsync().Wait();
                 List<string>[] typesList = null;
                 using (FileStream fs = new("DataSeeding\\TypesList.json", FileMode.Open))
                 {

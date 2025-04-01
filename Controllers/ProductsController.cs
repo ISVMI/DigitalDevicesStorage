@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using DigitalDevices.DataContext;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DigitalDevices.Controllers
 {
@@ -153,280 +154,29 @@ namespace DigitalDevices.Controllers
 
                 if (!String.IsNullOrEmpty(productType))
                 {
+                    query = GetFilters(filterObj, query, productType).Result;
 
-                    if (filterObj.RAM != null && filterObj.RAM.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Размер оперативной памяти (ГБ)"
-                        && filterObj.RAM.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.DriveVolume != null && filterObj.DriveVolume.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Объём накопителя (ГБ)"
-                        && filterObj.DriveVolume.Contains(cp.Characteristics.Value)));
-                    }
-                    if (filterObj.OperatingSystem != null && filterObj.OperatingSystem.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                            cp.Characteristics.CharacteristicsType.Name == "Операционная система" &&
-                            filterObj.OperatingSystem.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.CoresQuantity != null && filterObj.CoresQuantity.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Количество ядер"
-                        && filterObj.CoresQuantity.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.TabletWidths.Min != null
-                        || filterObj.TabletWidths.Max != null)
-                    {
-                        var tabletsWidths = await _context.Characteristics
-                            .Where(c => c.CharacteristicsType.Name == "Рабочая ширина (мм)")
-                            .ToListAsync();
-
-                        query = query
-                                .Where(p => p.CharacteristicsProduct.Any(cp =>
-                                cp.Characteristics.CharacteristicsType.Name == "Рабочая ширина (мм)"));
-
-                        query = GetProductsByFilter("float",tabletsWidths,
-                            _context, query,
-                            null, null,
-                            filterObj.TabletWidths.Min,
-                            filterObj.TabletWidths.Max,
-                            null,null);
-                    }
-
-                    if (filterObj.HeadphonesType != null && filterObj.HeadphonesType.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Тип наушников"
-                        && filterObj.HeadphonesType.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.AudioScheme != null && filterObj.AudioScheme.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Тип наушников"
-                        && filterObj.AudioScheme.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.KeyboardType != null && filterObj.KeyboardType.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Тип клавиатуры"
-                        && filterObj.KeyboardType.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.KeysCount.Min != null
-                        || filterObj.KeysCount.Max != null)
-                    {
-                        var keysCount = await _context.Characteristics
-                            .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
-                            .ToListAsync();
-
-                        query = query
-                                .Where(p => p.CharacteristicsProduct.Any(cp =>
-                                cp.Characteristics.CharacteristicsType.Name == "Количество клавиш"));
-
-                        query = GetProductsByFilter("int", keysCount,
-                            _context, query,
-                            filterObj.KeysCount.Min,
-                            filterObj.KeysCount.Max,
-                            null, null,
-                            null,null);
-                    }
-
-                    if (filterObj.Switches != null && filterObj.Switches.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Свичи"
-                        && filterObj.Switches.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.MouseKeysCount.Min != null
-                        || filterObj.MouseKeysCount.Max != null)
-                    {
-                        var keysCount = await _context.Characteristics
-                            .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
-                            .ToListAsync();
-
-                        query = query
-                                .Where(p => p.CharacteristicsProduct.Any(cp =>
-                                cp.Characteristics.CharacteristicsType.Name == "Количество клавиш"));
-
-                        query = GetProductsByFilter("int", keysCount,
-                            _context, query,
-                            filterObj.MouseKeysCount.Min,
-                            filterObj.MouseKeysCount.Max,
-                            null, null,
-                            null,null);
-                    }
-
-                    if (filterObj.DPI != null && filterObj.DPI.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "DPI"
-                        && filterObj.DPI.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.ExecutionType != null && filterObj.ExecutionType.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                            cp.Characteristics.CharacteristicsType.Name == "Вид исполнения"
-                            && filterObj.ExecutionType.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.Direction != null && filterObj.Direction.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Направленность"
-                        && filterObj.Direction.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.MinFrequency != null && filterObj.MinFrequency.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Минимальная частота (Гц)"
-                        && filterObj.MinFrequency.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.MaxFrequency != null && filterObj.MaxFrequency.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Максимальная частота (Гц)"
-                        && filterObj.MaxFrequency.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.MonitorFps.Min != null
-                        || filterObj.MonitorFps.Max != null)
-                    {
-                            var monitorFPS = await _context.Characteristics
-                                .Where(c => c.CharacteristicsType.Name == "Кадров в секунду")
-                                .ToListAsync();
-
-                            query = query
-                                .Where(p => p.CharacteristicsProduct.Any(cp =>
-                            cp.Characteristics.CharacteristicsType.Name == "Кадров в секунду"));
-
-                        query = GetProductsByFilter("int", monitorFPS,
-                                _context, query,
-                                filterObj.MonitorFps.Min,
-                                filterObj.MonitorFps.Max,
-                                null, null,
-                                null,null);
-                        }
-
-                    if (filterObj.Megapixels.Min != null
-                        || filterObj.Megapixels.Max != null)
-                    {
-                        
-                        var megapixels = await _context.Characteristics
-                                .Where(c => c.CharacteristicsType.Name == "Количество мегапикселей")
-                                .ToListAsync();
-
-                        query = query
-                            .Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Количество мегапикселей"));
-
-                        query = GetProductsByFilter("float", megapixels,
-                            _context, query,
-                            null, null,
-                            filterObj.Megapixels.Min,
-                            filterObj.Megapixels.Max,
-                            null,null);
-                    }
-
-                    if (filterObj.MicrophonePresence != null && filterObj.MicrophonePresence.Any())
-                    {
-                        if (filterObj.MicrophonePresence.First() == "Есть")
-                        {
-                            query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Наличие микрофона"
-                        && cp.Characteristics.Value == "True"));
-                        }
-                        if (filterObj.MicrophonePresence.First() == "Нет")
-                        {
-                            query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Наличие микрофона"
-                        && cp.Characteristics.Value == "False"));
-                        }
-
-                    }
-
-                    if (filterObj.FPS != null && filterObj.FPS.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Кадров в секунду"
-                        && filterObj.FPS.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.Diagonal.Min != null
-                        || filterObj.Diagonal.Max != null)
-                    {
-                        var diagonals = await _context.Characteristics
-                                .Where(c => c.CharacteristicsType.Name == "Диагональ (в дюймах)"
-                                && c.CharacteristicsProduct.Any(cp=>cp.Products.ProductTypes.Name == productType))
-                                .ToListAsync();
-
-                        query = query
-                                .Where(p => p.CharacteristicsProduct.Any(cp =>
-                            cp.Characteristics.CharacteristicsType.Name == "Диагональ (в дюймах)"
-                            && cp.Products.ProductTypes.Name == productType));
-
-                        query = GetProductsByFilter("float", diagonals,
-                            _context, query,
-                            null, null,
-                            filterObj.Diagonal.Min,
-                            filterObj.Diagonal.Max,
-                            null,null);
-                    }
-
-                    if (filterObj.MatrixType != null && filterObj.MatrixType.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Тип матрицы"
-                        && filterObj.MatrixType.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.AudioConnection != null && filterObj.AudioConnection.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Разъём подключения"
-                        && filterObj.AudioConnection.Contains(cp.Characteristics.Value)));
-                    }
-
-                    if (filterObj.Connection != null && filterObj.Connection.Any())
-                    {
-                        query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
-                        cp.Characteristics.CharacteristicsType.Name == "Тип подключения"
-                        && filterObj.Connection.Contains(cp.Characteristics.Value)));
-                    }
                 }
             }
-            query = sortField switch
-            {
-                "Warranty" => sortOrder == "asc"
-                    ? query.OrderBy(p => p.Warranty)
-                    : query.OrderByDescending(p => p.Warranty),
-                "Price" => sortOrder == "asc"
-                    ? query.OrderBy(p => p.Price)
-                    : query.OrderByDescending(p => p.Price),
-                _ => query.OrderBy(p => p.Manufacturer)
-            };
-            return View(await PaginatedList<Product>.CreateAsync(query, pageNumber ?? 1, pageSize));
-        }
+                query = sortField switch
+                {
+                    "Warranty" => sortOrder == "asc"
+                        ? query.OrderBy(p => p.Warranty)
+                        : query.OrderByDescending(p => p.Warranty),
+                    "Price" => sortOrder == "asc"
+                        ? query.OrderBy(p => p.Price)
+                        : query.OrderByDescending(p => p.Price),
+                    _ => query.OrderBy(p => p.Manufacturer)
+                };
+                return View(await PaginatedList<Product>.CreateAsync(query, pageNumber ?? 1, pageSize));
+            }
 
         public IQueryable<Product> GetProductsByFilter(string type,
             List<Characteristics> characteristicsList,
-            DigitalDevicesContext _context,
             IQueryable<Product> query,
             int? min, int? max,
             float? minf, float? maxf,
-            decimal?mind,decimal?maxd)
+            decimal? mind, decimal? maxd)
         {
             NumberFormatInfo provider = new()
             {
@@ -473,7 +223,7 @@ namespace DigitalDevices.Controllers
                     }
                     floatValues.ForEach(v => stringValues.Add(v.ToString()));
                     query = query
-                        .Select(p=>p)
+                        .Select(p => p)
                         .Where(p => p.CharacteristicsProduct.Any(cp =>
                     stringValues.Contains(cp.Characteristics.Value)));
                 }
@@ -523,7 +273,7 @@ namespace DigitalDevices.Controllers
                     stringValues.Contains(cp.Characteristics.Value)));
                 }
             }
-            else if (type =="int")
+            else if (type == "int")
             {
                 if (min.HasValue)
                 {
@@ -565,6 +315,265 @@ namespace DigitalDevices.Controllers
                     query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
                     stringValues.Contains(cp.Characteristics.Value)));
                 }
+            }
+            return query;
+        }
+
+        public async Task<IQueryable<Product>> GetFilters(
+            FilterModel filterObj,
+            IQueryable<Product> query,
+            string productType)
+        {
+            if (filterObj.RAM != null && filterObj.RAM.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Размер оперативной памяти (ГБ)"
+                && filterObj.RAM.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.DriveVolume != null && filterObj.DriveVolume.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Объём накопителя (ГБ)"
+                && filterObj.DriveVolume.Contains(cp.Characteristics.Value)));
+            }
+            if (filterObj.OperatingSystem != null && filterObj.OperatingSystem.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                    cp.Characteristics.CharacteristicsType.Name == "Операционная система" &&
+                    filterObj.OperatingSystem.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.CoresQuantity != null && filterObj.CoresQuantity.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Количество ядер"
+                && filterObj.CoresQuantity.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.TabletWidths.Min != null
+                || filterObj.TabletWidths.Max != null)
+            {
+                var tabletsWidths = await _context.Characteristics
+                    .Where(c => c.CharacteristicsType.Name == "Рабочая ширина (мм)")
+                .ToListAsync();
+
+                query = query
+                        .Where(p => p.CharacteristicsProduct.Any(cp =>
+                        cp.Characteristics.CharacteristicsType.Name == "Рабочая ширина (мм)"));
+
+                query = GetProductsByFilter("float", tabletsWidths,
+                    query,
+                    null, null,
+                    filterObj.TabletWidths.Min,
+                    filterObj.TabletWidths.Max,
+                    null, null);
+            }
+
+            if (filterObj.HeadphonesType != null && filterObj.HeadphonesType.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Тип наушников"
+                && filterObj.HeadphonesType.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.AudioScheme != null && filterObj.AudioScheme.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Тип наушников"
+                && filterObj.AudioScheme.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.KeyboardType != null && filterObj.KeyboardType.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Тип клавиатуры"
+                && filterObj.KeyboardType.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.KeysCount.Min != null
+                || filterObj.KeysCount.Max != null)
+            {
+                var keysCount = await _context.Characteristics
+                    .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
+                .ToListAsync();
+
+                query = query
+                        .Where(p => p.CharacteristicsProduct.Any(cp =>
+                        cp.Characteristics.CharacteristicsType.Name == "Количество клавиш"));
+
+                query = GetProductsByFilter("int", keysCount,
+                    query,
+                    filterObj.KeysCount.Min,
+                    filterObj.KeysCount.Max,
+                    null, null,
+                    null, null);
+            }
+
+            if (filterObj.Switches != null && filterObj.Switches.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Свичи"
+                && filterObj.Switches.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.MouseKeysCount.Min != null
+                || filterObj.MouseKeysCount.Max != null)
+            {
+                var keysCount = await _context.Characteristics
+                    .Where(c => c.CharacteristicsType.Name == "Количество клавиш")
+                .ToListAsync();
+
+                query = query
+                        .Where(p => p.CharacteristicsProduct.Any(cp =>
+                        cp.Characteristics.CharacteristicsType.Name == "Количество клавиш"));
+
+                query = GetProductsByFilter("int", keysCount,
+                    query,
+                    filterObj.MouseKeysCount.Min,
+                    filterObj.MouseKeysCount.Max,
+                    null, null,
+                    null, null);
+            }
+
+            if (filterObj.DPI != null && filterObj.DPI.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "DPI"
+                && filterObj.DPI.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.ExecutionType != null && filterObj.ExecutionType.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                    cp.Characteristics.CharacteristicsType.Name == "Вид исполнения"
+                    && filterObj.ExecutionType.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.Direction != null && filterObj.Direction.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Направленность"
+                && filterObj.Direction.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.MinFrequency != null && filterObj.MinFrequency.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Минимальная частота (Гц)"
+                && filterObj.MinFrequency.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.MaxFrequency != null && filterObj.MaxFrequency.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Максимальная частота (Гц)"
+                && filterObj.MaxFrequency.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.MonitorFps.Min != null
+                || filterObj.MonitorFps.Max != null)
+            {
+                var monitorFPS = await _context.Characteristics
+                    .Where(c => c.CharacteristicsType.Name == "Кадров в секунду")
+                .ToListAsync();
+
+                query = query
+                    .Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Кадров в секунду"));
+
+                query = GetProductsByFilter("int", monitorFPS,
+                        query,
+                        filterObj.MonitorFps.Min,
+                        filterObj.MonitorFps.Max,
+                        null, null,
+                        null, null);
+            }
+
+            if (filterObj.Megapixels.Min != null
+                || filterObj.Megapixels.Max != null)
+            {
+
+                var megapixels = await _context.Characteristics
+                        .Where(c => c.CharacteristicsType.Name == "Количество мегапикселей")
+                .ToListAsync();
+
+                query = query
+                    .Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Количество мегапикселей"));
+
+                query = GetProductsByFilter("float", megapixels,
+                    query,
+                    null, null,
+                    filterObj.Megapixels.Min,
+                    filterObj.Megapixels.Max,
+                    null, null);
+            }
+
+            if (filterObj.MicrophonePresence != null && filterObj.MicrophonePresence.Any())
+            {
+                if (filterObj.MicrophonePresence.First() == "Есть")
+                {
+                    query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Наличие микрофона"
+                && cp.Characteristics.Value == "True"));
+                }
+                if (filterObj.MicrophonePresence.First() == "Нет")
+                {
+                    query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Наличие микрофона"
+                && cp.Characteristics.Value == "False"));
+                }
+
+            }
+
+            if (filterObj.FPS != null && filterObj.FPS.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Кадров в секунду"
+                && filterObj.FPS.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.Diagonal.Min != null
+                || filterObj.Diagonal.Max != null)
+            {
+                var diagonals = await _context.Characteristics
+                        .Where(c => c.CharacteristicsType.Name == "Диагональ (в дюймах)"
+                        && c.CharacteristicsProduct.Any(cp => cp.Products.ProductTypes.Name == productType))
+                .ToListAsync();
+
+                query = query
+                        .Where(p => p.CharacteristicsProduct.Any(cp =>
+                    cp.Characteristics.CharacteristicsType.Name == "Диагональ (в дюймах)"
+                    && cp.Products.ProductTypes.Name == productType));
+
+                query = GetProductsByFilter("float", diagonals,
+                    query,
+                    null, null,
+                    filterObj.Diagonal.Min,
+                    filterObj.Diagonal.Max,
+                    null, null);
+            }
+
+            if (filterObj.MatrixType != null && filterObj.MatrixType.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Тип матрицы"
+                && filterObj.MatrixType.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.AudioConnection != null && filterObj.AudioConnection.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Разъём подключения"
+                && filterObj.AudioConnection.Contains(cp.Characteristics.Value)));
+            }
+
+            if (filterObj.Connection != null && filterObj.Connection.Any())
+            {
+                query = query.Where(p => p.CharacteristicsProduct.Any(cp =>
+                cp.Characteristics.CharacteristicsType.Name == "Тип подключения"
+                && filterObj.Connection.Contains(cp.Characteristics.Value)));
             }
             return query;
         }
@@ -756,7 +765,7 @@ namespace DigitalDevices.Controllers
 
         }
 
-        // GET: Products/Edit/5
+        // GET: Products/Edit/5 
         [HttpGet]
         [Authorize(Policy = "ProductsManagementPolicy")]
         public async Task<IActionResult> Edit(int? id,
