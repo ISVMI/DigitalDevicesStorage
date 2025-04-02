@@ -25,10 +25,7 @@ namespace DigitalDevices.Controllers
         [HttpGet]
         public IActionResult Login(string returnUrl)
         {
-            return View(new UserLogin()
-            {
-                ReturnUrl = returnUrl
-            });
+            return View();
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -38,15 +35,8 @@ namespace DigitalDevices.Controllers
             var loginResult = await _signInManager.PasswordSignInAsync(
                 model.Username,
                 model.Password,
-                false,
+                isPersistent: false,
                 false);
-            if (loginResult.Succeeded)
-            {
-                if (Url.IsLocalUrl(model.ReturnUrl))
-                {
-                    return Redirect(model.ReturnUrl);
-                }
-            }
                 return RedirectToAction("Index", "Home");
             }
                 ModelState.AddModelError("", "Пользователь не найден!");
