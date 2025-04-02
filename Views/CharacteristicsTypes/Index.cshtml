@@ -4,7 +4,7 @@
     ViewData["Title"] = "Список типов Характеристик";
 }
 
-<h1>Список типов Характеристик:</h1>
+<h1>Список типов характеристик:</h1>
 
 <p>
     <a asp-action="Create">Добавить</a>
@@ -18,23 +18,65 @@
             <th>
                 @Html.DisplayNameFor(model => model.DataType)
             </th>
-            <th>Действия</th>
+            <th style="min-width:28%">Действия</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataType)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @{
+                        string caption = "";
+                        switch (item.DataType)
+                        {
+                            case "enum":
+                                {
+                                    caption = "Перечисление";
+                                    break;
+                                }
+                            case "bool":
+                                {
+                                    caption = "Логический тип (да, нет)";
+                                    break;
+                                }
+                            case "string":
+                                {
+                                    caption = "Строка";
+                                    break;
+                                }
+                            case "int":
+                                {
+                                    caption = "Целое число";
+                                    break;
+                                }
+                            case "float":
+                                {
+                                    caption = "Число с 'плавающей' точкой";
+                                    break;
+                                }
+                            case "double":
+                                {
+                                    caption = "Число с 'плавающей' точкой, но с большей точностью";
+                                    break;
+                                }
+                            case "decimal":
+                                {
+                                    caption = "Число для финансовых расчётов";
+                                    break;
+                                }
+                        }
+                    }
+                    @caption
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Редактировать</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

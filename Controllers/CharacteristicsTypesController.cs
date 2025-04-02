@@ -1,11 +1,13 @@
 ﻿using DigitalDevices.DataContext;
 using DigitalDevices.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static DigitalDevices.Models.ProductTypeViewModel;
+using static DigitalDevices.Models.ProductsByTypeViewModel;
 
 namespace DigitalDevices.Controllers
 {
+    [Authorize(Policy = "ProductsManagementPolicy")]
     public class CharacteristicsTypesController : Controller
     {
         private readonly DigitalDevicesContext _context;
@@ -14,14 +16,16 @@ namespace DigitalDevices.Controllers
             _context = context;
         }
         // GET: CharacteristicsTypesController
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             return _context.CharacteristicsType != null ?
                           View(await _context.CharacteristicsType.ToListAsync()) :
-                          Problem("Entity set 'DigitalDevicesContext.Manufacturers'  is null.");
+                          Problem("Таблица 'Типы характеристик' пуста.");
         }
 
         // GET: CharacteristicsTypesController/Create
+        [HttpGet]
         public ActionResult Create()
         {
             return View();
@@ -42,6 +46,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: CharacteristicsTypesController/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.CharacteristicsType == null)
@@ -91,6 +96,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: CharacteristicsTypesController/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.CharacteristicsType == null)
@@ -115,7 +121,7 @@ namespace DigitalDevices.Controllers
         {
             if (_context.CharacteristicsType == null)
             {
-                return Problem("Таблица Типы характеристик пуста!");
+                return Problem("Таблица 'Типы характеристик' пуста!");
             }
             var characteristicsType = await _context.CharacteristicsType.FindAsync(id);
             if (characteristicsType != null)

@@ -2,6 +2,24 @@
 @{
     ViewData["Title"] = "Редактирование";
 }
+<h1>Редактировать</h1>
+
+<h4>@Model.Name</h4>
+<hr />
+
+<div>
+    <a class="btn btn-primary" asp-action="Index"
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]"
+       asp-route-filters="@ViewData["FilterList"]">
+        Назад к списку
+    </a>
+</div>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit" method="post">
@@ -67,18 +85,6 @@
                     asp-route-filters="@ViewData["FilterList"]">
                 Сохранить
             </button>
-
-            <a asp-action="Index"
-               asp-route-productType="@ViewData["ProductType"]"
-               asp-route-currentSort="@ViewData["CurrentSort"]"
-               asp-route-searchString="@ViewData["SearchString"]"
-               asp-route-currentFilter="@ViewData["CurrentFilter"]"
-               asp-route-sortField="@ViewData["SortField"]"
-               asp-route-sortOrder="@ViewData["SortOrder"]"
-               asp-route-pageNumber="@ViewData["PageNumber"]"
-               asp-route-filters="@ViewData["FilterList"]">
-                Назад к списку
-            </a>
         </form>
     </div>
 </div>

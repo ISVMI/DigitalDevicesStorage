@@ -48,8 +48,19 @@
                                     <li class="nav-item">
                                         <a class="nav-link text-dark" asp-area="" asp-controller="CharacteristicsTypes" asp-action="Index">Типы характеристик</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="ProductTypes" asp-action="Index">Типы продуктов</a>
+                                    </li>
                                 }
 
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Manage">
+                                            Управление пользователями
+                                        </a>
+                                    </li>
+                                }
                                 <li class="nav-item">
                                     <form asp-controller="Products" asp-action="Index" method="get" class="form-inline my-2 my-lg-0">
                                         <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
@@ -69,14 +80,6 @@
                                     </form>
                                 </li>
 
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Accounts" asp-action="Manage">
-                                            Управление пользователями
-                                        </a>
-                                    </li>
-                                }
                             }
                         }
                     </ul>
