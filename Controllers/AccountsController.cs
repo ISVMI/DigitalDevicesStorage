@@ -21,6 +21,7 @@ namespace DigitalDevices.Controllers
             _signInManager = signInManager;
             _configuration = configuration;
         }
+
         [HttpGet]
         public IActionResult Login(string returnUrl)
         {

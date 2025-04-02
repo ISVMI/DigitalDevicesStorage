@@ -10,9 +10,6 @@ namespace DigitalDevices.Models
         public int CharacteristicsTypeId { get; set; }
         public virtual CharacteristicsType CharacteristicsType { get; set; }
         public List<CharacteristicsProduct> CharacteristicsProduct { get; set; } = new();
-        public Characteristics()
-        {
-            
-        }
+
     }
 }

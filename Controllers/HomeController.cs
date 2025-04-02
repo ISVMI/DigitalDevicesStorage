@@ -13,14 +13,12 @@ namespace DigitalDevices.Controllers
         {
             _context = context;
         }
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        [HttpGet]
         public IActionResult Storage()
         {
             return View();

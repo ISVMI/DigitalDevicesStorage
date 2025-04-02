@@ -20,6 +20,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Manufacturers
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
               return _context.Manufacturers != null ? 
@@ -28,6 +29,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Manufacturers/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -50,6 +52,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Manufacturers/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Manufacturers == null)
@@ -101,6 +104,7 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Manufacturers/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Manufacturers == null)
@@ -125,7 +129,7 @@ namespace DigitalDevices.Controllers
         {
             if (_context.Manufacturers == null)
             {
-                return Problem("Entity set 'DigitalDevicesContext.Manufacturers'  is null.");
+                return Problem("Таблица Производители пуста!");
             }
             var manufacturer = await _context.Manufacturers.FindAsync(id);
             if (manufacturer != null)

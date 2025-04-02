@@ -240,6 +240,7 @@
                         {
                             <li class="list-group-item">
                                 <input type="checkbox" class="os-checkbox" />
+                                <input type="hidden" value="@os.ToString()" />
                                 <label>@os.Humanize()</label>
                             </li>
                         }
@@ -1227,7 +1228,7 @@
                         .filter(t => t !== "Выбрать всё"),
 
                     OperatingSystem: Array.from(document.querySelectorAll('#osFilter input[type="checkbox"]:checked'))
-                        .map(cb => cb.nextElementSibling.textContent.trim())
+                        .map(cb => cb.nextElementSibling.value)
                         .filter(t => t !== "Выбрать всё"),
 
                     CoresQuantity: Array.from(document.querySelectorAll('#coresFilter input[type="checkbox"]:checked'))

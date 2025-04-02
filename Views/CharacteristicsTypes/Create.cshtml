@@ -1,4 +1,4 @@
-﻿@model DigitalDevices.Models.Manufacturer
+﻿@model DigitalDevices.Models.CharacteristicsType
 
 @{
     ViewData["Title"] = "Добавление";
@@ -21,14 +21,15 @@
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Country" class="control-label"></label>
-                <input asp-for="Country" class="form-control" />
-                <span asp-validation-for="Country" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
+                <label asp-for="DataType" class="control-label"></label>
+                <select asp-for="DataType" class="form-control">
+                    <option label="Логический тип (да, нет)">bool</option>
+                    <option label="Строка">string</option>
+                    <option label="Целое число">int</option>
+                    <option label="Число с 'плавающей' точкой">float</option>
+                    <option label="Число с 'плавающей' точкой, но с большей точностью">double</option>
+                    <option label="Число для финансовых расчётов" >decimal</option>
+                </select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Добавить" class="btn btn-primary" />
