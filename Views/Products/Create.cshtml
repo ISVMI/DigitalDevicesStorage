@@ -9,13 +9,30 @@
     if (ViewData["ProductType"] != null 
     &&!string.IsNullOrEmpty(ViewData["ProductType"].ToString()))
     {
-        productTypeId = context.ProductTypes.Where(pt => pt.Name == ViewData["ProductType"].ToString()).First().Id;
+        var query = await context.ProductTypes.Where(pt => pt.Name == ViewData["ProductType"].ToString()).FirstOrDefaultAsync();
+        if (query != null)
+        {
+            productTypeId = query.Id;
+        }
     }
 }
 <h1>Добавить</h1>
 
 <h4>Новый продукт</h4>
 <hr />
+<div>
+    <a class="btn btn-primary" asp-action="Index"
+       asp-route-productType="@ViewData["ProductType"]"
+       asp-route-currentSort="@ViewData["CurrentSort"]"
+       asp-route-searchString="@ViewData["SearchString"]"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       asp-route-sortField="@ViewData["SortField"]"
+       asp-route-sortOrder="@ViewData["SortOrder"]"
+       asp-route-pageNumber="@ViewData["PageNumber"]"
+       asp-route-filters="@ViewData["FilterList"]">
+        Назад к списку
+    </a>
+</div>
 <div class="row">
     <div class="col-md-4">
         <form id="creationForm" asp-action="Create">

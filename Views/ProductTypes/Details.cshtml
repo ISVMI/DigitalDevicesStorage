@@ -1,0 +1,78 @@
+﻿@model DigitalDevices.Models.ProductTypeViewModel
+
+@{
+    ViewData["Title"] = "Подробно";
+}
+
+<h1>Подробно</h1>
+
+<div>
+    <h4>@Model.Name </h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        @foreach (var item in Model.CharacteristicsTypes)
+        {
+            <dt class = "col-sm-2">
+        @item.Name
+        </dt>
+        <dd class = "col-sm-10">
+                @{
+                    string caption = "";
+                    switch (item.DataType)
+                    {
+                        case "enum":
+                            {
+                                caption = "Перечисление";
+                                break;
+                            }
+                        case "bool":
+                            {
+                                caption = "Логический тип (да, нет)";
+                                break;
+                            }
+                        case "string":
+                            {
+                                caption = "Строка";
+                                break;
+                            }
+                        case "int":
+                            {
+                                caption = "Целое число";
+                                break;
+                            }
+                        case "float":
+                            {
+                                caption = "Число с 'плавающей' точкой";
+                                break;
+                            }
+                        case "double":
+                            {
+                                caption = "Число с 'плавающей' точкой, но с большей точностью";
+                                break;
+                            }
+                        case "decimal":
+                            {
+                                caption = "Число для финансовых расчётов";
+                                break;
+                            }
+                    }
+                }
+                @caption
+        </dd>
+        }
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit">
+        Редактировать
+        </a> |
+    <a asp-action="Index">
+        Назад
+        </a>
+</div>

@@ -4,13 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using DigitalDevices.Models;
 using Humanizer;
 using static DigitalDevices.Models.EditProductViewModel;
-using static DigitalDevices.Models.ProductTypeViewModel;
+using static DigitalDevices.Models.ProductsByTypeViewModel;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using DigitalDevices.DataContext;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DigitalDevices.Controllers
 {
@@ -23,7 +22,6 @@ namespace DigitalDevices.Controllers
         }
 
         // GET: Products
-
         [HttpGet]
         public async Task<IActionResult> Index(
         string productType,
@@ -638,7 +636,7 @@ namespace DigitalDevices.Controllers
             {
                 return NotFound();
             }
-            var model = new ProductTypeViewModel
+            var model = new ProductsByTypeViewModel
             {
                 Id = product.Id,
                 Name = product.Name,
@@ -711,7 +709,6 @@ namespace DigitalDevices.Controllers
         {
             var product = new Product()
             {
-
                 Price = productModel.Price,
                 Name = productModel.Name,
                 Model = productModel.Model,
@@ -724,8 +721,10 @@ namespace DigitalDevices.Controllers
             await _context.SaveChangesAsync();
             foreach (var charInput in productModel.Characteristics)
             {
-                var existingChars = await _context.Characteristics.Where(c => c.CharacteristicsTypeId == charInput.CharacteristicTypeId
-                && c.Value == charInput.Value).ToListAsync();
+                var existingChars = await _context.Characteristics
+                    .Where(c => c.CharacteristicsTypeId == charInput.CharacteristicTypeId
+                && c.Value == charInput.Value)
+                    .ToListAsync();
                 Characteristics existingChar = null;
                 if (existingChars.Count == 0)
                 {
