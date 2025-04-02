@@ -4,6 +4,7 @@ using DigitalDevices.DataContext;
 using DigitalDevices.DataSeeding;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,9 @@ builder.Services.AddDbContext<DigitalDevicesContext>();
 
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>(options => {
+    options.SignIn.RequireConfirmedAccount = false;
+})
 .AddEntityFrameworkStores<DigitalDevicesContext>()
 .AddDefaultTokenProviders();
 builder.Services.Configure<IdentityOptions>(options =>
