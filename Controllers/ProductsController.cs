@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using DigitalDevices.DataContext;
+using DigitalDevices.DataSeeding;
 
 namespace DigitalDevices.Controllers
 {
@@ -61,7 +62,7 @@ namespace DigitalDevices.Controllers
                     || p.Name.Contains(searchString)
                     || p.Model.Contains(searchString));
 
-                if (!query.Any())
+                if (!await query.AnyAsync())
                 {
                     query = _context.Products
                      .Include(p => p.Manufacturer)
@@ -156,18 +157,18 @@ namespace DigitalDevices.Controllers
 
                 }
             }
-                query = sortField switch
-                {
-                    "Warranty" => sortOrder == "asc"
-                        ? query.OrderBy(p => p.Warranty)
-                        : query.OrderByDescending(p => p.Warranty),
-                    "Price" => sortOrder == "asc"
-                        ? query.OrderBy(p => p.Price)
-                        : query.OrderByDescending(p => p.Price),
-                    _ => query.OrderBy(p => p.Manufacturer)
-                };
-                return View(await PaginatedList<Product>.CreateAsync(query, pageNumber ?? 1, pageSize));
-            }
+            query = sortField switch
+            {
+                "Warranty" => sortOrder == "asc"
+                    ? query.OrderBy(p => p.Warranty)
+                    : query.OrderByDescending(p => p.Warranty),
+                "Price" => sortOrder == "asc"
+                    ? query.OrderBy(p => p.Price)
+                    : query.OrderByDescending(p => p.Price),
+                _ => query.OrderBy(p => p.Manufacturer)
+            };
+            return View(await PaginatedList<Product>.CreateAsync(query, pageNumber ?? 1, pageSize));
+        }
 
         public IQueryable<Product> GetProductsByFilter(string type,
             List<Characteristics> characteristicsList,
@@ -956,7 +957,8 @@ namespace DigitalDevices.Controllers
         string sortField,
         string sortOrder,
         int? pageNumber,
-        string filters)
+        string filters,
+        int quantity)
         {
             if (_context.Products == null)
             {
@@ -977,13 +979,66 @@ namespace DigitalDevices.Controllers
                 sortField,
                 sortOrder,
                 pageNumber,
-                filters
+                filters,
+                quantity
             });
         }
-
         private bool ProductExists(int id)
         {
             return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "ProductsManagementPolicy")]
+        public async Task<IActionResult> SeedData(int quantity,
+            string productType,
+                        string currentFilter,
+        string searchString,
+        string sortField,
+        string sortOrder,
+        int? pageNumber,
+        string filters)
+        {
+            if (!await _context.Products.AnyAsync())
+            {
+                var generator = new ProductGenerator(_context);
+                await generator.GenerateProductsAsync(quantity);
+            }
+            return RedirectToAction(nameof(Index), new
+            {
+                productType,
+                currentFilter,
+                searchString,
+                sortField,
+                sortOrder,
+                pageNumber,
+                filters
+            });
+        }
+        [HttpGet]
+        [Authorize(Policy = "ProductsManagementPolicy")]
+        public async Task<IActionResult> ClearData(string productType,
+                        string currentFilter,
+        string searchString,
+        string sortField,
+        string sortOrder,
+        int? pageNumber,
+        string filters)
+        {
+            if (await _context.Products.AnyAsync())
+            {
+                await _context.Products.ExecuteDeleteAsync();
+            }
+            return RedirectToAction(nameof(Index), new
+            {
+                productType,
+                currentFilter,
+                searchString,
+                sortField,
+                sortOrder,
+                pageNumber,
+                filters
+            });
         }
     }
 }

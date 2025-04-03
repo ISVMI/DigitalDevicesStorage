@@ -18,6 +18,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options => {
 })
 .AddEntityFrameworkStores<DigitalDevicesContext>()
 .AddDefaultTokenProviders();
+
 builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequiredLength = 6);
 builder.Services.AddScoped<RolesSeeder>();

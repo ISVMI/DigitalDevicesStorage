@@ -39,7 +39,7 @@ namespace DigitalDevices.DataSeeding
                 {
                     Name = GenerateProductName(productType.Name),
                     Model = _faker.Random.AlphaNumeric(8).ToUpper(),
-                    Price = (decimal)_faker.Finance.Amount(100, 1000000),
+                    Price = (decimal)_faker.Finance.Amount(100, 1000000,2),
                     Color = _faker.Commerce.Color(),
                     Warranty = _faker.Random.Int(12, 60),
                     Manufacturer = manufacturer,

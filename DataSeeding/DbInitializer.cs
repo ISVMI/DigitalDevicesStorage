@@ -67,12 +67,6 @@ namespace DigitalDevices.DataSeeding
                 }
             }
             await context.SaveChangesAsync();
-
-            if (!context.Products.Any())
-            {
-                var generator = new ProductGenerator(context);
-                await generator.GenerateProductsAsync(5500);
-            }
         }
     }
 }

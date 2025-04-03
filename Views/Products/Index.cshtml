@@ -4,24 +4,24 @@
 }
 
 <h1>Техника</h1>
-@{
-    if (User.IsInRole("Manager")
+
+    @if (User.IsInRole("Manager")
     || User.IsInRole("Admin"))
     {
         <p>
             <a asp-action="Create"
-            asp-route-productType="@ViewData["ProductType"]"
-            asp-route-currentSort="@ViewData["CurrentSort"]"
-            asp-route-currentFilter="@ViewData["CurrentFilter"]"
-            asp-route-sortField="@ViewData["SortField"]"
-            asp-route-sortOrder="@ViewData["SortOrder"]"
-            asp-route-pageNumber="@ViewData["PageNumber"]"
-            asp-route-filters="@ViewData["FilterList"]">
+               asp-route-productType="@ViewData["ProductType"]"
+               asp-route-currentSort="@ViewData["CurrentSort"]"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               asp-route-sortField="@ViewData["SortField"]"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-pageNumber="@ViewData["PageNumber"]"
+               asp-route-filters="@ViewData["FilterList"]">
                 Добавить новую
             </a>
         </p>
     }
-}
+
 @{
     var optionsBuilder = new DbContextOptionsBuilder<DigitalDevices.DataContext.DigitalDevicesContext>();
     DigitalDevices.DataContext.DigitalDevicesContext context = new(optionsBuilder.Options);
@@ -830,8 +830,54 @@
         </div>
     </div>
 </div>
-
+@if (User.IsInRole("Manager")
+       || User.IsInRole("Admin"))
+{
+    <div id="dataControl">
+        <a style="min-width:80%; text-align:center" class="btn btn-outline-secondary collapsible-filter">
+            <svg class="filter-icon"
+                 width="24" height="24">
+                <use xlink:href="#icon-arrow-up" class="up-icon"></use>
+                <use xlink:href="#icon-arrow-down" class="down-icon active"></use>
+            </svg>
+            <h3>Генерация и удаление</h3>
+        </a>
+        <div class="collapsible-form">
+            <form id="generationForm" asp-action="SeedData">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <label>Введите количество записей для генерации</label>
+                <input type="number"
+                       id="seedData"
+                       name="quantity"
+                       min="1"
+                       max="1000000"
+                       placeholder="Введите число..."
+                       style="min-width: 150px; display: inline-block" />
+                <input type="submit" value="Сгенерировать" />
+                <input type="hidden" name="productType" value="@ViewData["ProductType"]" />
+                <input type="hidden" name="currentSort" value="@ViewData["CurrentSort"]" />
+                <input type="hidden" name="searchString" value="@ViewData["SearchString"]" />
+                <input type="hidden" name="currentFilter" value="@ViewData["CurrentFilter"]" />
+                <input type="hidden" name="sortField" value="@ViewData["SortField"]" />
+                <input type="hidden" name="sortOrder" value="@ViewData["SortOrder"]" />
+                <input type="hidden" name="filterList" value="@ViewData["FilterList"]" />
+            </form>
+            Удалить все записи?
+            <a class="btn btn-danger" asp-controller="Products" asp-action="ClearData"
+               asp-route-productType="@ViewData["ProductType"]"
+               asp-route-currentSort="@ViewData["CurrentSort"]"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               asp-route-sortField="@ViewData["SortField"]"
+               asp-route-sortOrder="@ViewData["SortOrder"]"
+               asp-route-pageNumber="@ViewData["PageNumber"]"
+               asp-route-filters="@ViewData["FilterList"]">
+                Удалить
+            </a>
+        </div>
+    </div>
+}
 <div class="left-filters">
+    <hr />
     <table class="table" style="text-align:center">
         <thead>
             <tr>
@@ -923,7 +969,7 @@
                     <td style="border:double">
                         @{
                             if (User.IsInRole("Manager")
-                        || User.IsInRole("Admin"))
+                            || User.IsInRole("Admin"))
                             {
                                 <a asp-action="Edit"
                                    asp-route-productType="@ViewData["ProductType"]"
@@ -974,6 +1020,7 @@
             }
         </tbody>
     </table>
+
     @{
         var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
         var nextDisabled = !Model.HasNextPage ? "disabled" : "";
@@ -1024,6 +1071,7 @@
     </a>
 </div>
 <style>
+
     .collapsible-filter {
         text-align: left;
         width: 250px;
@@ -1336,6 +1384,15 @@
             const url = new URL(window.location.href);
 
             url.searchParams.set('pageNumber', pageNumber);
+
+            window.location.href = url.toString();
+        });
+        document.getElementById('generationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const quantity = document.getElementById('seedData').value;
+            const url = new URL("Products/SeedData",window.location.href);
+            url.searchParams.set('quantity', quantity);
 
             window.location.href = url.toString();
         });
