@@ -1,0 +1,57 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    nginx.ingress.kubernetes.io/rewritetarget: /$2
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  ingressClassName: nginx    
+  rules:
+    - host: digitaldevices.com
+      http:
+        paths:
+          - path: /api/auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: auth-clusterip-srv
+                port:
+                  number: 80
+          - path: /api/manufacturers(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: manufacturers-clusterip-srv
+                port:
+                  number: 80
+          - path: /api/characteristics(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: characteristics-clusterip-srv
+                port:
+                  number: 80
+          - path: /api/productcatalog(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: productcatalog-clusterip-srv
+                port:
+                  number: 80
+          - path: /api/producttype(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: producttype-clusterip-srv
+                port:
+                  number: 80
+          - path: /api/specification(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: specification-clusterip-srv
+                port:
+                  number: 80
+
+              

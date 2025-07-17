@@ -1,0 +1,183 @@
+[
+  {
+    "DataType": "enum",
+    "EnumType": "ConnectionType",
+    "Name": "Тип подключения"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "OperatingSystems",
+    "Name": "Операционная система"
+  },
+  {
+    "DataType": "string",
+    "Name": "Модель процессора"
+  },
+  {
+    "DataType": "float",
+    "Name": "Частота процессора (ГГц)"
+  },
+  {
+    "DataType": "int",
+    "Name": "Количество ядер"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "RAMTypes",
+    "Name": "Тип оперативной памяти"
+  },
+  {
+    "DataType": "int",
+    "Name": "Размер оперативной памяти (ГБ)"
+  },
+  {
+    "DataType": "string",
+    "Name": "Видеокарта"
+  },
+  {
+    "DataType": "int",
+    "Name": "Объём видеопамяти (ГБ)"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "StorageType",
+    "Name": "Тип накопителя"
+  },
+  {
+    "DataType": "int",
+    "Name": "Объём накопителя (ГБ)"
+  },
+  {
+    "DataType": "float",
+    "Name": "Диагональ (в дюймах)"
+  },
+  {
+    "DataType": "string",
+    "Name": "Разрешение"
+  },
+  {
+    "DataType": "int",
+    "Name": "Частота обновления изображения (Гц)"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "MatrixTypes",
+    "Name": "Тип матрицы"
+  },
+  {
+    "DataType": "float",
+    "Name": "Количество мегапикселей"
+  },
+  {
+    "DataType": "bool",
+    "Name": "Наличие микрофона"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "VideoConnector",
+    "Name": "Разъём мультимедиа интерфейса"
+  },
+  {
+    "DataType": "int",
+    "Name": "Количество клавиш"
+  },
+  {
+    "DataType": "int",
+    "Name": "DPI"
+  },
+  {
+    "DataType": "int",
+    "Name": "Частота опроса (Гц)"
+  },
+  {
+    "DataType": "int",
+    "Name": "Максимальное ускорение (G)"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "OperatingPrinciple",
+    "Name": "Принцип действия"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "MicrophoneDirections",
+    "Name": "Направленность"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "MicrophoneExecutionTypes",
+    "Name": "Вид исполнения"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "AudioConnectionType",
+    "Name": "Разъём подключения"
+  },
+  {
+    "DataType": "int",
+    "Name": "Минимальная частота (Гц)"
+  },
+  {
+    "DataType": "int",
+    "Name": "Максимальная частота (Гц)"
+  },
+  {
+    "DataType": "int",
+    "Name": "Импенданс (в омах)"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "KeyboardType",
+    "Name": "Тип клавиатуры"
+  },
+  {
+    "DataType": "string",
+    "Name": "Свичи"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "KeycapsType",
+    "Name": "Кейкапы"
+  },
+  {
+    "DataType": "int",
+    "Name": "Жизненный цикл"
+  },
+  {
+    "DataType": "int",
+    "Name": "Сила нажатия (г)"
+  },
+  {
+    "DataType": "string",
+    "Name": "Материал"
+  },
+  {
+    "DataType": "enum",
+    "EnumType": "HeadphonesType",
+    "Name": "Тип наушников"
+  },
+  {
+    "DataType": "int",
+    "Name": "Чувствительность"
+  },
+  {
+    "DataType": "string",
+    "Name": "Формат звуковой схемы"
+  },
+  {
+    "DataType": "int",
+    "Name": "Время отклика (точек в секунду)"
+  },
+  {
+    "DataType": "float",
+    "Name": "Рабочая ширина (мм)"
+  },
+  {
+    "DataType": "float",
+    "Name": "Рабочая высота (мм)"
+  },
+  {
+    "DataType": "int",
+    "Name": "Разрешение планшета (lpi)"
+  }
+]

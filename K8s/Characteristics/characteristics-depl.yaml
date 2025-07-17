@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: characteristics-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: characteristicsservice
+  template:
+    metadata:
+      labels:
+        app: characteristicsservice
+    spec:
+      containers:
+        - name: characteristicsservice
+          image: lsvml/characteristicsservice:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: characteristics-clusterip-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: characteristicsservice
+  ports:
+  - name: characteristicsservice
+    protocol: TCP
+    port: 80
+    targetPort: 80 
