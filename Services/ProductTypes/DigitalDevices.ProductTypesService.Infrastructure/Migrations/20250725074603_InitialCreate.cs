@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,11 +16,9 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Migrations
                 name: "ProductTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    ProductsIds = table.Column<List<int>>(type: "integer[]", nullable: false),
-                    CharacteristicsTypesIds = table.Column<List<int>>(type: "integer[]", nullable: false)
+                    ProductsIds = table.Column<List<Guid>>(type: "uuid[]", nullable: false)
                 },
                 constraints: table =>
                 {

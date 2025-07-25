@@ -14,7 +14,7 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Characteristics> CreateAsync(Characteristics characteristic, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(Characteristics characteristic, CancellationToken token = default)
         {
             if (characteristic == null)
             {
@@ -32,10 +32,10 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
             }
 
             await _context.SaveChangesAsync(token);
-            return characteristic;
+            return characteristic.Id;
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
             }
         }
 
-        public async Task<Characteristics> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<Characteristics> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var characteristicToFind = await _context.Characteristics.FindAsync(id, token);
 

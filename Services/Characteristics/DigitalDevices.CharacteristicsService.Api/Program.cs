@@ -1,6 +1,8 @@
+using DigitalDevices.CharacteristicsService.Api.Consumers;
 using DigitalDevices.CharacteristicsService.Application.Extensions;
 using DigitalDevices.CharacteristicsService.Application.Mapping;
 using DigitalDevices.CharacteristicsService.Infrastructure.Extensions;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,21 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddAutoMapper(typeof(CharacteristicsProfile));
+
+builder.Services.AddMassTransit(config =>
+{
+    config.AddConsumer<ProductTypeAddedConsumer>();
+
+    config.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("rabbitmq://localhost");
+
+        cfg.ReceiveEndpoint("new-product-type-added", e =>
+        {
+            e.ConfigureConsumer<ProductTypeAddedConsumer>(context);
+        });
+    });
+});
 
 var app = builder.Build();
 

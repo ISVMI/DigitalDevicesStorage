@@ -9,10 +9,10 @@ namespace DigitalDevices.CharacteristicsService.Core.Interfaces
 {
     public interface ICharacteristicsRepo
     {
-        Task<Characteristics> CreateAsync(Characteristics characteristic, CancellationToken token = default);
-        Task<bool> DeleteAsync(int id, CancellationToken token = default);
+        Task<Guid> CreateAsync(Characteristics characteristic, CancellationToken token = default);
+        Task<bool> DeleteAsync(Guid id, CancellationToken token = default);
         Task<Characteristics> UpdateAsync(Characteristics characteristic, CancellationToken token = default);
-        Task<Characteristics> GetByIdAsync(int id, CancellationToken token = default);
+        Task<Characteristics> GetByIdAsync(Guid id, CancellationToken token = default);
         Task<IEnumerable<Characteristics>> GetAllAsync(CancellationToken token = default);
     }
 }

@@ -3,5 +3,5 @@ using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Commands
 {
-    public record CreateManufacturerCommand(CreateManufacturerDto Manufacturer) : IRequest<Guid>;
+    public record EditManufacturerCommand(EditManufacturerDto ManufacturerToEdit) : IRequest<ManufacturerDto>;
 }

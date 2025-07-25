@@ -6,13 +6,19 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Data
     public class CharacteristicsContext : DbContext
     {
 
-        public CharacteristicsContext(DbContextOptions<CharacteristicsContext> options): base(options) { }
-
+        public CharacteristicsContext(DbContextOptions<CharacteristicsContext> options) : base(options) { }
         public DbSet<Characteristics> Characteristics { get; set; }
         public DbSet<CharacteristicsType> CharacteristicsType { get; set; }
+        public DbSet<CharacteristicsTypeProductTypes> CharacteristicsTypeProductTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<CharacteristicsTypeProductTypes>()
+                .HasKey(ptct => new { ptct.ProductTypesId, ptct.CharacteristicsTypeId });
+
+            modelBuilder.Entity<Characteristics>()
+                .HasKey(c => c.Id);
 
             modelBuilder.Entity<Characteristics>()
                 .HasOne(c => c.CharacteristicsType)
@@ -22,6 +28,9 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Data
             modelBuilder.Entity<Characteristics>()
                 .Property(c => c.Value)
                 .HasColumnName("Value");
+
+            modelBuilder.Entity<CharacteristicsType>()
+                .HasKey(ct => ct.Id);
 
             modelBuilder.Entity<CharacteristicsType>()
                 .Property(ct => ct.Name)

@@ -1,32 +1,32 @@
 ﻿using DigitalDevices.ManufacturersService.Application.Commands;
-using DigitalDevices.ManufacturersService.Core.Interfaces;
-using DigitalDevices.ManufacturersService.Core.Models;
+using DigitalDevices.ManufacturersService.Application.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Handlers
 {
-    public class CreateManufacturerHandler : IRequestHandler<CreateManufacturerCommand, Manufacturer>
+    public class CreateManufacturerHandler : IRequestHandler<CreateManufacturerCommand, Guid>
     {
-        private readonly IManufacturersRepo _repo;
+        private readonly IManufacturersService _service;
 
-        public CreateManufacturerHandler(IManufacturersRepo repo)
+        public CreateManufacturerHandler(IManufacturersService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
-        public async Task<Manufacturer> Handle(CreateManufacturerCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateManufacturerCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _repo.CreateAsync(request.Manufacturer, cancellationToken);
+                var result = await _service.CreateAsync(request.Manufacturer, cancellationToken);
                 return result;
             }
             catch (Exception ex)
             {
                 var message = $"Couldn't create new manufacturer: {ex.Message}";
                 Console.WriteLine(message);
-                return null;
             }
+
+            return Guid.Empty;
         }
     }
 }

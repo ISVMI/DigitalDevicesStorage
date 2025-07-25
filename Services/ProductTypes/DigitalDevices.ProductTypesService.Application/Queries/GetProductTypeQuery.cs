@@ -1,8 +1,7 @@
-﻿
-using DigitalDevices.ProductTypesService.Core.Models;
+﻿using DigitalDevices.ProductTypesService.Application.Dtos;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Queries
 {
-    public record GetProductTypeQuery(int Id) : IRequest<ProductTypes>;
+    public record GetProductTypeQuery(Guid Id) : IRequest<ProductTypeDto>;
 }

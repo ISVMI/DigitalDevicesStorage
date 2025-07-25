@@ -1,6 +1,8 @@
 ﻿using DigitalDevices.ProductTypesService.Application.Dtos;
 using DigitalDevices.ProductTypesService.Application.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Messages;
 
 namespace DigitalDevices.ProductTypesService.Api.Controllers
 {
@@ -33,13 +35,16 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
         // POST: ProductTypesController/Create
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(CreateProductTypeDto createProductTypeDto, CancellationToken token = default)
+        public async Task<IActionResult> Create(CreateProductTypeDto createProductTypeDto, IBus bus, CancellationToken token = default)
         {
             try
             {
-                var productType = await _service.CreateAsync(createProductTypeDto, token);
+                var productTypeId = await _service.CreateAsync(createProductTypeDto, token);
 
-                return CreatedAtAction(nameof(Index), productType);
+                var newProductTypeAddedMessage = new NewProductTypeAdded(productTypeId, createProductTypeDto.CharacteristicsTypesIds);
+                await bus.Publish(newProductTypeAddedMessage, token);
+
+                return CreatedAtAction(nameof(Index), productTypeId);
             }
             catch (Exception ex)
             {
@@ -51,7 +56,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
         // GET: ProductTypesController/Edit/5
         [HttpGet("Edit")]
-        public async Task<IActionResult> Edit(int id, CancellationToken token = default)
+        public async Task<IActionResult> Edit(Guid id, CancellationToken token = default)
         {
             try
             {
@@ -69,7 +74,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
         // POST: ProductTypesController/Edit/5
         [HttpPost("Edit")]
-        public async Task<IActionResult> Edit(int id, EditProductTypeDto editProductTypeDto, CancellationToken token = default)
+        public async Task<IActionResult> Edit(Guid id, EditProductTypeDto editProductTypeDto, CancellationToken token = default)
         {
             if (id != editProductTypeDto.Id)
             {
@@ -93,7 +98,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
         // GET: ProductTypesController/Delete/5
         [HttpGet("Delete")]
-        public async Task<IActionResult> Delete(int id, CancellationToken token = default)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken token = default)
         {
             try
             {
@@ -111,7 +116,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
         // POST: ProductTypesController/Delete/5
         [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token = default)
+        public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token = default)
         {
             if (!_service.GetAllAsync(token).Result.Any())
             {

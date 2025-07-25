@@ -4,7 +4,7 @@ namespace DigitalDevices.ProductTypesService.Application.Dtos
 {
     public record EditProductTypeDto
     {
-        public int Id { get; init; }
+        public Guid Id { get; init; }
         [Display(Name = "Наименование")]
         public string Name { get; init; }
         [Display(Name = "Добавить характеристики:")]

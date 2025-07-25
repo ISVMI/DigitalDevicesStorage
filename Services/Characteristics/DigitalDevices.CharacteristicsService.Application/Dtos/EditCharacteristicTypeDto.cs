@@ -5,7 +5,7 @@ namespace DigitalDevices.CharacteristicsService.Application.Dtos
 {
     public record EditCharacteristicTypeDto
     {
-        public int Id { get; init; }
+        public Guid Id { get; init; }
         [Display(Name = "Наименование")]
         public string Name { get; init; }
         [Display(Name = "Тип данных")]

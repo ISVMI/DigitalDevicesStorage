@@ -52,7 +52,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // GET: Characteristics/Edit/5
         [HttpGet("Edit")]
-        public async Task<IActionResult> Edit(int id, CancellationToken token)
+        public async Task<IActionResult> Edit(Guid id, CancellationToken token)
         {
             try 
             {
@@ -70,7 +70,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // POST: Characteristics/Edit/5
         [HttpPost("Edit")]
-        public async Task<IActionResult> Edit(int id, EditCharacteristicDto editCharacteristicDto, CancellationToken token)
+        public async Task<IActionResult> Edit(Guid id, EditCharacteristicDto editCharacteristicDto, CancellationToken token)
         {
             if (id != editCharacteristicDto.Id)
             {
@@ -93,7 +93,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // GET: Characteristics/Delete/5
         [HttpGet("Delete")]
-        public async Task<IActionResult> Delete(int id, CancellationToken token)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken token)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // POST: Characteristics/Delete/5
         [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
+        public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token)
         {
             if (!_service.GetAllAsync(token).Result.Any())
             {

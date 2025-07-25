@@ -5,7 +5,7 @@ namespace DigitalDevices.CharacteristicsService.Core.Models
     public class CharacteristicsType
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Display(Name = "Наименование")]
         public string Name { get; set; }
         [Display(Name = "Тип данных")]
@@ -13,7 +13,6 @@ namespace DigitalDevices.CharacteristicsService.Core.Models
         [Display(Name = "Тип перечисления")]
         public string EnumType { get; set; } = "none";
         public List<Characteristics> Characteristics { get; set; } = new();
-        public List<int> ProductTypes { get; set; } = new();
 
     }
 }

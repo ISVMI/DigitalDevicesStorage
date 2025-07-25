@@ -1,22 +1,22 @@
-﻿using DigitalDevices.ManufacturersService.Application.Queries;
-using DigitalDevices.ManufacturersService.Core.Interfaces;
-using DigitalDevices.ManufacturersService.Core.Models;
+﻿using DigitalDevices.ManufacturersService.Application.Dtos;
+using DigitalDevices.ManufacturersService.Application.Interfaces;
+using DigitalDevices.ManufacturersService.Application.Queries;
 using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Handlers
 {
-    public class GetAllManufacturersHandler : IRequestHandler<GetAllManufacturersQuery, IEnumerable<Manufacturer>>
+    public class GetAllManufacturersHandler : IRequestHandler<GetAllManufacturersQuery, IEnumerable<ManufacturerDto>>
     {
-        private readonly IManufacturersRepo _repo;
+        private readonly IManufacturersService _service;
 
-        public GetAllManufacturersHandler(IManufacturersRepo repo)
+        public GetAllManufacturersHandler(IManufacturersService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
-        public async Task<IEnumerable<Manufacturer>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ManufacturerDto>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
         {
-            return await _repo.GetAllAsync(cancellationToken);
+            return await _service.GetAllAsync(cancellationToken);
         }
     }
 }

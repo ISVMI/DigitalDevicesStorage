@@ -1,26 +1,25 @@
-﻿
+﻿using DigitalDevices.ProductTypesService.Application.Dtos;
+using DigitalDevices.ProductTypesService.Application.Interfaces;
 using DigitalDevices.ProductTypesService.Application.Queries;
-using DigitalDevices.ProductTypesService.Core.Interfaces;
-using DigitalDevices.ProductTypesService.Core.Models;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Handlers
 {
-    public class GetProductTypeHandler : IRequestHandler<GetProductTypeQuery, ProductTypes>
+    public class GetProductTypeHandler : IRequestHandler<GetProductTypeQuery, ProductTypeDto>
 
     {
-    private readonly IProductTypesRepo _repo;
+    private readonly IProductTypesService _service;
 
-    public GetProductTypeHandler(IProductTypesRepo repo)
+    public GetProductTypeHandler(IProductTypesService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
-    public async Task<ProductTypes> Handle(GetProductTypeQuery request, CancellationToken cancellationToken)
+    public async Task<ProductTypeDto> Handle(GetProductTypeQuery request, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await _repo.GetByIdAsync(request.Id, cancellationToken);
+            var result = await _service.GetByIdAsync(request.Id, cancellationToken);
             return result;
         }
         catch (Exception ex)

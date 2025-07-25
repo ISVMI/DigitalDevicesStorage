@@ -1,23 +1,23 @@
 ﻿using DigitalDevices.CharacteristicsService.Application.Commands;
-using DigitalDevices.CharacteristicsService.Core.Interfaces;
+using DigitalDevices.CharacteristicsService.Application.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Handlers
 {
     public class DeleteCharacteristicTypeHandler : IRequestHandler<DeleteCharacteristicTypeCommand, bool>
     {
-        private readonly ICharacteristicsTypeRepo _repo;
+        private readonly ICharacteristicsTypeService _service;
 
-        public DeleteCharacteristicTypeHandler(ICharacteristicsTypeRepo repo)
+        public DeleteCharacteristicTypeHandler(ICharacteristicsTypeService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
         public async Task<bool> Handle(DeleteCharacteristicTypeCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _repo.DeleteAsync(request.Id, cancellationToken);
+                await _service.DeleteAsync(request.Id, cancellationToken);
                 return true;
             }
             catch (Exception ex)

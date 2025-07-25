@@ -1,7 +1,7 @@
-﻿using DigitalDevices.ManufacturersService.Core.Models;
+﻿using DigitalDevices.ManufacturersService.Application.Dtos;
 using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Queries
 {
-    public record GetManufacturerQuery(int Id) : IRequest<Manufacturer>;
+    public record GetManufacturerQuery(Guid Id) : IRequest<ManufacturerDto>;
 }

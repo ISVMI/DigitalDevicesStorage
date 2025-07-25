@@ -17,14 +17,14 @@ namespace DigitalDevices.CharacteristicsService.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<CharacteristicTypeDto> CreateAsync(CreateCharacteristicTypeDto createCharacteristicTypeDto, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(CreateCharacteristicTypeDto createCharacteristicTypeDto, CancellationToken token = default)
         {
             var characteristicType = _mapper.Map<CharacteristicsType>(createCharacteristicTypeDto);
             await _repo.CreateAsync(characteristicType, token);
-            return _mapper.Map<CharacteristicTypeDto>(characteristicType);
+            return characteristicType.Id;
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             return await _repo.DeleteAsync(id, token);
         }
@@ -36,7 +36,7 @@ namespace DigitalDevices.CharacteristicsService.Application.Services
             return _mapper.Map<CharacteristicTypeDto>(characteristicTypeToEdit);
         }
 
-        public async Task<CharacteristicTypeDto> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<CharacteristicTypeDto> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var characteristicTypeToFind = await _repo.GetByIdAsync(id, token);
             return _mapper.Map<CharacteristicTypeDto>(characteristicTypeToFind);

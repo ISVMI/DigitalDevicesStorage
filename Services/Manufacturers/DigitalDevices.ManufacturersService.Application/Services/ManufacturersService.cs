@@ -17,14 +17,14 @@ namespace DigitalDevices.ManufacturersService.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<ManufacturerDto> CreateAsync(CreateManufacturerDto manufacturerDto, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(CreateManufacturerDto manufacturerDto, CancellationToken token = default)
         {
             var manufacturer = _mapper.Map<Manufacturer>(manufacturerDto);
             var result = await _repo.CreateAsync(manufacturer, token);
-            return _mapper.Map<ManufacturerDto>(result);
+            return manufacturer.Id;
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             return await _repo.DeleteAsync(id, token);
         }
@@ -36,7 +36,7 @@ namespace DigitalDevices.ManufacturersService.Application.Services
             return _mapper.Map<ManufacturerDto>(manufacturer);
         }
 
-        public async Task<ManufacturerDto> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<ManufacturerDto> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var manufacturer = await _repo.GetByIdAsync(id, token);
             return _mapper.Map<ManufacturerDto>(manufacturer);

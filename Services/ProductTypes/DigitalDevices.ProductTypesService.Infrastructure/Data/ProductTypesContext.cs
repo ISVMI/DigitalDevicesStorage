@@ -11,6 +11,10 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<ProductTypes>()
+                .HasKey(pt => pt.Id);
+
             modelBuilder.Entity<ProductTypes>()
                 .Property(pt => pt.Id)
                 .HasColumnName("Id");
@@ -22,10 +26,6 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Data
             modelBuilder.Entity<ProductTypes>()
                 .Property(pt => pt.ProductsIds)
                 .HasColumnName("ProductsIds");
-
-            modelBuilder.Entity<ProductTypes>()
-                .Property(pt => pt.CharacteristicsTypesIds) 
-                .HasColumnName("CharacteristicsTypesIds");
             
             base.OnModelCreating(modelBuilder);
         }

@@ -1,24 +1,24 @@
-﻿using DigitalDevices.CharacteristicsService.Application.Queries;
-using DigitalDevices.CharacteristicsService.Core.Interfaces;
-using DigitalDevices.CharacteristicsService.Core.Models;
+﻿using DigitalDevices.CharacteristicsService.Application.Dtos;
+using DigitalDevices.CharacteristicsService.Application.Interfaces;
+using DigitalDevices.CharacteristicsService.Application.Queries;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Handlers
 {
-    public class GetCharacteristicTypeHandler : IRequestHandler<GetCharacteristicTypesQuery, CharacteristicsType>
+    public class GetCharacteristicTypeHandler : IRequestHandler<GetCharacteristicTypesQuery, CharacteristicTypeDto>
     {
-        private readonly ICharacteristicsTypeRepo _repo;
+        private readonly ICharacteristicsTypeService _service;
 
-        public GetCharacteristicTypeHandler(ICharacteristicsTypeRepo repo)
+        public GetCharacteristicTypeHandler(ICharacteristicsTypeService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
-        public async Task<CharacteristicsType> Handle(GetCharacteristicTypesQuery request, CancellationToken cancellationToken)
+        public async Task<CharacteristicTypeDto> Handle(GetCharacteristicTypesQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _repo.GetByIdAsync(request.Id, cancellationToken);
+                var result = await _service.GetByIdAsync(request.Id, cancellationToken);
                 return result;
             }
             catch(Exception ex)

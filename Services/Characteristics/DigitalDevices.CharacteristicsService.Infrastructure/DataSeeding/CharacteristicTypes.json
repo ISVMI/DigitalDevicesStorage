@@ -1,183 +1,230 @@
 [
   {
+    "Id": "01982c00-bea9-7d42-9f77-2dc947557346",
     "DataType": "enum",
     "EnumType": "ConnectionType",
     "Name": "Тип подключения"
   },
   {
+    "Id": "01982c00-bec3-7098-8fac-e3831ad2ed0a",
     "DataType": "enum",
     "EnumType": "OperatingSystems",
     "Name": "Операционная система"
   },
   {
+    "Id": "01982c00-bec3-70d8-b65c-19d381a63a54",
     "DataType": "string",
     "Name": "Модель процессора"
   },
   {
+    "Id": "01982c00-bec3-70e4-9cdc-ba51a7295cdd",
     "DataType": "float",
     "Name": "Частота процессора (ГГц)"
   },
   {
+    "Id": "01982c00-bec3-70e9-9863-b4f70fe5bf2c",
     "DataType": "int",
     "Name": "Количество ядер"
   },
   {
+    "Id": "01982c00-bec3-711e-a23b-6f5a4e631add",
     "DataType": "enum",
     "EnumType": "RAMTypes",
     "Name": "Тип оперативной памяти"
   },
   {
+    "Id": "01982c00-bec3-71df-93b1-d21a129b9a84",
     "DataType": "int",
     "Name": "Размер оперативной памяти (ГБ)"
   },
   {
+    "Id": "01982c00-bec3-7235-af36-420fd7e2a1ff",
     "DataType": "string",
     "Name": "Видеокарта"
   },
   {
+    "Id": "01982c00-bec3-7252-ba82-93d238ecdf7d",
     "DataType": "int",
     "Name": "Объём видеопамяти (ГБ)"
   },
   {
+    "Id": "01982c00-bec3-7363-bebe-1ede874f5555",
     "DataType": "enum",
     "EnumType": "StorageType",
     "Name": "Тип накопителя"
   },
   {
+    "Id": "01982c00-bec3-73ed-9ae7-1a221bf4c243",
     "DataType": "int",
     "Name": "Объём накопителя (ГБ)"
   },
   {
+    "Id": "01982c00-bec3-7426-8da9-e67ddd842793",
     "DataType": "float",
     "Name": "Диагональ (в дюймах)"
   },
   {
+    "Id": "01982c00-bec3-745d-ae5b-ee4059fee162",
     "DataType": "string",
-    "Name": "Разрешение"
+    "Name": "Разрешение изображения"
   },
   {
+    "Id": "01982c00-bec3-756e-afc2-4268cfa03571",
     "DataType": "int",
     "Name": "Частота обновления изображения (Гц)"
   },
   {
+    "Id": "01982c00-bec3-763d-ad75-721c86494714",
     "DataType": "enum",
     "EnumType": "MatrixTypes",
     "Name": "Тип матрицы"
   },
   {
+    "Id": "01982c00-bec3-7813-abe5-64a5939a63b1",
     "DataType": "float",
     "Name": "Количество мегапикселей"
   },
   {
+    "Id": "01982c00-bec3-787d-9045-04b8d736dbf7",
     "DataType": "bool",
     "Name": "Наличие микрофона"
   },
   {
+    "Id": "01982c00-bec3-791b-81c0-9c89696a199e",
     "DataType": "enum",
     "EnumType": "VideoConnector",
     "Name": "Разъём мультимедиа интерфейса"
   },
   {
+    "Id": "01982c00-bec3-7a4f-bf58-eb114ef19385",
     "DataType": "int",
     "Name": "Количество клавиш"
   },
   {
+    "Id": "01982c00-bec3-7b0c-879a-6b9e364d356e",
     "DataType": "int",
     "Name": "DPI"
   },
   {
+    "Id": "01982c00-bec3-7b15-a279-7cf6891009c0",
     "DataType": "int",
     "Name": "Частота опроса (Гц)"
   },
   {
+    "Id": "01982c00-bec3-7bb1-b1cd-9f0d3cee4954",
     "DataType": "int",
     "Name": "Максимальное ускорение (G)"
   },
   {
+    "Id": "01982c00-bec3-7bee-a1c0-cb004878179e",
     "DataType": "enum",
     "EnumType": "OperatingPrinciple",
     "Name": "Принцип действия"
   },
   {
+    "Id": "01982c00-bec3-7c14-aff4-9d72fc0f33b2",
     "DataType": "enum",
     "EnumType": "MicrophoneDirections",
     "Name": "Направленность"
   },
   {
+    "Id": "01982c00-bec3-7c71-b7e6-6f744c7b4bfb",
     "DataType": "enum",
     "EnumType": "MicrophoneExecutionTypes",
     "Name": "Вид исполнения"
   },
   {
+    "Id": "01982c00-bec3-7c90-8e6b-5d72c7506c92",
     "DataType": "enum",
     "EnumType": "AudioConnectionType",
     "Name": "Разъём подключения"
   },
   {
+    "Id": "01982c00-bec3-7d2e-a57c-c55033a7d3fe",
     "DataType": "int",
     "Name": "Минимальная частота (Гц)"
   },
   {
+    "Id": "01982c00-bec3-7dd9-bd85-7eefeaf6e612",
     "DataType": "int",
     "Name": "Максимальная частота (Гц)"
   },
   {
+    "Id": "01982c00-bec3-7e10-97d5-b11dea9bf386",
     "DataType": "int",
     "Name": "Импенданс (в омах)"
   },
   {
+    "Id": "01982c00-bec3-7e98-ae64-741b756407ec",
     "DataType": "enum",
     "EnumType": "KeyboardType",
     "Name": "Тип клавиатуры"
   },
   {
+    "Id": "01982c00-bec3-7ed8-8cbf-a9b9142bc245",
     "DataType": "string",
     "Name": "Свичи"
   },
   {
+    "Id": "01982c00-bec3-7f1f-8d35-4359df583f8e",
     "DataType": "enum",
     "EnumType": "KeycapsType",
     "Name": "Кейкапы"
   },
   {
+    "Id": "01982c00-bec3-7fc2-ad0d-831ec1ce1afe",
     "DataType": "int",
     "Name": "Жизненный цикл"
   },
   {
+    "Id": "01982c00-bec4-716a-b3c9-7b0e3d395518",
     "DataType": "int",
     "Name": "Сила нажатия (г)"
   },
   {
+    "Id": "01982c00-bec4-7173-badb-4b67375719ba",
     "DataType": "string",
     "Name": "Материал"
   },
   {
+    "Id": "01982c00-bec4-718e-a608-b73a9e8fd052",
     "DataType": "enum",
     "EnumType": "HeadphonesType",
     "Name": "Тип наушников"
   },
   {
+    "Id": "01982c00-bec4-7559-8072-db6bfe141338",
     "DataType": "int",
     "Name": "Чувствительность"
   },
   {
+    "Id": "01982c00-bec4-75b5-bf70-5a5546b9fc5e",
     "DataType": "string",
     "Name": "Формат звуковой схемы"
   },
   {
+    "Id": "01982c00-bec4-7694-86a3-c3a512885b93",
     "DataType": "int",
     "Name": "Время отклика (точек в секунду)"
   },
   {
+    "Id": "01982c00-bec4-7956-b524-e18ade94ad25",
     "DataType": "float",
     "Name": "Рабочая ширина (мм)"
   },
   {
+    "Id": "01982c00-bec4-7ba2-bdf9-4fa6a4228f2e",
     "DataType": "float",
     "Name": "Рабочая высота (мм)"
   },
   {
+    "Id": "01982c00-bec4-7fbb-a5b0-146f6a34d97d",
     "DataType": "int",
     "Name": "Разрешение планшета (lpi)"
+  },
+  {
+    "Id": "01982c00-bec4-7fbb-a5b0-146f6a34d97e",
+    "DataType": "int",
+    "Name": "Кадров в секунду"
   }
 ]

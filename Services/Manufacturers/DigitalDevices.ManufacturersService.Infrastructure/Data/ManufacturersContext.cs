@@ -35,6 +35,8 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Manufacturer>()
+                .HasKey(m => m.Id);
 
             modelBuilder.Entity<Manufacturer>()
             .Property(m => m.Name)

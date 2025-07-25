@@ -4,7 +4,7 @@ namespace DigitalDevices.ManufacturersService.Application.Dtos
 {
     public record EditManufacturerDto
     {
-        public int Id { get; init; }
+        public Guid Id { get; }
         [Display(Name = "Наименование")]
         public string Name { get; init; }
         [Display(Name = "Страна")]

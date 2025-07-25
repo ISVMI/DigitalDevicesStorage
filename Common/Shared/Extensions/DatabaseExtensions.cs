@@ -15,10 +15,36 @@ namespace Shared.Extensions
             services.AddDbContext<TContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString(connectionString)));
         }
-
+        /// <summary>
+        /// Method version without IServiceProvider as a part of initializer (version without messaging)
+        /// </summary>
+        /// <typeparam name="TContext"></typeparam>
+        /// <param name="serviceProvider"></param>
+        /// <param name="initializer"></param>
+        /// <returns></returns>
         public static async Task InitializeDatabaseAsync<TContext>(
             this IServiceProvider serviceProvider,
             Func<TContext, Task>? initializer = null)
+            where TContext : DbContext
+        {
+            await serviceProvider.InitializeDatabaseAsync<TContext>(
+                async (sp, context) =>
+                {
+                    if (initializer != null)
+                        await initializer(context);
+                });
+        }
+
+        /// <summary>
+        /// Overload version of an Initialization method for a messaging support (through IServiceProvider requirement)
+        /// </summary>
+        /// <typeparam name="TContext"></typeparam>
+        /// <param name="serviceProvider"></param>
+        /// <param name="initializer"></param>
+        /// <returns></returns>
+        public static async Task InitializeDatabaseAsync<TContext>(
+            this IServiceProvider serviceProvider,
+            Func<IServiceProvider, TContext, Task>? initializer = null)
             where TContext : DbContext
         {
             using var scope = serviceProvider.CreateScope();
@@ -31,12 +57,12 @@ namespace Shared.Extensions
 
                 if (initializer != null)
                 {
-                    await initializer(context);
+                    await initializer(services, context);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка инициализации базы данных {ex.Message}");
+                Console.WriteLine($"--> Database initialization failure: {ex.Message}");
             }
         }
     }

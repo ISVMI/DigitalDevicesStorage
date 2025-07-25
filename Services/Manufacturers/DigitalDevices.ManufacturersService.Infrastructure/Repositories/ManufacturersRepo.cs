@@ -14,7 +14,7 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Manufacturer> CreateAsync(Manufacturer manufacturer, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(Manufacturer manufacturer, CancellationToken token = default)
         {
             if (manufacturer == null)
             {
@@ -29,11 +29,11 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
 
             _context.Manufacturers.Add(manufacturer);
             await _context.SaveChangesAsync(token);
-            return manufacturer;
+            return manufacturer.Id;
 
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
             }
         }
 
-        public async Task<Manufacturer> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<Manufacturer> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var manufacturerToFind = await _context.Manufacturers.FindAsync(id, token);
 

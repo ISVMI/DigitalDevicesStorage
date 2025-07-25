@@ -4,11 +4,10 @@ namespace DigitalDevices.ProductTypesService.Core.Models
 {
     public class ProductTypes
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         [Display(Name = "Наименование")]
         public string Name { get; set; }
-        public List<int> ProductsIds { get; set; } = new();
-        public List<int> CharacteristicsTypesIds { get; set; } = new();
+        public List<Guid> ProductsIds { get; set; } = new();
 
     }
 }

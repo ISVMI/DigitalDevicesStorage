@@ -15,6 +15,7 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Extensions
             services.AddDatabaseService<CharacteristicsContext>(configuration);
             services.AddScoped<ICharacteristicsRepo, CharacteristicsRepo>();
             services.AddScoped<ICharacteristicsTypeRepo, CharacteristicsTypeRepo>();
+            services.AddScoped<ICharacteristicsTypeProductTypesRepo, CharacteristicsTypeProductTypesRepo>();
         }
 
         public static async Task AddDatabaseInitialization(this IServiceProvider services)

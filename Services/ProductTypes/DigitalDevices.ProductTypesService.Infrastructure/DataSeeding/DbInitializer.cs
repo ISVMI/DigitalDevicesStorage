@@ -1,13 +1,17 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using DigitalDevices.ProductTypesService.Core.Models;
+﻿using DigitalDevices.ProductTypesService.Core.Models;
 using DigitalDevices.ProductTypesService.Infrastructure.Data;
+using MassTransit;
+using Shared.Messages;
+using System.Reflection;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DigitalDevices.ProductTypesService.Infrastructure.DataSeeding
 {
     public static class DbInitializer
     {
-        public static async Task InitializeAsync(ProductTypesContext context)
+        public static async Task InitializeAsync(IServiceProvider services, ProductTypesContext context)
         {
 
             if (context.ProductTypes.Any())
@@ -15,22 +19,23 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.DataSeeding
                 return;
             }
 
+            var publisher = services.GetRequiredService<IPublishEndpoint>();
+
             var productTypesJson = await GetJson("ProductTypes.json");
 
-            //var characteristicsSetsJson = await GetJson("TypesList.json");
+            var characteristicsSetsJson = await GetJson("TypesList.json");
 
             var productTypes = JsonSerializer.Deserialize<ProductTypes[]>(productTypesJson);
 
-/*            var characteristicsSets = JsonSerializer.Deserialize<List<string>[]>(characteristicsSetsJson); <-- Добавление существующих типов характеристик к типам продуктов (организуем через брокеры сообщений по id потом)
+            var characteristicsSets = JsonSerializer.Deserialize<List<Guid>[]>(characteristicsSetsJson);
+
+            await context.ProductTypes.AddRangeAsync(productTypes);
 
             for (int i = 0; i < productTypes.Length; i++)
             {
-                productTypes[i].
-            }*/
-
-            var productNames = productTypes.Select(item => item.Name).ToList();
-
-            await context.ProductTypes.AddRangeAsync(productTypes);
+                var newProductTypeAddedMessage = new NewProductTypeAdded(productTypes[i].Id, characteristicsSets[i]);
+                await publisher.Publish(newProductTypeAddedMessage);
+            }
 
             await context.SaveChangesAsync();
         }

@@ -1,31 +1,30 @@
 ﻿using DigitalDevices.CharacteristicsService.Application.Commands;
-using DigitalDevices.CharacteristicsService.Core.Interfaces;
-using DigitalDevices.CharacteristicsService.Core.Models;
+using DigitalDevices.CharacteristicsService.Application.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Handlers
 {
-    public class CreateCharacteristicHandler : IRequestHandler<CreateCharacteristicCommand, Characteristics>
+    public class CreateCharacteristicHandler : IRequestHandler<CreateCharacteristicCommand, Guid>
     {
-        private readonly ICharacteristicsRepo _repo;
+        private readonly ICharacteristicsService _service;
 
-        public CreateCharacteristicHandler(ICharacteristicsRepo repo)
+        public CreateCharacteristicHandler(ICharacteristicsService service)
         {
-            _repo = repo;
+            _service = service;
         }
 
-        public async Task<Characteristics> Handle(CreateCharacteristicCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateCharacteristicCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _repo.CreateAsync(request.Characteristic, cancellationToken);
+                var result = await _service.CreateAsync(request.Characteristic, cancellationToken);
                 return result;
             }
             catch (Exception ex)
             {
                 var message = $"Couldn't create new characteristic: {ex.Message}";
                 Console.WriteLine(message);
-                return null;
+                return Guid.Empty;
             }
         }
     }

@@ -17,6 +17,7 @@ namespace DigitalDevices.ManufacturersService.Application.Extensions
                 Assembly.GetExecutingAssembly(),
                 typeof(CreateManufacturerHandler).Assembly,
                 typeof(DeleteManufacturerHandler).Assembly,
+                typeof(EditManufacturerHandler).Assembly,
                 typeof(GetManufacturerHandler).Assembly,
                 typeof(GetAllManufacturersHandler).Assembly
             };

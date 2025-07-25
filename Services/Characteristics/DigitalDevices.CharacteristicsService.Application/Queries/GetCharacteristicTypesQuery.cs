@@ -1,7 +1,7 @@
-﻿using DigitalDevices.CharacteristicsService.Core.Models;
+﻿using DigitalDevices.CharacteristicsService.Application.Dtos;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Queries
 {
-    public record GetCharacteristicTypesQuery(int Id) : IRequest<CharacteristicsType>;
+    public record GetCharacteristicTypesQuery(Guid Id) : IRequest<CharacteristicTypeDto>;
 }

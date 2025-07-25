@@ -2,5 +2,5 @@
 
 namespace DigitalDevices.CharacteristicsService.Application.Commands
 {
-    public record DeleteCharacteristicCommand(int Id) : IRequest<bool>;
+    public record DeleteCharacteristicCommand(Guid Id) : IRequest<bool>;
 }

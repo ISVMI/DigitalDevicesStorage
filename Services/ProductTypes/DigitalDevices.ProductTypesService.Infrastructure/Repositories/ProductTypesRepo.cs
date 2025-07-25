@@ -14,16 +14,16 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<ProductTypes> CreateAsync(ProductTypes productType, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(ProductTypes productType, CancellationToken token = default)
         {
             if (productType == null)
             {
                 throw new ArgumentNullException(nameof(productType), "Given product type was null!");
             }
 
-            _context.ProductTypes.Add(productType);
-
-            var existingProductType = await _context.ProductTypes.FindAsync(productType);
+            var existingProductType = await _context.ProductTypes
+                .Select(pt => pt)
+                .Where(pt => pt.Name.Contains($"{productType.Name}")).FirstOrDefaultAsync(token);
 
             if (existingProductType != null)
             {
@@ -33,10 +33,10 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
             await _context.ProductTypes.AddAsync(productType,token);
 
             await _context.SaveChangesAsync(token);
-            return productType;
+            return productType.Id;
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
             }
         }
 
-        public async Task<ProductTypes> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<ProductTypes> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var productTypeToFind = await _context.ProductTypes.FindAsync(id, token);
 

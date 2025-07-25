@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,12 +15,10 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Migrations
                 name: "CharacteristicsType",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     DataType = table.Column<string>(type: "text", nullable: false),
-                    EnumType = table.Column<string>(type: "text", nullable: false),
-                    ProductTypes = table.Column<List<int>>(type: "integer[]", nullable: false)
+                    EnumType = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,13 +26,24 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CharacteristicsTypeProductTypes",
+                columns: table => new
+                {
+                    CharacteristicsTypeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductTypesId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacteristicsTypeProductTypes", x => new { x.ProductTypesId, x.CharacteristicsTypeId });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Characteristics",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: false),
-                    CharacteristicsTypeId = table.Column<int>(type: "integer", nullable: false)
+                    CharacteristicsTypeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,6 +67,9 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Characteristics");
+
+            migrationBuilder.DropTable(
+                name: "CharacteristicsTypeProductTypes");
 
             migrationBuilder.DropTable(
                 name: "CharacteristicsType");

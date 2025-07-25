@@ -53,7 +53,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // GET: CharacteristicsTypes/Edit/5
         [HttpGet("Edit")]
-        public async Task<IActionResult> Edit(int id, CancellationToken token)
+        public async Task<IActionResult> Edit(Guid id, CancellationToken token)
         {
             var characteristicType = await _service.GetByIdAsync(id, token);
 
@@ -67,7 +67,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // POST: CharacteristicsTypes/Edit/5
         [HttpPost("Edit")]
-        public async Task<IActionResult> Edit(int id, EditCharacteristicTypeDto editCharacteristicTypeDto,
+        public async Task<IActionResult> Edit(Guid id, EditCharacteristicTypeDto editCharacteristicTypeDto,
             CancellationToken token)
         {
             if (id != editCharacteristicTypeDto.Id)
@@ -91,7 +91,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // GET: CharacteristicsTypes/Delete/5
         [HttpGet("Delete")]
-        public async Task<IActionResult> Delete(int id, CancellationToken token)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken token)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // POST: CharacteristicsTypes/Delete/5
         [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken token)
+        public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token)
         {
             if (!_service.GetAllAsync(token).Result.Any())
             {

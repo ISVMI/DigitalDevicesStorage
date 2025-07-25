@@ -11,6 +11,7 @@ namespace DigitalDevices.CharacteristicsService.Application.Extensions
         {
             services.AddScoped<ICharacteristicsService, Services.CharacteristicsService>();
             services.AddScoped<ICharacteristicsTypeService, Services.CharacteristicsTypeService>();
+            services.AddScoped<ICharacteristicsTypeProductTypesService, Services.CharacteristicsTypeProductTypesService>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             var assemblies = new Assembly[]

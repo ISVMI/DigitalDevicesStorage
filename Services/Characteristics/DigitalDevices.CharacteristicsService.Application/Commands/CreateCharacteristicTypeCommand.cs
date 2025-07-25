@@ -1,7 +1,7 @@
-﻿using DigitalDevices.CharacteristicsService.Core.Models;
+﻿using DigitalDevices.CharacteristicsService.Application.Dtos;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Commands
 {
-    public record CreateCharacteristicTypeCommand(CharacteristicsType CharacteristicsType) : IRequest<CharacteristicsType>;
+    public record CreateCharacteristicTypeCommand(CreateCharacteristicTypeDto CharacteristicsType) : IRequest<Guid>;
 }

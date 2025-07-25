@@ -17,14 +17,14 @@ namespace DigitalDevices.ProductTypesService.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<ProductTypeDto> CreateAsync(CreateProductTypeDto createProductTypeDto, CancellationToken token = default)
+        public async Task<Guid> CreateAsync(CreateProductTypeDto createProductTypeDto, CancellationToken token = default)
         {
             var productType = _mapper.Map<ProductTypes>(createProductTypeDto);
             await _repo.CreateAsync(productType, token);
-            return _mapper.Map<ProductTypeDto>(productType);
+            return productType.Id;
         }
 
-        public async Task<bool> DeleteAsync(int id, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(Guid id, CancellationToken token = default)
         {
             return await _repo.DeleteAsync(id, token);
         }
@@ -36,7 +36,7 @@ namespace DigitalDevices.ProductTypesService.Application.Services
             return _mapper.Map<ProductTypeDto>(productTypeToEdit);
         }
 
-        public async Task<ProductTypeDto> GetByIdAsync(int id, CancellationToken token = default)
+        public async Task<ProductTypeDto> GetByIdAsync(Guid id, CancellationToken token = default)
         {
             var productTypeToFind = await _repo.GetByIdAsync(id, token);
             return _mapper.Map<ProductTypeDto>(productTypeToFind);

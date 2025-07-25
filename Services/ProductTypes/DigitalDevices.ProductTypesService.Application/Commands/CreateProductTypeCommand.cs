@@ -1,7 +1,7 @@
-﻿using DigitalDevices.ProductTypesService.Core.Models;
+﻿using DigitalDevices.ProductTypesService.Application.Dtos;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Commands
 {
-    public record CreateProductTypeCommand (ProductTypes ProductType) : IRequest<ProductTypes>;
+    public record CreateProductTypeCommand (CreateProductTypeDto ProductType) : IRequest<Guid>;
 }
