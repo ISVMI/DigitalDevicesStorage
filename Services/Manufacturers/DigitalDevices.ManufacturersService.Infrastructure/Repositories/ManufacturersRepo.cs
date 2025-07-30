@@ -2,6 +2,7 @@
 using DigitalDevices.ManufacturersService.Core.Models;
 using DigitalDevices.ManufacturersService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.Exceptions;
 
 namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
 {
@@ -74,7 +75,7 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
 
             if (manufacturerToFind == null)
             {
-                throw new Exception($"Manufacturer with id: {id} not found");
+                throw new NotFoundException($"Manufacturer with id: {id} not found");
             }
 
             return manufacturerToFind;
@@ -82,9 +83,23 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
 
         public async Task<IEnumerable<Manufacturer>> GetAllAsync(CancellationToken token = default)
         {
-            var manufacturers = await _context.Manufacturers.ToListAsync(token);
+            var query = _context.Manufacturers.AsNoTracking();
+            var manufacturers = await query.ToListAsync(token);
 
             return manufacturers;
+        }
+        public async Task<(IEnumerable<Manufacturer>, int)> GetPagedAsync(int page, int pageSize, CancellationToken token)
+        {
+            var query = _context.Manufacturers.AsNoTracking();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(token);
+
+            var totalCount = await query.CountAsync(token);
+
+            return (items, totalCount);
         }
     }
 }

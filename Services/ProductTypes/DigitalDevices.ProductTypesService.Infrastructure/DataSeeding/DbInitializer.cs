@@ -33,7 +33,7 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.DataSeeding
 
             for (int i = 0; i < productTypes.Length; i++)
             {
-                var newProductTypeAddedMessage = new NewProductTypeAdded(productTypes[i].Id, characteristicsSets[i]);
+                var newProductTypeAddedMessage = new ProductTypeCreated(productTypes[i].Id, characteristicsSets[i]);
                 await publisher.Publish(newProductTypeAddedMessage);
             }
 

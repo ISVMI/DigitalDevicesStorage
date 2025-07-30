@@ -1,22 +1,27 @@
-﻿using DigitalDevices.ManufacturersService.Application.Dtos;
-using DigitalDevices.ManufacturersService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.ManufacturersService.Application.Dtos;
 using DigitalDevices.ManufacturersService.Application.Queries;
+using DigitalDevices.ManufacturersService.Core.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Handlers
 {
     public class GetAllManufacturersHandler : IRequestHandler<GetAllManufacturersQuery, IEnumerable<ManufacturerDto>>
     {
-        private readonly IManufacturersService _service;
+        private readonly IManufacturersRepo _repo;
+        private readonly IMapper _mapper;
 
-        public GetAllManufacturersHandler(IManufacturersService service)
+        public GetAllManufacturersHandler(IManufacturersRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<ManufacturerDto>> Handle(GetAllManufacturersQuery request, CancellationToken cancellationToken)
         {
-            return await _service.GetAllAsync(cancellationToken);
+            var manufacturers = await _repo.GetAllAsync(cancellationToken);
+            var result = _mapper.Map<IEnumerable<ManufacturerDto>>(manufacturers);
+            return result;
         }
     }
 }

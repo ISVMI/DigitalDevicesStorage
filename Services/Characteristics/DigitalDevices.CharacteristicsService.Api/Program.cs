@@ -1,6 +1,6 @@
-using DigitalDevices.CharacteristicsService.Api.Consumers;
 using DigitalDevices.CharacteristicsService.Application.Extensions;
 using DigitalDevices.CharacteristicsService.Application.Mapping;
+using DigitalDevices.CharacteristicsService.Infrastructure.Consumers;
 using DigitalDevices.CharacteristicsService.Infrastructure.Extensions;
 using MassTransit;
 
@@ -16,7 +16,7 @@ builder.Services.AddAutoMapper(typeof(CharacteristicsProfile));
 
 builder.Services.AddMassTransit(config =>
 {
-    config.AddConsumer<ProductTypeAddedConsumer>();
+    config.AddConsumer<ProductTypeCreatedConsumer>();
 
     config.UsingRabbitMq((context, cfg) =>
     {
@@ -24,7 +24,7 @@ builder.Services.AddMassTransit(config =>
 
         cfg.ReceiveEndpoint("new-product-type-added", e =>
         {
-            e.ConfigureConsumer<ProductTypeAddedConsumer>(context);
+            e.ConfigureConsumer<ProductTypeCreatedConsumer>(context);
         });
     });
 });

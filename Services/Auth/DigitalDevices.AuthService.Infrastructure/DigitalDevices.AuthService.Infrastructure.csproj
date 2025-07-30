@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
     <ProjectReference Include="..\DigitalDevices.AuthService.Core\DigitalDevices.AuthService.Core.csproj" />
   </ItemGroup>
 

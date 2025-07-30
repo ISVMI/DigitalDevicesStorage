@@ -5,7 +5,8 @@ namespace DigitalDevices.ProductCatalogService.Core.Models
 {
     public class Product
     {
-        public int Id { get; set; }
+        [Key]
+        public Guid Id { get; set; }
         [Display(Name = "Цена")]
         [Range(10, 1_000_000), DataType(DataType.Currency)]
         [Column(TypeName = "float(18, 2)")]
@@ -19,11 +20,8 @@ namespace DigitalDevices.ProductCatalogService.Core.Models
         [Display(Name = "Срок гарантии мес.")]
         public int Warranty { get; set; }
         [Display(Name = "Производитель")]
-        public int ManufacturerId { get; set; }
+        public Guid ManufacturerId { get; set; }
         [Display(Name = "Тип продукта")]
-        public int ProductTypesId { get; set; }
-        public Dictionary<string, string> CharacteristicsProduct { get; set; } = new();
-
-
+        public Guid ProductTypesId { get; set; }
     }
 }

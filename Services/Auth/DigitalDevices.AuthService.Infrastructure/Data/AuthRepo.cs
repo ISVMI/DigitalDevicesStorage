@@ -1,6 +1,8 @@
-﻿using DigitalDevices.AuthService.Core.Interfaces;
+﻿using System.Data;
+using DigitalDevices.AuthService.Core.Interfaces;
 using DigitalDevices.AuthService.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.Exceptions;
 
 namespace DigitalDevices.AuthService.Infrastructure.Data
 {
@@ -31,7 +33,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Data
         {
             if (!_context.Users.Any())
             {
-                return null;
+                throw new NotFoundException($"Couldn't find user with the given username: {username}");
             }
 
             var user = await _context.Users
@@ -45,7 +47,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Data
         {
             if (!_context.Roles.Any())
             {
-                return null;
+                throw new NullReferenceException($"Roles database was empty!");
             }
 
             var roles = await _context.Roles.ToListAsync();
@@ -96,7 +98,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Data
             }
             else
             {
-                throw new Exception(message: "--> User already Exists!");
+                throw new AlreadyExistsException("--> User already exists!");
             }
         }
     }

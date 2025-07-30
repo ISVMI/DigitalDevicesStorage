@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using DigitalDevices.ManufacturersService.Application.Handlers;
-using DigitalDevices.ManufacturersService.Application.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DigitalDevices.ManufacturersService.Application.Extensions
@@ -9,7 +8,6 @@ namespace DigitalDevices.ManufacturersService.Application.Extensions
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddScoped<IManufacturersService, Services.ManufacturersService>();
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
             var assemblies = new Assembly[]

@@ -1,7 +1,6 @@
 using DigitalDevices.AuthService.Api.Extensions;
 using DigitalDevices.AuthService.Infrastructure.Authentication;
 using DigitalDevices.AuthService.Infrastructure.Data;
-using Shared.Extensions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using DigitalDevices.AuthService.Infrastructure.Extensions;
@@ -42,8 +41,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-await app.Services.InitializeDatabaseAsync<AuthContext>();
-
 
 app.Run();

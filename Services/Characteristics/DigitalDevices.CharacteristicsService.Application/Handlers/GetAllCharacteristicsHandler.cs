@@ -1,22 +1,26 @@
-﻿using DigitalDevices.CharacteristicsService.Application.Dtos;
-using DigitalDevices.CharacteristicsService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.CharacteristicsService.Application.Dtos;
 using DigitalDevices.CharacteristicsService.Application.Queries;
+using DigitalDevices.CharacteristicsService.Core.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Handlers
 {
     public class GetAllCharacteristicsHandler : IRequestHandler<GetAllCharacteristicsQuery, IEnumerable<CharacteristicDto>>
     {
-        private readonly ICharacteristicsService _service;
+        private readonly ICharacteristicsRepo _repo;
+        private readonly IMapper _mapper;
 
-        public GetAllCharacteristicsHandler(ICharacteristicsService service)
+        public GetAllCharacteristicsHandler(ICharacteristicsRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CharacteristicDto>> Handle(GetAllCharacteristicsQuery request, CancellationToken cancellationToken)
         {
-            return await _service.GetAllAsync(cancellationToken);
+            var characteristics = await _repo.GetAllAsync(cancellationToken);
+            return _mapper.Map<IEnumerable<CharacteristicDto>>(characteristics);
         }
     }
 }

@@ -1,22 +1,28 @@
-﻿using DigitalDevices.ManufacturersService.Application.Commands;
+﻿using AutoMapper;
+using DigitalDevices.ManufacturersService.Application.Commands;
 using DigitalDevices.ManufacturersService.Application.Dtos;
-using DigitalDevices.ManufacturersService.Application.Interfaces;
+using DigitalDevices.ManufacturersService.Core.Interfaces;
+using DigitalDevices.ManufacturersService.Core.Models;
 using MediatR;
 
 namespace DigitalDevices.ManufacturersService.Application.Handlers
 {
     public class EditManufacturerHandler : IRequestHandler<EditManufacturerCommand, ManufacturerDto>    
     {
-        private readonly IManufacturersService _service;
+        private readonly IManufacturersRepo _repo;
+        private readonly IMapper _mapper;
 
-        public EditManufacturerHandler(IManufacturersService service)
+        public EditManufacturerHandler(IManufacturersRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<ManufacturerDto> Handle(EditManufacturerCommand request, CancellationToken cancellationToken)
         {
-            return await _service.UpdateAsync(request.ManufacturerToEdit, cancellationToken);
+            var manufacturer = _mapper.Map<Manufacturer>(request.ManufacturerToEdit);
+            await _repo.UpdateAsync(manufacturer, cancellationToken);
+            return _mapper.Map<ManufacturerDto>(manufacturer);
         }
     }
 }

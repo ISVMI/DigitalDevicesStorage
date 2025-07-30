@@ -1,31 +1,27 @@
-﻿using DigitalDevices.ProductTypesService.Application.Commands;
-using DigitalDevices.ProductTypesService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.ProductTypesService.Application.Commands;
+using DigitalDevices.ProductTypesService.Core.Interfaces;
+using DigitalDevices.ProductTypesService.Core.Models;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Handlers
 {
     public class CreateProductTypeHandler : IRequestHandler<CreateProductTypeCommand, Guid>
     {
-        private readonly IProductTypesService _service;
+        private readonly IProductTypesRepo _repo;
+        private readonly IMapper _mapper;
 
-        public CreateProductTypeHandler(IProductTypesService service)
+        public CreateProductTypeHandler(IProductTypesRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<Guid> Handle(CreateProductTypeCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var result = await _service.CreateAsync(request.ProductType, cancellationToken);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                var message = $"Couldn't create new manufacturer: {ex.Message}";
-                Console.WriteLine(message);
-                return Guid.Empty;
-            }
+            var productType = _mapper.Map<ProductTypes>(request.ProductType);
+            await _repo.CreateAsync(productType, cancellationToken);
+            return productType.Id;
         }
     }
 }

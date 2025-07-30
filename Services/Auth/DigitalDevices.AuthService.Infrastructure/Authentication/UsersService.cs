@@ -1,4 +1,5 @@
-﻿using DigitalDevices.AuthService.Core.Interfaces;
+﻿using System.Security.Authentication;
+using DigitalDevices.AuthService.Core.Interfaces;
 using DigitalDevices.AuthService.Core.Models;
 
 namespace DigitalDevices.AuthService.Infrastructure.Authentication
@@ -25,13 +26,13 @@ namespace DigitalDevices.AuthService.Infrastructure.Authentication
 
             if (user == null)
             {
-                throw new Exception("User is not registered!");
+                throw new InvalidCredentialException("User is not registered!");
             }
             var result = _passwordHasher.Verify(password, user.PasswordHash);
 
             if (result == false)
             {
-                throw new Exception("Password was incorrect!");
+                throw new InvalidCredentialException("Password was incorrect!");
             }
 
             var token = _jwtProvider.GenerateToken(user);

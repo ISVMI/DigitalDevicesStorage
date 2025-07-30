@@ -1,6 +1,8 @@
-﻿using DigitalDevices.ProductTypesService.Application.Dtos;
-using DigitalDevices.ProductTypesService.Application.Interfaces;
+﻿using DigitalDevices.ProductTypesService.Application.Commands;
+using DigitalDevices.ProductTypesService.Application.Dtos;
+using DigitalDevices.ProductTypesService.Application.Queries;
 using MassTransit;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Messages;
 
@@ -10,38 +12,47 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
     [Route("api/[controller]")]
     public class ProductTypesController : ControllerBase
     {
-        private readonly IProductTypesService _service;
+        private readonly IMediator _mediator;
 
-        public ProductTypesController(IProductTypesService service)
+        public ProductTypesController(IMediator mediator)
         {
-            _service = service;
+            _mediator = mediator;
         }
 
-        // GET: ProductTypesController
-        [HttpGet("Index")]
-        public async Task<IActionResult> Index(CancellationToken token = default)
+        // GET: api/ProductTypes/All
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllProductTypes(CancellationToken token = default)
         {
-            var productTypes = await _service.GetAllAsync(token);
+            var productTypes = await _mediator.Send(new GetAllProductTypesPagedQuery(),token);
 
-            return Ok(productTypes);
+            return Ok(productTypes.Items);
         }
 
-        // GET: ProductTypesController/Create
+        // GET: api/ProductTypes/Paged
+        [HttpGet("Paged")]
+        public async Task<IActionResult> GetProductTypesPaged(CancellationToken token = default)
+        {
+            var productTypes = await _mediator.Send(new GetAllProductTypesPagedQuery(), token);
+
+            return Ok(productTypes.Items);
+        }
+
+        // GET: api/ProductTypes/Create
         [HttpGet("Create")]
         public ActionResult Create()
         {
             return Ok();
         }
 
-        // POST: ProductTypesController/Create
+        // POST: api/ProductTypes/Create
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(CreateProductTypeDto createProductTypeDto, IBus bus, CancellationToken token = default)
+        public async Task<IActionResult> Create([FromBody]CreateProductTypeCommand command, IBus bus, CancellationToken token = default)
         {
             try
             {
-                var productTypeId = await _service.CreateAsync(createProductTypeDto, token);
+                var productTypeId = await _mediator.Send(command,token);
 
-                var newProductTypeAddedMessage = new NewProductTypeAdded(productTypeId, createProductTypeDto.CharacteristicsTypesIds);
+                var newProductTypeAddedMessage = new ProductTypeCreated(productTypeId, command.ProductType.CharacteristicsTypesIds);
                 await bus.Publish(newProductTypeAddedMessage, token);
 
                 return CreatedAtAction(nameof(Index), productTypeId);
@@ -50,17 +61,17 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
             {
                 var message = $"--> Couldn't add a new product type: {ex.Message}";
                 Console.WriteLine(message);
-                return BadRequest(new { createProductTypeDto, message });
+                return BadRequest(new { command, message });
             }
         }
 
-        // GET: ProductTypesController/Edit/5
+        // GET: api/ProductTypes/Edit/5
         [HttpGet("Edit")]
         public async Task<IActionResult> Edit(Guid id, CancellationToken token = default)
         {
             try
             {
-                var productType = await _service.GetByIdAsync(id, token);
+                var productType = await _mediator.Send(new GetProductTypeQuery(id),token);
 
                 return Ok(new { id, productType });
             }
@@ -72,7 +83,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
             }
         }
 
-        // POST: ProductTypesController/Edit/5
+        // POST: api/ProductTypes/Edit/5
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Guid id, EditProductTypeDto editProductTypeDto, CancellationToken token = default)
         {
@@ -83,7 +94,7 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
 
             try
             {
-                await _service.UpdateAsync(editProductTypeDto, token);
+                await _mediator.Send(new EditProductTypeCommand(editProductTypeDto), token);
             }
             catch (Exception ex)
             {
@@ -96,13 +107,13 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
         }
 
 
-        // GET: ProductTypesController/Delete/5
+        // GET: api/ProductTypes/Delete/5
         [HttpGet("Delete")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken token = default)
         {
             try
             {
-                var productTypeToDelete = await _service.GetByIdAsync(id, token);
+                var productTypeToDelete = await _mediator.Send(new GetProductTypeQuery(id),token);
 
                 return Ok(productTypeToDelete);
             }
@@ -114,16 +125,19 @@ namespace DigitalDevices.ProductTypesService.Api.Controllers
             }
         }
 
-        // POST: ProductTypesController/Delete/5
+        // POST: api/ProductTypes/Delete/5
         [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token = default)
         {
-            if (!_service.GetAllAsync(token).Result.Any())
+
+            var productTypes = await _mediator.Send(new GetAllProductTypesQuery(), token);
+
+            if (!productTypes.Any())
             {
                 return Problem("--> Db 'Product types' was null.");
             }
 
-            var result = await _service.DeleteAsync(id, token);
+            var result = await _mediator.Send(new DeleteProductTypeCommand(id), token);
 
             if (result == false)
             {

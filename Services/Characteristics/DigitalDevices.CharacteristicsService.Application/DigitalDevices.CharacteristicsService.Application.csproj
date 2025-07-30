@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
     <ProjectReference Include="..\DigitalDevices.CharacteristicsService.Core\DigitalDevices.CharacteristicsService.Core.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,8 @@
-﻿using DigitalDevices.CharacteristicsService.Application.Dtos;
-using DigitalDevices.CharacteristicsService.Application.Interfaces;
+﻿using System.Text.Json;
+using DigitalDevices.CharacteristicsService.Application.Commands;
+using DigitalDevices.CharacteristicsService.Application.Dtos;
+using DigitalDevices.CharacteristicsService.Application.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalDevices.CharacteristicsService.Api.Controllers
@@ -8,20 +11,20 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
     [Route("api/[controller]")]
     public class CharacteristicsController : ControllerBase
     {
-        private readonly ICharacteristicsService _service;
+        private readonly IMediator _mediator;
 
-        public CharacteristicsController(ICharacteristicsService service)
+        public CharacteristicsController(IMediator mediator)
         {
-            _service = service;
+            _mediator = mediator;
         }
 
         // GET: Characteristics
         [HttpGet("Index")]
         public async Task<IActionResult> Index(CancellationToken token)
         {
-            var characteristics = await _service.GetAllAsync(token);
+            var characteristics = await _mediator.Send(new GetAllCharacteristicsPagedQuery(), token);
 
-            return Ok(characteristics);
+            return Ok(characteristics.Items);
         }
 
         // GET: Characteristics/Create
@@ -33,19 +36,37 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
         // POST: Characteristics/Create
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(CreateCharacteristicDto createCharacteristicDto, CancellationToken token)
+        public async Task<IActionResult> Create([FromBody] CreateCharacteristicCommand command, CancellationToken token)
         {
             try
             {
-                var characteristic = await _service.CreateAsync(createCharacteristicDto, token);
+                var characteristicId = await _mediator.Send(command, token);
 
-                return CreatedAtAction(nameof(Index), characteristic);
+                return CreatedAtAction(nameof(Index), new { characteristicId }, command);
             }
             catch (Exception ex)
             {
                 var message = $"--> Couldn't add a new characteristic: {ex.Message}";
                 Console.WriteLine(message);
-                return BadRequest(new {createCharacteristicDto, message });
+                return BadRequest(new { command, message });
+            }
+
+        }
+
+        [HttpGet("GetCharacteristicsByProductTypeId/{id}")]
+        public async Task<IActionResult> GetCharacteristicsByProductTypeId(Guid id, CancellationToken token)
+        {
+            try
+            {
+                var characteristics = await _mediator.Send(new GetCharacteristicsByProductTypeIdQuery(id), token);
+
+                return Ok(characteristics);
+            }
+            catch (Exception ex)
+            {
+                var message = $"--> Couldn't get characteristics by product type id {id}: {ex.Message}";
+                Console.WriteLine(message);
+                return BadRequest(new { message });
             }
 
         }
@@ -54,13 +75,13 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
         [HttpGet("Edit")]
         public async Task<IActionResult> Edit(Guid id, CancellationToken token)
         {
-            try 
+            try
             {
-                var characteristic = await _service.GetByIdAsync(id, token);
+                var characteristic = await _mediator.Send(new GetCharacteristicQuery(id), token);
 
                 return Ok(new { id, characteristic });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var message = $"--> Couldn't find characteristic: {ex.Message}";
                 Console.WriteLine(message);
@@ -79,9 +100,9 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
 
             try
             {
-                await _service.UpdateAsync(editCharacteristicDto, token);
+                await _mediator.Send(new EditCharacteristicCommand(editCharacteristicDto), token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var message = $"--> Couldn't edit characteristic: {ex.Message} / {ex.InnerException.Message}";
                 Console.WriteLine(message);
@@ -97,7 +118,7 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
         {
             try
             {
-                var characteristicToDelete = await _service.GetByIdAsync(id, token);
+                var characteristicToDelete = await _mediator.Send(new GetCharacteristicQuery(id), token);
 
                 return Ok(characteristicToDelete);
             }
@@ -113,12 +134,13 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
         [HttpPost("Delete")]
         public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token)
         {
-            if (!_service.GetAllAsync(token).Result.Any())
+            var characteristics = await _mediator.Send(new GetAllCharacteristicsQuery(), token);
+            if (!characteristics.Any())
             {
                 return Problem("--> Db 'Characteristics' was null.");
             }
 
-            var result = await _service.DeleteAsync(id, token);
+            var result = await _mediator.Send(new DeleteCharacteristicCommand(id), token);
 
             if (result == false)
             {

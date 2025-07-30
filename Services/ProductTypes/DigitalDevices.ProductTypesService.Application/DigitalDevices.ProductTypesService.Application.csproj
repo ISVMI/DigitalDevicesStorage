@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
     <ProjectReference Include="..\DigitalDevices.ProductTypesService.Core\DigitalDevices.ProductTypesService.Core.csproj" />
   </ItemGroup>
 

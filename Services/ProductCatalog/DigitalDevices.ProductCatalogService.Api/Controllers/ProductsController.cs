@@ -1,256 +1,194 @@
-﻿using DigitalDevices.ProductCatalogService.Api.Dtos;
-using DigitalDevices.ProductCatalogService.Infrastructure.Data;
-using DigitalDevices.ProductCatalogService.Core.Models;
+﻿using AutoMapper;
+using DigitalDevices.ProductCatalogService.Application.Commands;
+using DigitalDevices.ProductCatalogService.Application.Dtos;
+using DigitalDevices.ProductCatalogService.Application.Interfaces;
+using DigitalDevices.ProductCatalogService.Application.Queries;
+using MassTransit;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using static DigitalDevices.ProductCatalogService.Api.Dtos.ProductsByTypeViewModel;
+using Shared.Dtos;
+using Shared.Messages;
 
 namespace DigitalDevices.ProductCatalogService.Api.Controllers
 {
     public class ProductsController : ControllerBase
     {
-        private readonly ProductCatalogContext _context;
-        public ProductsController(ProductCatalogContext context)
+        private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
+        private readonly ILogger _logger;
+        private readonly IManufacturersClient _manufacturersClient;
+        private readonly IProductTypesClient _productTypesClient;
+        private readonly ICharacteristicsClient _characteristicsClient;
+
+        public ProductsController(IMediator mediator, IMapper mapper, ILogger<ProductsController> logger, IManufacturersClient manufacturersClient,
+            IProductTypesClient productTypesClient, ICharacteristicsClient characteristicsClient)
         {
-            _context = context;
+            _mediator = mediator;
+            _mapper = mapper;
+            _logger = logger;
+            _manufacturersClient = manufacturersClient;
+            _productTypesClient = productTypesClient;
+            _characteristicsClient = characteristicsClient;
         }
 
-        // GET: Products
-        [HttpGet("Index")]
-        public async Task<IActionResult> Index()
+        // GET: api/Products/Manufacturers
+        [HttpGet("Manufacturers")]
+        public async Task<IActionResult> Manufacturers(CancellationToken token = default)
         {
-            return Ok(await _context.Products.ToListAsync());
+            var manufacturers = await _manufacturersClient.GetAllAsync(token);
+
+            return Ok(manufacturers);
         }
 
-        // GET: Products/Details/5
-        [HttpGet]
-        public async Task<IActionResult> Details(int? id,
-            string productType,
-            string currentFilter,
-        string searchString,
-        string sortField,
-        string sortOrder,
-        int? pageNumber,
-        string filters)
+        // GET: api/Products/Characteristics/id
+        [HttpGet("Characteristics")]
+        public async Task<IActionResult> Characteristics(Guid id, CancellationToken token = default)
         {
-            if (id == null || _context.Products == null)
-            {
-                return NotFound();
-            }
-            var product = await _context.Products
-        .FirstOrDefaultAsync(p => p.Id == id);
+            var characteristics = await _characteristicsClient.GetCharacteristicsByProductTypeId(id, token);
 
-            if (product == null)
-            {
-                return NotFound();
-            }
-            var model = new ProductsByTypeViewModel
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Price = product.Price,
-                Model = product.Model,
-                Color = product.Color,
-                Warranty = product.Warranty,
-                Characteristics = product.CharacteristicsProduct
-                    .Select(cp => new CharacteristicByType
-                    {
-                        CharacteristicType = cp.Key,
-                        Value = cp.Value,
-                    })
-                    .ToList()
-            };
-
-            return Ok(model);
+            return Ok(characteristics);
         }
 
-        // GET: Products/Create
+        // GET: api/Products/ProductTypes
+        [HttpGet("ProductTypes")]
+        public async Task<IActionResult> ProductTypes(CancellationToken token = default)
+        {
+            var productTypes = await _productTypesClient.GetAllAsync(token);
+
+            return Ok(productTypes);
+        }
+
+        // GET: api/Products/All
+        [HttpGet("All")]
+        public async Task<IActionResult> GetAllProducts(CancellationToken token = default)
+        {
+            var products = await _mediator.Send(new GetAllProductsQuery(), token);
+
+            return Ok(products);
+        }
+
+        // GET: api/Products/Paged
+        [HttpGet("Paged")]
+        public async Task<IActionResult> GetProductsPaged(CancellationToken token = default)
+        {
+            var productsPaged = await _mediator.Send(new GetAllProductsPagedQuery(), token);
+
+            return Ok(productsPaged.Items);
+        }
+
+        // GET: api/Products/Create
         [HttpGet("Create")]
-        public IActionResult Create()
+        public ActionResult Create()
         {
             return Ok();
         }
 
-        // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: api/Products/Create
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(CreateProductViewModel productModel)
+        public async Task<IActionResult> Create([FromBody] CreateProductCommand command, IBus bus,
+            CancellationToken token = default)
         {
-            var product = new Product()
+            try
             {
-                Price = productModel.Price,
-                Name = productModel.Name,
-                Model = productModel.Model,
-                Color = productModel.Color,
-                Warranty = productModel.Warranty,
-                ManufacturerId = productModel.ManufacturerId,
-                ProductTypesId = productModel.ProductTypesId
-            };
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+                var productId = await _mediator.Send(command, token);
 
-            return RedirectToAction(nameof(Index));
+                var characteristics = _mapper.Map<List<CharacteristicMessageDto>>(command.Product.Characteristics);
+
+                var newProductTypeCreatedMessage = new ProductCreated(productId, characteristics);
+                await bus.Publish(newProductTypeCreatedMessage, token);
+
+                return CreatedAtAction(nameof(GetProductsPaged), productId);
+            }
+            catch (Exception ex)
+            {
+                var message = $"--> Couldn't add a new product: {ex.Message}";
+                _logger.LogError(message);
+                return BadRequest(new { command, message });
+            }
         }
 
-        // GET: Products/Edit/5 
+        // GET: api/Products/Edit/5
         [HttpGet("Edit")]
-        public async Task<IActionResult> Edit(int? id,
-            string productType,
-            string currentFilter,
-            string searchString,
-            string sortField,
-            string sortOrder,
-            int? pageNumber,
-            string filters)
+        public async Task<IActionResult> Edit(Guid id, CancellationToken token = default)
         {
-            if (id == null) return NotFound();
-
-            var product = await _context.Products
-        .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null) return NotFound();
-
-            var model = new EditProductViewModel
+            try
             {
-                Id = product.Id,
-                Name = product.Name,
-                Price = product.Price,
-                Model = product.Model,
-                Color = product.Color,
-                Warranty = product.Warranty,
-                ManufacturerId = product.ManufacturerId,
-                ProductTypeId = product.ProductTypesId
-            };
+                var product = await _mediator.Send(new GetProductQuery(id), token);
 
-            return Ok(model);
+                return Ok(new { id, product });
+            }
+            catch (Exception ex)
+            {
+                var message = $"Couldn't find product: {ex.Message}";
+                _logger.LogError(message);
+                return NotFound();
+            }
         }
 
+        // POST: api/Products/Edit/5
         [HttpPost("Edit")]
-        public async Task<IActionResult> Edit(
-        [FromForm] int Id,
-        [FromForm] string Name,
-        [FromForm] decimal Price,
-        [FromForm] string Model,
-        [FromForm] string Color,
-        [FromForm] int Warranty,
-        [FromForm] int ManufacturerId,
-        [FromForm] int ProductTypeId)
-
+        public async Task<IActionResult> Edit(Guid id, EditProductDto editProductDto,
+            CancellationToken token = default)
         {
-            var model = new EditProductViewModel
-            {
-                Id = Id,
-                Name = Name,
-                Price = Price,
-                Model = Model,
-                Color = Color,
-                Warranty = Warranty,
-                ManufacturerId = ManufacturerId,
-                ProductTypeId = ProductTypeId
-            };
-            var product = await _context.Products
-        .FirstOrDefaultAsync(p => p.Id == Id);
-
-            if (product == null) 
+            if (id != editProductDto.Id)
             {
                 return NotFound();
             }
 
-            product.Id = model.Id;
-            product.Name = model.Name;
-            product.Price = model.Price;
-            product.Model = model.Model;
-            product.Color = model.Color;
-            product.Warranty = model.Warranty;
-            product.ManufacturerId = model.ManufacturerId;
-            product.ProductTypesId = model.ProductTypeId;
+            try
+            {
+                await _mediator.Send(new EditProductCommand(editProductDto), token);
+            }
+            catch (Exception ex)
+            {
+                var message = $"--> Couldn't edit product: {ex.Message} / {ex.InnerException.Message}";
+                _logger.LogError(message);
+                return NotFound(new { id, message });
+            }
 
-            await _context.SaveChangesAsync();
+            return Ok(editProductDto);
+        }
+
+
+        // GET: api/Products/Delete/5
+        [HttpGet("Delete")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken token = default)
+        {
+            try
+            {
+                var productToDelete = await _mediator.Send(new GetProductQuery(id), token);
+
+                return Ok(productToDelete);
+            }
+            catch (Exception ex)
+            {
+                var message = $"--> Couldn't find product: {ex.Message}";
+                _logger.LogError(message);
+                return NotFound(new { id, message });
+            }
+        }
+
+        // POST: api/Products/Delete/5
+        [HttpPost("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token = default)
+        {
+
+            var products = await _mediator.Send(new GetAllProductsQuery(), token);
+
+            if (!products.Any())
+            {
+                return Problem("--> Db 'Products' was null.");
+            }
+
+            var result = await _mediator.Send(new DeleteProductCommand(id), token);
+
+            if (result == false)
+            {
+                var message = $"--> Couldn't delete product with id: {id}";
+                return NotFound(new { message });
+            }
 
             return RedirectToAction(nameof(Index));
-
-        }
-
-        // GET: Products/Delete/5
-        [HttpGet("Delete")]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Products == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(product);
-        }
-
-        // POST: Products/Delete/5
-        [HttpPost("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id,
-            string productType,
-                        string currentFilter,
-        string searchString,
-        string sortField,
-        string sortOrder,
-        int? pageNumber,
-        string filters,
-        int quantity)
-        {
-            if (_context.Products == null)
-            {
-                return Problem("Entity set 'DigitalDevicesContext.Products'  is null.");
-            }
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new
-            {
-                productType,
-                currentFilter,
-                searchString,
-                sortField,
-                sortOrder,
-                pageNumber,
-                filters,
-                quantity
-            });
-        }
-
-        [HttpGet("ClearData")]
-        public async Task<IActionResult> ClearData(string productType,
-                        string currentFilter,
-        string searchString,
-        string sortField,
-        string sortOrder,
-        int? pageNumber,
-        string filters)
-        {
-            if (await _context.Products.AnyAsync())
-            {
-                await _context.Products.ExecuteDeleteAsync();
-            }
-            return RedirectToAction(nameof(Index), new
-            {
-                productType,
-                currentFilter,
-                searchString,
-                sortField,
-                sortOrder,
-                pageNumber,
-                filters
-            });
         }
     }
 }

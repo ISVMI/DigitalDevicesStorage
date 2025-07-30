@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
     <ProjectReference Include="..\DigitalDevices.ManufacturersService.Core\DigitalDevices.ManufacturersService.Core.csproj" />
   </ItemGroup>
 

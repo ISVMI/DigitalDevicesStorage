@@ -1,31 +1,24 @@
-﻿using DigitalDevices.ProductTypesService.Application.Commands;
-using DigitalDevices.ProductTypesService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.ProductTypesService.Application.Commands;
+using DigitalDevices.ProductTypesService.Core.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Handlers
 {
     public class DeleteProductTypeHandler : IRequestHandler<DeleteProductTypeCommand, bool>
     {
-        private readonly IProductTypesService _service;
+        private readonly IMapper _mapper;
+        private readonly IProductTypesRepo _repo;
 
-        public DeleteProductTypeHandler(IProductTypesService service)
+        public DeleteProductTypeHandler(IProductTypesRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<bool> Handle(DeleteProductTypeCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                await _service.DeleteAsync(request.Id, cancellationToken);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                var message = $"Couldn't delete manufacturer: {ex.Message}";
-                Console.WriteLine(message);
-                return false;
-            }
+            return await _repo.DeleteAsync(request.Id, cancellationToken);
         }
     }
 }

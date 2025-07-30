@@ -1,6 +1,7 @@
-﻿using DigitalDevices.ProductTypesService.Application.Dtos;
-using DigitalDevices.ProductTypesService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.ProductTypesService.Application.Dtos;
 using DigitalDevices.ProductTypesService.Application.Queries;
+using DigitalDevices.ProductTypesService.Core.Interfaces;
 using MediatR;
 
 namespace DigitalDevices.ProductTypesService.Application.Handlers
@@ -8,26 +9,19 @@ namespace DigitalDevices.ProductTypesService.Application.Handlers
     public class GetProductTypeHandler : IRequestHandler<GetProductTypeQuery, ProductTypeDto>
 
     {
-    private readonly IProductTypesService _service;
+    private readonly IProductTypesRepo _repo;
+    private readonly IMapper _mapper;
 
-    public GetProductTypeHandler(IProductTypesService service)
+    public GetProductTypeHandler(IProductTypesRepo repo, IMapper mapper)
     {
-        _service = service;
+        _repo = repo;
+        _mapper = mapper;
     }
 
     public async Task<ProductTypeDto> Handle(GetProductTypeQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await _service.GetByIdAsync(request.Id, cancellationToken);
-            return result;
+        var productTypeToFind = await _repo.GetByIdAsync(request.Id, cancellationToken);
+        return _mapper.Map<ProductTypeDto>(productTypeToFind);
         }
-        catch (Exception ex)
-        {
-            var message = $"Couldn't get manufacturer: {ex.Message}";
-            Console.WriteLine(message);
-            return null;
-        }
-    }
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace DigitalDevices.CharacteristicsService.Core.Interfaces
+﻿using DigitalDevices.CharacteristicsService.Core.Models;
+
+namespace DigitalDevices.CharacteristicsService.Core.Interfaces
 {
     public interface ICharacteristicsTypeProductTypesRepo
     {
-        Task AddNewRelation(Guid characteristicsTypeId, Guid productTypesId);
+        Task<IEnumerable<CharacteristicsType>> GetByProductTypeId(Guid productTypeId, CancellationToken token = default);
     }
 }

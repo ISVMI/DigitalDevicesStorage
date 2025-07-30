@@ -1,25 +1,29 @@
-﻿using DigitalDevices.CharacteristicsService.Application.Commands;
-using DigitalDevices.CharacteristicsService.Application.Dtos;
-using DigitalDevices.CharacteristicsService.Application.Interfaces;
+﻿using AutoMapper;
+using DigitalDevices.CharacteristicsService.Application.Commands;
+using DigitalDevices.CharacteristicsService.Core.Interfaces;
+using DigitalDevices.CharacteristicsService.Core.Models;
 using MediatR;
 
 namespace DigitalDevices.CharacteristicsService.Application.Handlers
 {
     public class CreateCharacteristicTypeHandler : IRequestHandler<CreateCharacteristicTypeCommand, Guid>
     {
-        private readonly ICharacteristicsTypeService _service;
+        private readonly ICharacteristicsTypeRepo _repo;
+        private readonly IMapper _mapper;
 
-        public CreateCharacteristicTypeHandler(ICharacteristicsTypeService service)
+        public CreateCharacteristicTypeHandler(ICharacteristicsTypeRepo repo, IMapper mapper)
         {
-            _service = service;
+            _repo = repo;
+            _mapper = mapper;
         }
 
         public async Task<Guid> Handle(CreateCharacteristicTypeCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _service.CreateAsync(request.CharacteristicsType, cancellationToken);
-                return result;
+                var characteristicType = _mapper.Map<CharacteristicsType>(request.CharacteristicsType);
+                await _repo.CreateAsync(characteristicType, cancellationToken);
+                return characteristicType.Id;
             }
             catch (Exception ex)
             {

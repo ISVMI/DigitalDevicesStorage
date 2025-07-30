@@ -2,6 +2,7 @@
 using DigitalDevices.CharacteristicsService.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using DigitalDevices.CharacteristicsService.Infrastructure.Data;
+using Shared.Exceptions;
 
 namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
 {
@@ -76,7 +77,7 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
 
             if (characteristicToFind == null)
             {
-                throw new Exception($"Characteristic with id: {id} not found");
+                throw new NotFoundException($"Characteristic with id: {id} not found");
             }
 
             return characteristicToFind;
@@ -87,6 +88,20 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
             var characteristics = await _context.Characteristics.ToListAsync(token);
 
             return characteristics;
+        }
+
+        public async Task<(IEnumerable<Characteristics>, int)> GetPagedAsync(int page, int pageSize, CancellationToken token)
+        {
+            var query = _context.Characteristics.AsNoTracking();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(token);
+
+            var totalCount = await query.CountAsync(token);
+
+            return (items, totalCount);
         }
     }
 }

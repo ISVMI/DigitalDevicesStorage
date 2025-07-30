@@ -1,6 +1,8 @@
 ﻿using DigitalDevices.CharacteristicsService.Core.Interfaces;
 using DigitalDevices.CharacteristicsService.Core.Models;
 using DigitalDevices.CharacteristicsService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Shared.Exceptions;
 
 namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
 {
@@ -13,22 +15,27 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task AddNewRelation(Guid productTypesId, Guid characteristicsTypeId)
+        public async Task<IEnumerable<CharacteristicsType>> GetByProductTypeId(Guid productTypeId, CancellationToken token)
         {
-
-            if (characteristicsTypeId == Guid.Empty || productTypesId == Guid.Empty)
+            if (productTypeId == Guid.Empty)
             {
-                throw new Exception($"One of the given ids: product type id - {productTypesId}, characteristic type id - {characteristicsTypeId} was not set");
+                throw new ArgumentException($"Product type id - {productTypeId} was not set");
             }
 
-            var newRelation = new CharacteristicsTypeProductTypes
-            {
-                CharacteristicsTypeId = characteristicsTypeId,
-                ProductTypesId = productTypesId
-            };
+            var characteristics = await _context.CharacteristicsTypeProductTypes
+                .Where(ctpt => ctpt.ProductTypesId == productTypeId)
+                .Join(_context.CharacteristicsType,
+                    ctpt => ctpt.CharacteristicsTypeId,
+                    ct => ct.Id,
+                    (ctpt, ct) => ct)
+                .ToListAsync(token);
 
-            await _context.CharacteristicsTypeProductTypes.AddAsync(newRelation);
-            await _context.SaveChangesAsync();
+            if (!characteristics.Any())
+            {
+                throw new NotFoundException($"No characteristics found for ProductTypeId: {productTypeId}");
+            }
+
+            return characteristics;
         }
     }
 }

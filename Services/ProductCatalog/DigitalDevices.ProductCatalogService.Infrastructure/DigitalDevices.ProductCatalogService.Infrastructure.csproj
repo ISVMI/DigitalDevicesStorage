@@ -22,6 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
+    <ProjectReference Include="..\DigitalDevices.ProductCatalogService.Application\DigitalDevices.ProductCatalogService.Application.csproj" />
     <ProjectReference Include="..\DigitalDevices.ProductCatalogService.Core\DigitalDevices.ProductCatalogService.Core.csproj" />
   </ItemGroup>
 

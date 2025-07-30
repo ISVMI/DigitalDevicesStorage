@@ -10,9 +10,12 @@ namespace DigitalDevices.CharacteristicsService.Infrastructure.Data
         public DbSet<Characteristics> Characteristics { get; set; }
         public DbSet<CharacteristicsType> CharacteristicsType { get; set; }
         public DbSet<CharacteristicsTypeProductTypes> CharacteristicsTypeProductTypes { get; set; }
+        public DbSet<CharacteristicProduct> CharacteristicsProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<CharacteristicProduct>()
+                .HasKey(cp => new { cp.ProductId, cp.CharacteristicsId });
 
             modelBuilder.Entity<CharacteristicsTypeProductTypes>()
                 .HasKey(ptct => new { ptct.ProductTypesId, ptct.CharacteristicsTypeId });

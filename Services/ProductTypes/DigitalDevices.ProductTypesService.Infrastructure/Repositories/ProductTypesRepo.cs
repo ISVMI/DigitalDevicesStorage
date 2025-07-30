@@ -2,6 +2,7 @@
 using DigitalDevices.ProductTypesService.Core.Models;
 using DigitalDevices.ProductTypesService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Shared.Exceptions;
 
 namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
 {
@@ -27,7 +28,7 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
 
             if (existingProductType != null)
             {
-                throw new Exception("Such product type already exists!");
+                throw new AlreadyExistsException("Such product type already exists!");
             }
 
             await _context.ProductTypes.AddAsync(productType,token);
@@ -49,7 +50,7 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Couldn't delete characteristic with the given id {id} : {ex.Message}");
+                Console.WriteLine($"Couldn't delete product type with the given id {id} : {ex.Message}");
                 return false;
             }
         }
@@ -77,7 +78,7 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
 
             if (productTypeToFind == null)
             {
-                throw new Exception($"Product type with id: {id} not found");
+                throw new NotFoundException($"Product type with id: {id} not found");
             }
 
             return productTypeToFind;
@@ -88,6 +89,20 @@ namespace DigitalDevices.ProductTypesService.Infrastructure.Repositories
             var productTypes = await _context.ProductTypes.ToListAsync(token);
 
             return productTypes;
+        }
+
+        public async Task<(IEnumerable<ProductTypes>, int)> GetPagedAsync(int page, int pageSize, CancellationToken token)
+        {
+            var query = _context.ProductTypes.AsNoTracking();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(token);
+
+            var totalCount = await query.CountAsync(token);
+
+            return (items, totalCount);
         }
     }
 }

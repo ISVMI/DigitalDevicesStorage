@@ -6,4 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
+    <ProjectReference Include="..\DigitalDevices.ProductCatalogService.Core\DigitalDevices.ProductCatalogService.Core.csproj" />
+  </ItemGroup>
+
 </Project>
