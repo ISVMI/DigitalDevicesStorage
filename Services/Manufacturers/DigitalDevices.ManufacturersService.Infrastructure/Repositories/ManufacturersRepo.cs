@@ -25,7 +25,7 @@ namespace DigitalDevices.ManufacturersService.Infrastructure.Repositories
             if (await _context.Manufacturers
                     .AnyAsync(m => m.Name == manufacturer.Name, token))
             {
-                throw new InvalidOperationException("Manufacturer already exists!");
+                throw new AlreadyExistsException("Manufacturer already exists!");
             }
 
             _context.Manufacturers.Add(manufacturer);
