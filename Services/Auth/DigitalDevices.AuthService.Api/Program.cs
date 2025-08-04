@@ -1,19 +1,17 @@
 using DigitalDevices.AuthService.Api.Extensions;
 using DigitalDevices.AuthService.Infrastructure.Authentication;
-using DigitalDevices.AuthService.Infrastructure.Data;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.EntityFrameworkCore;
 using DigitalDevices.AuthService.Infrastructure.Extensions;
+using DigitalDevices.AuthService.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
 builder.Services.AddAuthServices(builder.Configuration);
-builder.Services.AddDbContext<AuthContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddImplementations();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -41,5 +39,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+await app.Services.AddDatabaseInitialization();
 
 app.Run();

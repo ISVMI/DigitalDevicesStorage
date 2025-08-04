@@ -39,6 +39,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Authentication
                 SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
+                issuer: "AuthService",
                 claims: claims,
                 signingCredentials: signingCredentials,
                 expires: DateTime.UtcNow.AddHours(_options.ExpirationHours));

@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Shared\Shared.csproj" />
+    <ProjectReference Include="..\DigitalDevices.AuthService.Application\DigitalDevices.AuthService.Application.csproj" />
     <ProjectReference Include="..\DigitalDevices.AuthService.Infrastructure\DigitalDevices.AuthService.Infrastructure.csproj" />
   </ItemGroup>
 

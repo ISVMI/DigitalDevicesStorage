@@ -1,10 +1,11 @@
 ﻿using System.Data;
 using DigitalDevices.AuthService.Core.Interfaces;
 using DigitalDevices.AuthService.Core.Models;
+using DigitalDevices.AuthService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Shared.Exceptions;
 
-namespace DigitalDevices.AuthService.Infrastructure.Data
+namespace DigitalDevices.AuthService.Infrastructure.Repositories
 {
     public class AuthRepo : IAuthRepo
     {

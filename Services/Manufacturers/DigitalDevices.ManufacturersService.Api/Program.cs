@@ -1,6 +1,9 @@
 using DigitalDevices.ManufacturersService.Application.Extensions;
 using DigitalDevices.ManufacturersService.Application.Mapping;
 using DigitalDevices.ManufacturersService.Infrastructure.Extensions;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +25,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
-
-Console.WriteLine($"Connection string: {builder.Configuration.GetConnectionString("DefaultConnection")}");
 
 await app.Services.AddDatabaseInitialization();
 

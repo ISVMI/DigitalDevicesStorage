@@ -5,11 +5,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Data
 {
     public class AuthContext : DbContext
     {
-        public AuthContext(DbContextOptions<AuthContext> options)
-            : base(options)
-        {
-            Database.Migrate();
-        }
+        public AuthContext(DbContextOptions<AuthContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace AuthService.Migrations
+namespace DigitalDevices.AuthService.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

@@ -1,11 +1,12 @@
 ﻿using DigitalDevices.AuthService.Core.Models;
+using DigitalDevices.AuthService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace DigitalDevices.AuthService.Infrastructure.Data
+namespace DigitalDevices.AuthService.Infrastructure.DataSeeding
 {
     public static class DbInitializer
     {
-        public static async Task SeedData(AuthContext context)
+        public static async Task InitializeAsync(AuthContext context)
         {
             if (context == null)
             {

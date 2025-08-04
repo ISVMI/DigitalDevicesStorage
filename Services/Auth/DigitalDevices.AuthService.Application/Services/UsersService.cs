@@ -2,7 +2,7 @@
 using DigitalDevices.AuthService.Core.Interfaces;
 using DigitalDevices.AuthService.Core.Models;
 
-namespace DigitalDevices.AuthService.Infrastructure.Authentication
+namespace DigitalDevices.AuthService.Application.Services
 {
     public class UsersService : IUsersService
     {
