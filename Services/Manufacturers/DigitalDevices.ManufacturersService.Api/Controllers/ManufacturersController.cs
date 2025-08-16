@@ -19,7 +19,7 @@ namespace DigitalDevices.ManufacturersService.Api.Controllers
 
         // GET: api/Manufacturers/All
         [HttpGet("All")]
-        public async Task<IActionResult> GetAllProducts(CancellationToken token)
+        public async Task<IActionResult> GetAllManufacturers(CancellationToken token)
         {
             var manufacturers = await _mediator.Send(new GetAllManufacturersPagedQuery(), token);
 
@@ -28,7 +28,7 @@ namespace DigitalDevices.ManufacturersService.Api.Controllers
 
         // GET: api/Manufacturers/Paged
         [HttpGet("Paged")]
-        public async Task<IActionResult> GetProductsPaged(CancellationToken token)
+        public async Task<IActionResult> GetManufacturersPaged(CancellationToken token)
         {
             var manufacturers = await _mediator.Send(new GetAllManufacturersPagedQuery(), token);
 

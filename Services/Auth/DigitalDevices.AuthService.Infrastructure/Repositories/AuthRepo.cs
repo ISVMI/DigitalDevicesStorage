@@ -23,6 +23,7 @@ namespace DigitalDevices.AuthService.Infrastructure.Repositories
                 UserAddingLogic(user, code);
 
                 await _context.Users.AddAsync(user, token);
+                await _context.SaveChangesAsync(token);
             }
             catch (Exception ex)
             {
@@ -42,23 +43,6 @@ namespace DigitalDevices.AuthService.Infrastructure.Repositories
                 .FirstOrDefaultAsync(x => x.Username == username);
 
             return user;
-        }
-
-        public async Task<List<Role>> GetRoles()
-        {
-            if (!_context.Roles.Any())
-            {
-                throw new NullReferenceException($"Roles database was empty!");
-            }
-
-            var roles = await _context.Roles.ToListAsync();
-
-            return roles;
-        }
-
-        public async Task SaveChanges(CancellationToken token = default)
-        {
-            await _context.SaveChangesAsync(token);
         }
 
         private void UserAddingLogic(User user, string? code)

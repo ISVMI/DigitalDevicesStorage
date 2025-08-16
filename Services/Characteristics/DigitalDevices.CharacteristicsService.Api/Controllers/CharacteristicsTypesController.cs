@@ -17,11 +17,20 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
             _mediator = mediator;
         }
 
-        // GET: CharacteristicsTypes
-        [HttpGet("Index")]
-        public async Task<IActionResult> Index(CancellationToken token)
+        // GET: CharacteristicsTypes/All
+        [HttpGet("All")]
+        public async Task<IActionResult> All(CancellationToken token)
         {
-            var characteristicsTypes = await _mediator.Send(new GetAllCharacteristicsTypesPagedQuery(),token);
+            var characteristicsTypes = await _mediator.Send(new GetAllCharacteristicTypesQuery(),token);
+
+            return Ok(characteristicsTypes);
+        }
+
+        // GET: CharacteristicsTypes/Paged
+        [HttpGet("Paged")]
+        public async Task<IActionResult> Paged(CancellationToken token)
+        {
+            var characteristicsTypes = await _mediator.Send(new GetAllCharacteristicsTypesPagedQuery(), token);
 
             return Ok(characteristicsTypes.Items);
         }

@@ -51,7 +51,6 @@ namespace DigitalDevices.AuthService.Application.Services
             };
 
             await _repo.AddUser(user, code);
-            await _repo.SaveChanges();
         }
     }
 }

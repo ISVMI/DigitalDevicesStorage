@@ -1,11 +1,17 @@
+using Shared.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+var authority = builder.Configuration.GetSection("AuthAuthority").Value;
+
+builder.Services.AddJwtExtensions(authority, builder.Configuration);
 
 var app = builder.Build();
 
@@ -21,5 +27,15 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapReverseProxy(proxyPipeline =>
+{
+    proxyPipeline.Use(async (context, next) =>
+    {
+        Console.WriteLine($"--> Received request: {context.Request.Path}");
+        await next();
+        Console.WriteLine($"--> Response status: {context.Response.StatusCode}");
+    });
+});
 
 app.Run();

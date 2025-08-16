@@ -6,24 +6,15 @@ using Shared.Dtos;
 namespace DigitalDevices.AuthService.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthRepo _repo;
         private readonly IUsersService _usersService;
 
         public AuthController(
-            IAuthRepo repo,
             IUsersService usersService)
         {
-            _repo = repo;
             _usersService = usersService;
-        }
-
-        [HttpGet("Index")]
-        public async Task<ActionResult> Index()
-        {
-            return Ok(await _repo.GetRoles());
         }
 
         [HttpPost("Register")]

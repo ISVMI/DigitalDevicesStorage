@@ -11,47 +11,10 @@ spec:
     - host: digitaldevices.com
       http:
         paths:
-          - path: /api/auth(/|$)(.*)
+          - path: /api/(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: auth-clusterip-srv
+                name: apigateway-clusterip-srv
                 port:
                   number: 80
-          - path: /api/manufacturers(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: manufacturers-clusterip-srv
-                port:
-                  number: 80
-          - path: /api/characteristics(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: characteristics-clusterip-srv
-                port:
-                  number: 80
-          - path: /api/productcatalog(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: productcatalog-clusterip-srv
-                port:
-                  number: 80
-          - path: /api/producttype(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: producttype-clusterip-srv
-                port:
-                  number: 80
-          - path: /api/specification(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: specification-clusterip-srv
-                port:
-                  number: 80
-
-              

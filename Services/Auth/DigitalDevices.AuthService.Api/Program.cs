@@ -1,14 +1,14 @@
-using DigitalDevices.AuthService.Api.Extensions;
 using DigitalDevices.AuthService.Infrastructure.Authentication;
 using Microsoft.AspNetCore.CookiePolicy;
 using DigitalDevices.AuthService.Infrastructure.Extensions;
 using DigitalDevices.AuthService.Application.Extensions;
+using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
-builder.Services.AddAuthServices(builder.Configuration);
+builder.Services.AddJwtExtensions(builder.Configuration);
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();

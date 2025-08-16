@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using DigitalDevices.CharacteristicsService.Application.Commands;
+﻿using DigitalDevices.CharacteristicsService.Application.Commands;
 using DigitalDevices.CharacteristicsService.Application.Dtos;
 using DigitalDevices.CharacteristicsService.Application.Queries;
 using MediatR;
@@ -18,9 +17,18 @@ namespace DigitalDevices.CharacteristicsService.Api.Controllers
             _mediator = mediator;
         }
 
-        // GET: Characteristics
-        [HttpGet("Index")]
-        public async Task<IActionResult> Index(CancellationToken token)
+        // GET: Characteristics/All
+        [HttpGet("All")]
+        public async Task<IActionResult> All(CancellationToken token)
+        {
+            var characteristics = await _mediator.Send(new GetAllCharacteristicsQuery(), token);
+
+            return Ok(characteristics);
+        }
+
+        // GET: Characteristics/Paged
+        [HttpGet("Paged")]
+        public async Task<IActionResult> Paged(CancellationToken token)
         {
             var characteristics = await _mediator.Send(new GetAllCharacteristicsPagedQuery(), token);
 
