@@ -1,4 +1,5 @@
 using Shared.Extensions;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,21 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Use(async (context, next) =>
+{
+    if (context.User?.Identity?.IsAuthenticated == true)
+    {
+        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var roles = string.Join(",", context.User.FindAll(ClaimTypes.Role).Select(c => c.Value));
+        var permissionLevel = context.User.FindFirst("PermissionLevel")?.Value;
+
+        if (!string.IsNullOrEmpty(userId)) context.Request.Headers["X-User-Id"] = userId;
+        if (!string.IsNullOrEmpty(roles)) context.Request.Headers["X-User-Roles"] = roles;
+        if (!string.IsNullOrEmpty(permissionLevel)) context.Request.Headers["X-Permission-Level"] = permissionLevel;
+    }
+    await next();
+});
 
 app.MapReverseProxy(proxyPipeline =>
 {

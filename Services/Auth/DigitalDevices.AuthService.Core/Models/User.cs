@@ -6,14 +6,14 @@ namespace DigitalDevices.AuthService.Core.Models
     {
         [Key]
         [Required]
-        public long Id { get; set; }
+        public Guid Id { get; set; }
         [Required, MaxLength(256)]
         [Display(Name = "Логин")]
         public string Username { get; set; }
         [Required, DataType(DataType.Password)]
         [Display(Name = "Пароль")]
         public string PasswordHash { get; set; }
-        public long RoleId { get; set; }
+        public Guid RoleId { get; set; }
         public virtual Role Role { get; set; }
     }
 }
