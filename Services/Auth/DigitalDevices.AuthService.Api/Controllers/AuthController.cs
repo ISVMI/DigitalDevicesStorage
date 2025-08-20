@@ -50,19 +50,13 @@ namespace DigitalDevices.AuthService.Api.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpGet("Me")]
         public async Task<IActionResult> Me()
         {
-            return Ok(new { user = HttpContext.Request.Headers["X-User"],
+            return Ok(new { userId = HttpContext.Request.Headers["X-User-Id"],
                 role = HttpContext.Request.Headers["X-User-Roles"],
                 permissionLevel = HttpContext.Request.Headers["X-Permission-Level"]});
-        }
-
-        [Authorize("ManagerPolicy")]
-        [HttpGet("Secret")]
-        public ActionResult Secret()
-        {
-            return Ok();
         }
     }
 }

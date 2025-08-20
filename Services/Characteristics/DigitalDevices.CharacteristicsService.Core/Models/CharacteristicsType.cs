@@ -5,7 +5,7 @@ namespace DigitalDevices.CharacteristicsService.Core.Models
     public class CharacteristicsType
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         [Display(Name = "Наименование")]
         public string Name { get; set; }
         [Display(Name = "Тип данных")]

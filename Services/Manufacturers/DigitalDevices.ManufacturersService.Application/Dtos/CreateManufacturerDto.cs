@@ -4,6 +4,7 @@ namespace DigitalDevices.ManufacturersService.Application.Dtos
 {
     public record CreateManufacturerDto
     {
+        [Display(Name = "Наименование")]
         public string Name { get; init; }
         [Display(Name = "Страна")]
         public string Country { get; init; }

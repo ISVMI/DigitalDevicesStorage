@@ -48,7 +48,13 @@ namespace DigitalDevices.ManufacturersService.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateManufacturerCommand command, CancellationToken token)
         {
             var id = await _mediator.Send(command, token);
-            return CreatedAtAction(nameof(GetManufacturerById), new {id}, command);
+
+            if (id == Guid.Empty) 
+            {
+                return BadRequest(new { errorMessage = $"Manufacturer with name {command.Manufacturer.Name} already exists!", manufacturer = command });
+            }
+            var manufacturer = new { id, command };
+            return CreatedAtAction(nameof(GetManufacturerById), new {id}, manufacturer);
         }
 
         [HttpGet("{id}")]
@@ -118,8 +124,8 @@ namespace DigitalDevices.ManufacturersService.Api.Controllers
         }
 
         // POST: api/Manufacturers/DeleteManufacturer/5
-        [HttpPost("DeleteManufacturer{id}")]
-        public async Task<IActionResult> DeleteManufacturer(Guid id, CancellationToken token)
+        [HttpPost("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken token)
         {
             var manufacturers = await _mediator.Send(new GetAllManufacturersPagedQuery(), token);
             if (!manufacturers.Items.Any())

@@ -5,7 +5,7 @@ namespace DigitalDevices.ManufacturersService.Core.Models
     public class Manufacturer
     {
         [Key]
-        public Guid Id { get;}
+        public Guid Id { get;} = Guid.NewGuid();
         [Display(Name = "Наименование")]
         public string Name { get; set; }
         [Display(Name = "Страна")]
