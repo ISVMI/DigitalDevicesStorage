@@ -6,7 +6,11 @@ metadata:
     nginx.ingress.kubernetes.io/rewritetarget: /$2
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
-  ingressClassName: nginx    
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - digitaldevices.com
+      secretName: digitaldevices-tls
   rules:
     - host: digitaldevices.com
       http:

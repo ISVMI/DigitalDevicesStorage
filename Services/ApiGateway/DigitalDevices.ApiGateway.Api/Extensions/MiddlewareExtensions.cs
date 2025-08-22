@@ -4,7 +4,7 @@ namespace DigitalDevices.ApiGateway.Api.Extensions
 {
     public static class MiddlewareExtensions
     {
-        public static IApplicationBuilder UseGatewayAuthorization(this IApplicationBuilder app)
+        public static void UseGatewayAuthorization(this IApplicationBuilder app)
         {
             app.Use(async (context, next) =>
             {
@@ -12,22 +12,22 @@ namespace DigitalDevices.ApiGateway.Api.Extensions
                 var method = context.Request.Method;
                 int.TryParse(context.User.FindFirst("PermissionLevel")?.Value, out var permissionLevel);
 
-                if (path.StartsWith("api/auth"))
+                if (path.StartsWith("/api/auth"))
                 {
-                    if (path != "api/auth/login" && path != "api/auth/register")
+                    if (path != "/api/auth/login" && path != "/api/auth/register")
                     {
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         return;
                     }
                 }
 
-                if (path.StartsWith("api/products") && method == HttpMethods.Get)
+                if (path.StartsWith("/api/products") && method == HttpMethods.Get)
                 {
                     await next();
                     return;
                 }
 
-                if (path.StartsWith("api/products") &&
+                if (path.StartsWith("/api/products") &&
                     (method == HttpMethods.Post || method == HttpMethods.Put || method == HttpMethods.Delete))
                 {
                     if (!context.User.Identity?.IsAuthenticated ?? true)
@@ -40,11 +40,10 @@ namespace DigitalDevices.ApiGateway.Api.Extensions
                     return;
                 }
 
-                if (path.StartsWith("api/manufacturers") || path.StartsWith("api/producttypes") ||
-                    path.StartsWith("api/characteristics"))
+                if (path.StartsWith("/api/manufacturers") || path.StartsWith("/api/producttypes") ||
+                    path.StartsWith("/api/characteristics"))
                 {
-                    if ((context.User.Identity?.IsAuthenticated ?? false) && path.StartsWith("api/manufacturers") &&
-                        method == HttpMethods.Get)
+                    if ((path.StartsWith("/api/manufacturers/all") || path.StartsWith("/api/manufacturers/paged")) && method == HttpMethods.Get)
                     {
                         await next();
                         return;
@@ -68,10 +67,9 @@ namespace DigitalDevices.ApiGateway.Api.Extensions
 
                 await next();
             });
-            return app;
         }
 
-        public static IApplicationBuilder UseClaimsPropagation(this IApplicationBuilder app)
+        public static void UseClaimsPropagation(this IApplicationBuilder app)
         {
             app.Use(async (context, next) =>
             {
@@ -87,7 +85,6 @@ namespace DigitalDevices.ApiGateway.Api.Extensions
                 }
                 await next();
             });
-            return app;
         }
     }
 }

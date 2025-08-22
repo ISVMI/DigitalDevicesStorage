@@ -38,7 +38,11 @@ namespace DigitalDevices.AuthService.Api.Controllers
             try
             {
                 var token = await _usersService.Login(user.Username, user.Password);
-                HttpContext.Response.Cookies.Append("some-cookies", token);
+                HttpContext.Response.Cookies.Append("some-cookies", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false
+                });
 
             }
             catch (Exception ex)

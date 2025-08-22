@@ -1,5 +1,4 @@
 using Shared.Extensions;
-using System.Security.Claims;
 using DigitalDevices.ApiGateway.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,14 +25,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-
 app.UseGatewayAuthorization();
-
 app.UseClaimsPropagation();
 
+app.MapControllers();
 app.MapReverseProxy(proxyPipeline =>
 {
     proxyPipeline.Use(async (context, next) =>
